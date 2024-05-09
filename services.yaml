@@ -1,8 +1,8 @@
 services:
   app-backend:
-      build: ./backend
-      ports:
-        - 3000:3000
+    build: ./backend
+    ports:
+      - 3000:3000
 
   app-frontend:
     build: ./frontend
