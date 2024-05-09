@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statki</title>
+    <link rel="stylesheet" href="lobby.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body>
+    <header>
+        <span>Statki</span>
+    </header>
+
+    <main>
+        <div class="kontener">
+            <div class="lobby">
+                <div class="hover">
+                    <div><a class="gry" href="#">Lobby1 <button class="join1">JOIN</button>
+                        <span class="material-symbols-outlined">
+                            lock
+                        </span>
+                        </a>
+                    </div>
+                    <!-- reszta lobby-->
+                </div>
+            </div>
+        </div>
+
+        <div class="kontener2">
+            <button type="submit" class="lobby-przycisk" onclick="openModal()"><a href="#">Stwórz lobby</a></button>
+        </div>
+    </main>
+
+    <div id="ModalneID" class="modalne">
+        <input type="text" id="text" class="modalne-input" maxlength="10" placeholder="Wpisz nazwę lobby">
+        <div class="flex">
+            <div>
+                <label for="private-public">Public/Private</label>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="password-input-container" style="display: none;">
+                <input type="password" id="password-input" placeholder="Wpisz hasło do lobby">
+            </div>
+        </div>
+        <div class="modalne-przycisk-wrapper">
+            <button class="modalne-przycisk" onclick="createLobby()">Stwórz</button>
+            <button class="modalne-przycisk" onclick="closeModal()">Anuluj</button>
+        </div>
+    </div>
+
+    <script src="lobby.js" defer></script>
+</body>
+</html>
