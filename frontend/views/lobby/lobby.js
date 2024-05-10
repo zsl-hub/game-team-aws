@@ -30,6 +30,10 @@ function checkOverflow() {
   }
 }
 
+document.getElementById("openmodal").addEventListener("click", () => { openModal(); });
+document.getElementsByClassName("modalne-przycisk")[0].addEventListener("click", () => { createLobby() });
+document.getElementsByClassName("modalne-przycisk")[1].addEventListener("click", () => { closeModla() });
+
 function openModal() {
   var modal = document.getElementById("ModalneID");
   modal.style.display = "block";
@@ -94,3 +98,26 @@ function togglePasswordInput() {
       passwordInputContainer.style.display = "none";
   }
 }
+
+const lobbyButton = document.getElementsByClassName('modalne-przycisk')[0]; 
+const lobbyName = document.getElementById('text'); 
+const isPrivate = document.querySelector('[type=checkbox]');
+const lobbyPass = document.getElementById('password-input');
+
+lobbyButton.addEventListener('click', async e => {
+  try {
+    const res = await fetch("http://localhost:3000/api/lobby", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        lobbyName: lobbyName.value,
+        isPrivate: isPrivate.checked,
+        lobbyPass: lobbyPass.value
+      })
+    });
+  } catch (error) {
+    console.error("Wystąpił błąd:", error);
+  }
+});
