@@ -14,7 +14,7 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
   
-app.post("/api/lobby", (req,res) => {
+app.post("/api/createLobby", (req,res) => {
     console.log(req.body.lobbyName);
     console.log(req.body.isPrivate);
     console.log(req.body.lobbyPass);

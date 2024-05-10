@@ -1,3 +1,6 @@
+// const dotenv = require('dotenv').config();
+import config from "../../config/config.json";
+
 document.addEventListener('DOMContentLoaded', function() {
   checkOverflow();
 
@@ -99,6 +102,8 @@ function togglePasswordInput() {
   }
 }
 
+
+
 const lobbyButton = document.getElementsByClassName('modalne-przycisk')[0]; 
 const lobbyName = document.getElementById('text'); 
 const isPrivate = document.querySelector('[type=checkbox]');
@@ -106,7 +111,7 @@ const lobbyPass = document.getElementById('password-input');
 
 lobbyButton.addEventListener('click', async e => {
   try {
-    const res = await fetch("http://localhost:3000/api/lobby", {
+    const res = await fetch(config.host + "/api/createLobby", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
