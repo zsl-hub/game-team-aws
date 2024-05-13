@@ -19,7 +19,7 @@
         <div class="kontener">
             <div class="lobby">
                 <div class="hover">
-                    <div><a class="gry" href="#">Lobby1 <button class="join1">JOIN</button>
+                    <div><a class="gry" href="#">Lobby1 <button class="join1" onclick="openJoinModal()">JOIN</button>
                         <span class="material-symbols-outlined">
                             lock
                         </span>
@@ -53,6 +53,12 @@
             <button class="modalne-przycisk" onclick="createLobby()">Stwórz</button>
             <button class="modalne-przycisk" onclick="closeModal()">Anuluj</button>
         </div>
+    </div>
+
+    <div id="JoinModal" class="modalne" style="display: none;">
+        <input type="text" id="player-name" class="modalne-input" maxlength="10" placeholder="Podaj nick gracza">
+        <input type="password" id="join-password-input" class="modalne-input" placeholder="Podaj hasło do lobby">
+        <button class="modalne-przycisk" onclick="joinLobby()">JOIN</button>
     </div>
 
     <script src="lobby.js" defer></script>
