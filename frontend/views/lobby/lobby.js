@@ -1,3 +1,5 @@
+import config from "../../config/config.json";
+
 document.addEventListener('DOMContentLoaded', function() {
   checkOverflow();
 
@@ -30,40 +32,44 @@ function checkOverflow() {
   }
 }
 
+document.getElementById("openmodal").addEventListener("click", () => { openModal(); });
+document.getElementsByClassName("modalButton")[0].addEventListener("click", () => { createLobby() });
+document.getElementsByClassName("modalButton")[1].addEventListener("click", () => { closeModla() });
+
 function openModal() {
-  var modal = document.getElementById("ModalneID");
+  var modal = document.getElementById("modalID");
   modal.style.display = "block";
 }
 
 function closeModal() {
-  var modal = document.getElementById("ModalneID");
+  var modal = document.getElementById("modalID");
   modal.style.display = "none";
 }
 
 function createLobby() {
   var lobbyName = document.getElementById("text").value;
   var switchInput = document.querySelector('.switch input');
-  var passwordInput = document.getElementById("password-input");
+  var passwordInput = document.getElementById("passwordInput");
   var switchChecked = switchInput.checked;
 
   if (switchChecked) {
       var password = passwordInput.value;
       if (password.length < 4) {
-          alert("Hasło musi mieć co najmniej 4 znaki!");
+          alert("Password must consist of at least 4 letters!");
           return;
       }
   }
 
   var newLobbyContainer = document.createElement("div");
-  newLobbyContainer.className = "gry";
+  newLobbyContainer.className = "room";
 
   var newLobbyLink = document.createElement("a");
-  newLobbyLink.className = "lobby-link";
+  newLobbyLink.className = "lobbyLink";
   newLobbyLink.href = "#";
   newLobbyLink.textContent = lobbyName;
 
   var joinButton = document.createElement("button");
-  joinButton.className = "join1";
+  joinButton.className = "joinLobbyButton";
   joinButton.textContent = "JOIN";
 
   var iconSpan = document.createElement("span");
@@ -85,7 +91,7 @@ function createLobby() {
 }
 
 function togglePasswordInput() {
-  var passwordInputContainer = document.querySelector('.password-input-container');
+  var passwordInputContainer = document.querySelector('.passwordContainer');
   var switchChecked = this.checked;
 
   if (switchChecked) {
@@ -94,3 +100,26 @@ function togglePasswordInput() {
       passwordInputContainer.style.display = "none";
   }
 }
+
+const lobbyButton = document.getElementsByClassName('modalButton')[0]; 
+const lobbyName = document.getElementById('text'); 
+const isPrivate = document.querySelector('[type=checkbox]');
+const lobbyPass = document.getElementById('passwordInput');
+
+lobbyButton.addEventListener('click', async e => {
+  try {
+    const res = await fetch(config.host + "/api/createLobby", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        lobbyName: lobbyName.value,
+        isPrivate: isPrivate.checked,
+        lobbyPass: lobbyPass.value
+      })
+    });
+  } catch (error) {
+    console.error("Error:", error);
+  }
+});

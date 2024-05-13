@@ -20,6 +20,7 @@
   "homepage": "https://github.com/zsl-hub/game-team-aws#readme",
   "dependencies": {
     "ably": "^2.0.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
