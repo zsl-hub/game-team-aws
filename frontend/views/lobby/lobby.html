@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statki</title>
+    <title>Battleships</title>
     <link rel="stylesheet" href="lobby.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,30 +13,26 @@
 <body>
     <div class="app">
         <header>
-            <span>Statki</span>
-        </header>
-    
+            <span>Battleships</span>
+        </header> 
+
         <main>
-            <div class="kontener">
+            <div class="lobbyContainer"> 
                 <div class="lobby">
-                    <div class="hover">
-                        <div><a class="gry" href="#">Lobby1 <button class="join1">JOIN</button>
-                            <span class="material-symbols-outlined">
-                                lock
-                            </span>
-                            </a>
-                        </div>
+                    <div><a class="room" href="#">LobbyName <button class="joinLobbyButton">JOIN</button>
+                        <span class="material-symbols-outlined">lock</span>
+                        </a>
                     </div>
                 </div>
             </div>
     
-            <div class="kontener2">
-                <button type="submit" class="lobby-przycisk" id="openmodal"><a href="#">Stwórz lobby</a></button>
+            <div class="createLobbyContainer">
+                <button type="submit" class="createLobbyButton" id="openmodal"><a href="#">Create lobby</a></button>
             </div>
         </main>
     
-        <div id="ModalneID" class="modalne">
-            <input type="text" id="text" class="modalne-input" maxlength="10" placeholder="Wpisz nazwę lobby">
+        <div id="modalID" class="modal">
+            <input type="text" id="text" class="modalInput" maxlength="10" placeholder="Enter lobby name">
             <div class="flex">
                 <div>
                     <label for="private-public">Public/Private</label>
@@ -45,16 +41,15 @@
                         <span class="slider round"></span>
                     </label>
                 </div>
-                <div class="password-input-container" style="display: none;">
-                    <input type="password" id="password-input" placeholder="Wpisz hasło do lobby">
+                <div class="passwordContainer" style="display: none;">
+                    <input type="password" id="passwordInput" placeholder="Enter lobby password">
                 </div>
             </div>
-            <div class="modalne-przycisk-wrapper">
-                <button class="modalne-przycisk">Stwórz</button>
-                <button class="modalne-przycisk">Anuluj</button>
+            <div class="modalButtonWrapper">
+                <button class="modalButton">Create</button>
+                <button class="modalButton">Cancel</button>
             </div>
         </div>
-
     </div>
 
     <script type="module" src="lobby.js" defer></script>
