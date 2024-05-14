@@ -1,3 +1,5 @@
+import config from "../../config/config.json";
+
 document.addEventListener('DOMContentLoaded', function() {
   //checkOverflow();
 
@@ -18,8 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-
-
+document.getElementById("openmodal").addEventListener("click", () => { openModal(); });
+document.getElementsByClassName("modalButton")[0].addEventListener("click", () => { createLobby() });
+document.getElementsByClassName("modalButton")[1].addEventListener("click", () => { closeModal() });
 
 function openModal() {
   var modal = document.getElementById("ModalID");
@@ -69,7 +72,7 @@ function createLobby() {
     }
 
 function togglePasswordInput() {
-  var passwordInputContainer = document.querySelector('.password-input-container');
+  var passwordInputContainer = document.querySelector('.passwordContainer');
   var switchChecked = this.checked;
 
   if (switchChecked) {
@@ -85,7 +88,6 @@ function joinLobby() {
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "none";
 }
-
 
 function openJoinModal() {
   var joinModal = document.getElementById("JoinModal");
@@ -103,8 +105,6 @@ function openJoinModal() {
 
   joinModal.style.display = "block";
 }
-
-
 
 let x1=0, y1=0;
 window.client
@@ -167,7 +167,6 @@ function CancelLobby() {
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "none";
 }
-
 
 /*
 function CancelLobby() {

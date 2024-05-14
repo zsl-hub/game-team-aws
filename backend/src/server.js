@@ -1,8 +1,17 @@
 const dotenv = require('dotenv').config();
 const express = require("express");
-const Alby = require("ably");
-const p2 = require("p2");
+const cors = require("cors");
 
 const app = express();
 
-console.log("hello world!");
+//routers
+const lobbyRouter = require("./controllers/lobbyController");
+
+app.listen(3000);
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(express.json());
+app.use(cors());
+
+app.use("/lobby", lobbyRouter);
