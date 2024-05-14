@@ -41,6 +41,11 @@ function openModal() {
   modal.style.display = "block";
 }
 
+function openJoinModal() {
+  var joinModal = document.getElementById("JoinModal");
+  joinModal.style.display = "block";
+}
+
 function closeModal() {
   var modal = document.getElementById("modalID");
   modal.style.display = "none";
@@ -71,6 +76,7 @@ function createLobby() {
   var joinButton = document.createElement("button");
   joinButton.className = "joinLobbyButton";
   joinButton.textContent = "JOIN";
+  joinButton.onclick = openJoinModal;
 
   var iconSpan = document.createElement("span");
   iconSpan.className = "material-symbols-outlined";
@@ -101,6 +107,31 @@ function togglePasswordInput() {
   }
 }
 
+function joinLobby() {
+  var playerName = document.getElementById("player-name").value;
+  var joinPassword = document.getElementById("join-password-input").value;
+
+  var joinModal = document.getElementById("JoinModal");
+  joinModal.style.display = "none";
+}
+
+function openJoinModal() {
+  var joinModal = document.getElementById("JoinModal");
+  var switchInput = document.querySelector('.switch input');
+  var passwordInputContainer = document.querySelector('.password-input-container');
+
+  var iconSpan = document.querySelector('.material-symbols-outlined');
+  var iconType = iconSpan.textContent;
+
+  if (iconType === 'lock') {
+      passwordInputContainer.style.display = "block";
+  } else {
+      passwordInputContainer.style.display = "none";
+  }
+
+  joinModal.style.display = "block";
+}
+
 const lobbyButton = document.getElementsByClassName('modalButton')[0]; 
 const lobbyName = document.getElementById('text'); 
 const isPrivate = document.querySelector('[type=checkbox]');
@@ -115,6 +146,7 @@ lobbyButton.addEventListener('click', async e => {
     };
 
     const res = await fetch(config.host + "/lobby/createLobby", {
+      
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
