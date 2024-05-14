@@ -1,3 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap');
+
+*{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #222;
@@ -11,8 +19,9 @@ body {
   position:relative;
 }
 #h_1 {
-  font-size: xx-large;
+  font-size: 50px;
   color:#fff;
+  margin-bottom: 20px;
 }
 #full {
   display: flex;
@@ -30,11 +39,13 @@ body {
 #content {
   margin-bottom: 10%;
   width:40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #title {
   margin-bottom: 10%;
 }
-/* Button style*/
 button {
   position: relative;
   background: #444;
@@ -50,9 +61,6 @@ button {
 button:hover {
   letter-spacing: 0.2rem;
   padding: 1.1rem 3.1rem;
-  background: var(--clr);
-  color: var(--clr);
-  /* box-shadow: 0 0 35px var(--clr); */
   animation: box 3s infinite;
   cursor: pointer;
 }
@@ -60,7 +68,7 @@ button::before {
   content: "";
   position: absolute;
   inset: 2px;
-  background: #333; /*272822*/
+  background: #333; 
 }
 button span {
   position: relative;
@@ -124,4 +132,42 @@ button:hover i::after {
   100% {
     box-shadow: #27272c;
   }
+}
+
+
+.star {
+  transform-style: preserve-3d;
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  color: red;
+}
+.star:before {
+  position: absolute;
+  content: '\2726';
+  color: inherit;
+  inset: 0;
+  text-shadow: 0 0 .8em #fff5;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #F9F6EF;
+  display: grid;
+  place-content: center;
+  background-image: 
+    radial-gradient(
+    circle at 50% 50%,
+      #2f3040,
+      #1f2020
+    );
+}
+
+header{
+  position: absolute;
+  top: 0%;
+  left: 75%; 
+  padding-left: 40px;
+  padding-top: 25px;
 }

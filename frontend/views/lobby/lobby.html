@@ -19,9 +19,12 @@
         <main>
             <div class="lobbyContainer"> 
                 <div class="lobby">
-                    <div><a class="room" href="#">LobbyName <button class="joinLobbyButton">JOIN</button>
+                    <div>
+                      <a class="room" href="#">
+                        LobbyName 
+                        <button class="joinLobbyButton">JOIN</button>
                         <span class="material-symbols-outlined">lock</span>
-                        </a>
+                      </a>
                     </div>
                 </div>
             </div>
@@ -52,6 +55,12 @@
         </div>
     </div>
 
-    <script type="module" src="lobby.js" defer></script>
+    <div id="JoinModal" class="modalne" style="display: none;">
+        <input type="text" id="player-name" class="modalne-input" maxlength="10" placeholder="Podaj nick gracza">
+        <input type="password" id="join-password-input" class="modalne-input" placeholder="Podaj hasło do lobby">
+        <button class="modalne-przycisk" onclick="joinLobby()">JOIN</button>
+    </div>
+
+    <script src="lobby.js" defer></script>
 </body>
 </html>
