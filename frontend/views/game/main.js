@@ -1,11 +1,8 @@
 import './style.css';
 import Phaser from 'phaser';
 
-
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-
+const screenWidth = window.innerWidth;
+const screenHeight = window.innerHeight;
 
 const sizes = {
     width: screenWidth *0.8,
@@ -18,8 +15,7 @@ class BoardScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('logo','assets/logo.png');
-        
+        this.load.image('logo','assets/logo.png');  
     }
 
     create() {
@@ -70,22 +66,11 @@ class BoardScene extends Phaser.Scene {
         ships.push(this.add.sprite(width * 0.94, height * 0.95, 'logo' ).setDisplaySize(cellSize* 4, cellSize));
         //6
         ships.push(this.add.sprite(width * 1.40, height * 0.89, 'logo' ).setDisplaySize(cellSize* 5, cellSize));
-        
-        
-        
-
     }
-    
 
     update() {
-      
-    
     }
-    
-  
 }
-
-
 
 const config = {
     type: Phaser.WEBGL,
@@ -93,7 +78,6 @@ const config = {
     height: sizes.height,
     canvas: gameCanvas,
     scene: [BoardScene],
-    
 }
 
 const game = new Phaser.Game(config);
