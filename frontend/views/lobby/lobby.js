@@ -34,7 +34,7 @@ function checkOverflow() {
 
 document.getElementById("openmodal").addEventListener("click", () => { openModal(); });
 document.getElementsByClassName("modalButton")[0].addEventListener("click", () => { createLobby() });
-document.getElementsByClassName("modalButton")[1].addEventListener("click", () => { closeModla() });
+document.getElementsByClassName("modalButton")[1].addEventListener("click", () => { closeModal() });
 
 function openModal() {
   var modal = document.getElementById("modalID");
@@ -108,18 +108,21 @@ const lobbyPass = document.getElementById('passwordInput');
 
 lobbyButton.addEventListener('click', async e => {
   try {
-    const res = await fetch(config.host + "/api/createLobby", {
+    let requestBody = {
+      lobbyName: lobbyName.value,
+      isPrivate: isPrivate.checked,
+      lobbyPass: lobbyPass.value
+    };
+
+    const res = await fetch(config.host + "/lobby/createLobby", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        lobbyName: lobbyName.value,
-        isPrivate: isPrivate.checked,
-        lobbyPass: lobbyPass.value
-      })
+      body: JSON.stringify(requestBody)
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("Error:", error);
   }
 });
