@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  checkOverflow();
+  //checkOverflow();
 
   window.addEventListener('resize', function() {
       checkOverflow();
@@ -49,6 +49,7 @@ function createLobby() {
                 return;
             }
         }
+
 
         var lobbyTemplate = document.getElementById("lobbyTemplate");
         var newLobbyContainer = lobbyTemplate.cloneNode(true);
@@ -161,6 +162,12 @@ addEventListener("mousemove", (e) => {
     y1 = clientY;
   }
 });
+
+function CancelLobby() {
+  var joinModal = document.getElementById("JoinModal");
+  joinModal.style.display = "none";
+}
+
 
 /*
 function CancelLobby() {
