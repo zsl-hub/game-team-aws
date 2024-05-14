@@ -20,11 +20,14 @@
   "homepage": "https://github.com/zsl-hub/game-team-aws#readme",
   "dependencies": {
     "ably": "^2.0.4",
+    "aws-sdk": "^2.1618.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "joi": "^17.13.1",
     "nodemon": "^3.1.0",
-    "p2": "^0.7.1"
+    "p2": "^0.7.1",
+    "uuid": "^9.0.1"
   }
 }

@@ -111,32 +111,21 @@ function joinLobby() {
   var playerName = document.getElementById("player-name").value;
   var joinPassword = document.getElementById("join-password-input").value;
 
-  // Your logic to join the lobby with the provided information goes here
-  // You can implement this logic based on your requirements
-  // For example, you can send an HTTP request to a server to validate the password and join the lobby
-  // Or you can perform any other action that is necessary for joining the lobby
-
-  // Once the player is successfully joined, you can close the join modal
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "none";
 }
-
 
 function openJoinModal() {
   var joinModal = document.getElementById("JoinModal");
   var switchInput = document.querySelector('.switch input');
   var passwordInputContainer = document.querySelector('.password-input-container');
 
-  // Pobierz ikonę (lock lub unlock) w zależności od stanu przełącznika
   var iconSpan = document.querySelector('.material-symbols-outlined');
   var iconType = iconSpan.textContent;
 
-  // Sprawdź typ ikony
   if (iconType === 'lock') {
-      // Jeśli lobby jest prywatne (lock), wyświetl pole na hasło
       passwordInputContainer.style.display = "block";
   } else {
-      // Jeśli lobby jest publiczne (unlock), ukryj pole na hasło
       passwordInputContainer.style.display = "none";
   }
 
@@ -150,18 +139,22 @@ const lobbyPass = document.getElementById('passwordInput');
 
 lobbyButton.addEventListener('click', async e => {
   try {
-    const res = await fetch(config.host + "/api/createLobby", {
+    let requestBody = {
+      lobbyName: lobbyName.value,
+      isPrivate: isPrivate.checked,
+      lobbyPass: lobbyPass.value
+    };
+
+    const res = await fetch(config.host + "/lobby/createLobby", {
+      
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        lobbyName: lobbyName.value,
-        isPrivate: isPrivate.checked,
-        lobbyPass: lobbyPass.value
-      })
+      body: JSON.stringify(requestBody)
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("Error:", error);
   }
 });
