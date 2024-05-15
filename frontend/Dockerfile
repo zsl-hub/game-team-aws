@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM vite:latest
 
 COPY views /usr/share/nginx/html
 

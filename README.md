@@ -8,8 +8,8 @@ local.env for local environment
 devlopment.env for data used in development environment
 production.env for data used in production environment
 
-common variables that we use are: 
-AWS_ACCESS_KEY_ID = "Your AWS access key id"
+common variables that we use are:
+AWS_ACCESS_KEY_ID = "Your AWS access key id" 
 AWS_SECRET_ACCESS_KEY = "Your AWS secret access key"
 
 ### Config files
