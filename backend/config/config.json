@@ -1,0 +1,7 @@
+{
+    "endpoints": {
+        "createLobby": "/lobby/createLobby",
+        "deleteLobby": "/lobby/deleteLobby",
+        "joinLobby": "/lobby/joinLobby"
+    }
+}
