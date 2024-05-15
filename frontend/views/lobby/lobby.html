@@ -42,7 +42,9 @@
         </div>
     </main>
     <div id="ModalID" class="modal">
-        <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby">
+        <input type="text" name="Nickname" class="nickname" maxlength="12" placeholder="Your Nickname" value="">
+        <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby" value="">
+        <div id="error-message" style="color: red; display: none;">Wpisz dane</div>
         <div class="flex">
             <div>
                 <label for="private-public" class="label-text">Public/Private</label>
