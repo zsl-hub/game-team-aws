@@ -8,9 +8,10 @@ const router = express.Router();
 const itemSchema = Joi.object({
     lobbyName: Joi.string().min(1).max(255).required(),
     isPrivate: Joi.boolean().required(),
-    lobbyPass: Joi.string().min(4).max(255).optional()
+    lobbyPass: Joi.string().min(4).max(255).optional(),
+    lobbyStatus: Joi.string().min(1).max(255).required(),
+    playersNum: Joi.number().required()
 });
-
 
 const createItem = async (data) => {
     const { error, value } = itemSchema.validate(data);
@@ -24,7 +25,9 @@ const createItem = async (data) => {
         const item = {
             lobbyId: uuidv4(),
             lobbyName: value.lobbyName, 
-            isPrivate: value.isPrivate
+            isPrivate: value.isPrivate,
+            lobbyStatus: value.lobbyStatus,
+            playersNum: value.playersNum
         };
         
         if (value.isPrivate) {
@@ -60,6 +63,19 @@ const getItem = async (itemId) => {
     }
 }
 
+const getAllItems = async () => {
+    try {
+        const params = {
+            TableName: 'lobby'
+        };
+        return await dynamoDB.scan(params).promise();
+    }
+    catch (error) {
+        console.error("Error getting all items: ", error);
+        throw error; 
+    }
+}
+
 const updateItem = async (itemId, updateData) => {
     const { error, value } = itemSchema.validate(updateData);
 
@@ -71,10 +87,12 @@ const updateItem = async (itemId, updateData) => {
             throw new Error("Item not found");
         }
 
-        let updateExpression = 'SET isPrivate = :isPrivate, lobbyName = :lobbyName';
+        let updateExpression = 'SET lobbyName = :lobbyName, isPrivate = :isPrivate, lobbyStatus = :lobbyStatus, playersNum = :playersNum';
         const expressionAttributeValues = {
+            ':lobbyName': value.lobbyName,
             ':isPrivate': value.isPrivate,
-            ':lobbyName': value.lobbyName
+            ':lobbyStatus': value.lobbyStatus,
+            ':playersNum': value.playersNum
         };
 
         if (!value.isPrivate) {
@@ -120,12 +138,41 @@ const deleteItem = async (itemId) => {
 
 router.post("/createLobby", async (req, res) => {
     try {
-        const newItem = await createItem(req.body);
-        res.status(201).json(newItem); 
+        const newLobby = await createItem(req.body);
+        res.status(201).json(newLobby); 
     } catch (error) {
         console.error("Error while creating lobby:", error);
         res.status(500).json({ error: "An error occurred while creating the lobby" }); 
     }
 });
 
+router.get("/lobbyList", async (req, res) => {
+    try {
+        const lobbyList = await getAllItems();
+        res.json(lobbyList);
+    }
+    catch (error) {
+        console.error("Error while getting all lobbies:", error);
+        res.status(500).json({ error: "An error occurred while joining the lobby" });
+    }
+});
+
+/*
+router.post("/joinLobby/:id", async (req, res) => {
+    try {
+        const lobbyId = req.body.lobbyId; 
+        const lobbyData = getItem(lobbyId);
+        if (lobbyData.playersNum < 2){
+            const updateData = {
+                player2: req.body.playerName,
+
+            };
+        }
+    }
+    catch (error) {
+        console.error("Error while Joining lobby: ", error);
+        res.status(500).json({error: "An error occurred while joining the lobby"})
+    }
+})
+*/
 module.exports = router;

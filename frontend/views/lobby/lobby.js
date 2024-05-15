@@ -41,10 +41,11 @@ function openModal() {
   modal.style.display = "block";
 }
 
+/* Idk why it is here ~Szymon  
 function openJoinModal() {
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "block";
-}
+} */
 
 function closeModal() {
   var modal = document.getElementById("modalID");
@@ -128,9 +129,9 @@ function openJoinModal() {
   } else {
       passwordInputContainer.style.display = "none";
   }
-
   joinModal.style.display = "block";
 }
+
 
 const lobbyButton = document.getElementsByClassName('modalButton')[0]; 
 const lobbyName = document.getElementById('text'); 
@@ -142,11 +143,12 @@ lobbyButton.addEventListener('click', async e => {
     let requestBody = {
       lobbyName: lobbyName.value,
       isPrivate: isPrivate.checked,
-      lobbyPass: lobbyPass.value
+      lobbyPass: lobbyPass.value,
+      lobbyStatus: 'waiting',
+      playersNum: 1
     };
 
     const res = await fetch(config.host + "/lobby/createLobby", {
-      
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
