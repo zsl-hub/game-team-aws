@@ -20,7 +20,7 @@ header>span{
     font-style: normal;
 }
 
-.kontener{
+.lobbyContainer{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -32,11 +32,11 @@ header>span{
     border: 1px solid black;
     height: 52vh;
     width: 25%;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
-.gry{
+.room{
     width: 100%;
     height: 2rem;
     padding-left: 10px ;
@@ -46,7 +46,7 @@ header>span{
     align-items: center;
 }
 
-.kontener2{
+.createLobbyContainer{
     width: 100%;
     min-height: 150px;
     display: flex;
@@ -60,7 +60,7 @@ button{
     cursor: pointer;
 }
 
-.lobby-przycisk{
+.createLobbyButton{
     background-color: red;
     padding: 2rem;
     width: 15%;
@@ -68,7 +68,7 @@ button{
     border: none;
 }
 
-.lobby-przycisk:hover{
+.createLobbyButton:hover{
     background-color: rgb(202, 35, 35);
 }
 
@@ -77,7 +77,7 @@ button> a{
     text-decoration: none;
 }
 
-.modalne {
+.modal {
     display: none; 
     position: fixed;
     top: 50%; 
@@ -90,7 +90,7 @@ button> a{
     z-index: 1; 
 }
 
-.modalne-przycisk {
+.modalButton {
     background-color: blue;
     padding: 1rem;
     color: white;
@@ -99,19 +99,20 @@ button> a{
     margin-top: 1rem;
 }
 
-.modalne-przycisk:hover {
+.modalButton:hover {
     background-color: #0056b3;
 }
 
-.modalne-input {
+.modalInput {
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 1rem;
     box-sizing: border-box;
 }
 
-.modalne-przycisk-wrapper {
+.modalButtonWrapper {
     text-align: center;
+    display: flex;
 }
 
 div > a{
@@ -127,7 +128,7 @@ div > a{
   'opsz' 24
 }
 
-.join1{
+.joinLobbyButton{
     background-color: blue;
     color: white;
     border: none;
@@ -202,7 +203,7 @@ div > label{
     font-size: large;
 }
 
-#password-input{
+#passwordInput{
     width: 100%;
     padding: 0.5rem;
     box-sizing: border-box;

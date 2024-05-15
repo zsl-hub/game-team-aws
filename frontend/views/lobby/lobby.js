@@ -1,3 +1,5 @@
+import config from "../../config/config.json";
+
 document.addEventListener('DOMContentLoaded', function() {
   //checkOverflow();
 
@@ -21,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+document.getElementById("openmodal").addEventListener("click", () => { openModal(); });
+document.getElementsByClassName("modalButton")[0].addEventListener("click", () => { createLobby() });
+document.getElementsByClassName("modalButton")[1].addEventListener("click", () => { closeModal() });
+
 function openModal() {
   var modal = document.getElementById("ModalID");
   modal.style.display = "block";
@@ -37,39 +43,39 @@ function closeModal() {
 }
 
 function createLobby() {
-        var lobbyName = document.getElementById("text").value;
-        var switchInput = document.querySelector('.switch input');
-        var passwordInput = document.getElementById("password-input");
-        var switchChecked = switchInput.checked;
+    var lobbyName = document.getElementById("text").value;
+    var switchInput = document.querySelector('.switch input');
+    var passwordInput = document.getElementById("password-input");
+    var switchChecked = switchInput.checked;
 
-        if (switchChecked) {
-            var password = passwordInput.value;
-            if (password.length < 4) {
-                alert("Hasło musi mieć co najmniej 4 znaki!");
-                return;
-            }
+    if (switchChecked) {
+        var password = passwordInput.value;
+        if (password.length < 4) {
+            alert("Hasło musi mieć co najmniej 4 znaki!");
+            return;
         }
-
-
-        var lobbyTemplate = document.getElementById("lobbyTemplate");
-        var newLobbyContainer = lobbyTemplate.cloneNode(true);
-        newLobbyContainer.removeAttribute("id");
-        newLobbyContainer.style.display = "block";
-
-        var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
-        lobbyNameSpan.textContent = lobbyName;
-
-        var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
-        iconSpan.textContent = switchChecked ? "lock" : "lock_open";
-
-        var lobbyContainer = document.querySelector(".lobby");
-        lobbyContainer.appendChild(newLobbyContainer);
-
-        closeModal();
     }
 
+
+    var lobbyTemplate = document.getElementById("lobbyTemplate");
+    var newLobbyContainer = lobbyTemplate.cloneNode(true);
+    newLobbyContainer.removeAttribute("id");
+    newLobbyContainer.style.display = "block";
+
+    var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+    lobbyNameSpan.textContent = lobbyName;
+
+    var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+    iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+
+    var lobbyContainer = document.querySelector(".lobby");
+    lobbyContainer.appendChild(newLobbyContainer);
+
+    closeModal();
+}
+
 function togglePasswordInput() {
-  var passwordInputContainer = document.querySelector('.password-input-container');
+  var passwordInputContainer = document.querySelector('.passwordContainer');
   var switchChecked = this.checked;
 
   if (switchChecked) {
@@ -82,10 +88,10 @@ function togglePasswordInput() {
 function joinLobby() {
   var playerName = document.getElementById("player-name").value;
   var joinPassword = document.getElementById("join-password-input").value;
+
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "none";
 }
-
 
 function openJoinModal() {
   var joinModal = document.getElementById("JoinModal");
@@ -100,11 +106,9 @@ function openJoinModal() {
   } else {
       passwordInputContainer.style.display = "none";
   }
-
+  
   joinModal.style.display = "block";
 }
-
-
 
 let x1=0, y1=0;
 window.client
@@ -168,7 +172,6 @@ function CancelLobby() {
   joinModal.style.display = "none";
 }
 
-
 /*
 function CancelLobby() {
   var joinModal = document.getElementById("JoinModal");
@@ -186,5 +189,3 @@ function CancelLobby() {
 }
 
 */
-
-
