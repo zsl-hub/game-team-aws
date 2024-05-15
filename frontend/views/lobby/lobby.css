@@ -4,6 +4,9 @@
     margin: 0;
 }
 
+body{
+    
+}
 header{
     width: 100%;
     min-height: 16vh;
@@ -144,12 +147,14 @@ div > a{
     height: 34px;
   }
   
+  /* Hide default HTML checkbox */
   .switch input {
     opacity: 0;
     width: 0;
     height: 0;
   }
   
+  /* The slider */
   .slider {
     position: absolute;
     cursor: pointer;
@@ -213,7 +218,6 @@ div > label{
 .flex{
     display: flex;
     justify-content: start;
-    align-items: center;
     gap: 1rem;
 }
 
