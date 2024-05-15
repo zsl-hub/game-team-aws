@@ -18,18 +18,18 @@
     <main>
         <div class="container">
             <div class="lobby">
-                    <div><a class="game" href="#"><span class="text123">Lobby 1</span><button class="join1" onclick="openJoinModal()">JOIN</button>
-                        <span class="material-symbols-outlined">
-                            lock
-                        </span>
-                        </a>
-                    </div>
+                <div><a class="game" href="#"><span class="text123">Lobby 1</span><button class="open-join-modal" class="join1">JOIN</button>
+                    <span class="material-symbols-outlined">
+                        lock
+                    </span>
+                    </a>
+                </div>
             </div>
             <div class="lobby">
                 <div id="lobbyTemplate" style="display: none;">
                     <a class="game" href="#">
                         <span class="text123">Lobby two</span>
-                        <button class="join1" onclick="openJoinModal()">JOIN</button>
+                        <button class="join1 open-join-modal">JOIN</button>
                         <span class="material-symbols-outlined">lock</span>
                     </a>
                 </div>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="container2">
-            <button type="submit" class="lobby-button" onclick="openModal()"><a href="#">Create lobby</a></button>
+            <button type="submit" class="lobby-button" id="open-modal"><a href="#">Create lobby</a></button>
         </div>
     </main>
     <div id="ModalID" class="modal">
@@ -58,20 +58,18 @@
             </div>
         </div>
         <div class="modal-button-wrapper">
-            <button class="modal-button" onclick="createLobby()">CREATE</button>
-            <button class="modal-button" onclick="closeModal()">CANCEL</button>
+            <button class="modal-button" id="create-lobby">CREATE</button>
+            <button class="modal-button" id="close-modal">CANCEL</button>
         </div>
     </div>
 
     <div id="JoinModal" class="modal" style="display: none;">
         <input type="text" id="player-name" class="modal-input" maxlength="10" placeholder="Nickname">
         <input type="password" id="join-password-input" class="modal-input" placeholder="Password">
-        <button class="modal-button-join" onclick="joinLobby()">JOIN</button>
-        <button id="modal-button-cancel" onclick="CancelLobby()">CANCEL</button>
+        <button class="modal-button-join" id="join-lobby">JOIN</button>
+        <button id="modal-button-cancel" id="cancel-lobby">CANCEL</button>
     </div>
 
-
-    <script src="lobby.js" defer></script>
-
+    <script type="module" src="lobby.js"></script>
 </body>
 </html>
