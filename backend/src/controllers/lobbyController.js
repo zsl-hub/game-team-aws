@@ -34,38 +34,6 @@ router.post("/joinLobby", async (req, res) => {
     }
 });
 
-const createPlayer = async (playerName, isReady) => {
-    const data = { playerName, isReady };
-
-    const { error, value } = playerSchema.validate(data);
-
-    if (error) {
-        console.error("Validation error:", error.details[0].message);
-        throw new Error("Validation error");
-    }
-
-    try {
-        const item = {
-            playerId: uuidv4(),
-            playerName: value.playerName, 
-            isReady: value.isReady,
-        };
-
-        const params = {
-            TableName: 'player',
-            Item: item,
-        };
-
-        await dynamoDB.put(params).promise();
-
-        return item;
-    }
-    catch (error) {
-        console.error("Error creating item:", error);
-        throw error;
-    }
-};
-
 router.get("/", async (req, res) => {
     try {
         const allLobbies = await getAllItems();
