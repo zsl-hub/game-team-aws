@@ -26,10 +26,10 @@ class BoardScene extends Phaser.Scene {
         const cellSize = Math.min(width, height) / 15;
 
         const boardYOffset = -height * 0.05;
-        // board x and y
+        // Board x and y
         const boardStartX = (width - cellSize * 10) / 2;
         const boardStartY = (height - cellSize * 10) / 2 + boardYOffset;
-        // bounds
+
         let allShipsPlaced = false;
         const readyButton = this.add.text(width * 0.5, height * 0.95, 'Ready', { fontSize: width * 0.03, fill: '#fff', backgroundColor: '#00ff00', padding: {x: width * 0.030, y: height * 0.015 }, fixedWidth: width * 0.15, fixedHeight: height * 0.05});
         // Create boards 10x10
@@ -49,27 +49,28 @@ class BoardScene extends Phaser.Scene {
         }
         // Button "Ready"
         readyButton.setInteractive({ useHandCursor: true })
-        .on('pointerover', () => readyButton.setBackgroundColor('#33ff33')) // hover background
-        .on('pointerout', () => readyButton.setBackgroundColor('#00ff00')); // none hover
+        .on('pointerover', () => readyButton.setBackgroundColor('#33ff33')) // Hover background
+        .on('pointerout', () => readyButton.setBackgroundColor('#00ff00')); // None hover
 
         readyButton.setOrigin(0.5);
         readyButton.setPosition(width,height/2)
         readyButton.setInteractive();
         readyButton.on('pointerdown', () => {
-            allShipsPlaced = true
+            allShipsPlaced = true;
             ships.forEach(ship => {
-                let howMuch = 0; // how much ships didn't placed
                 if (ship.isPlaced === false) {
-                    howMuch += 1;
                     allShipsPlaced = false;
                     return;
+                    
                 } 
             });
             if(allShipsPlaced) {
                 shipHold.destroy(); // Drop shipHold
                 readyButton.destroy(); // Drop readyButton
+                // Deactivate ships
                 ships.forEach(ship => {
                     ship.disableInteractive();
+                    ship.off('pointerdown');
                 });
             }
         });
@@ -79,9 +80,6 @@ class BoardScene extends Phaser.Scene {
         const shipHold = this.add.rectangle(width, height * 0.9, shipHoldWidth, shipHoldHeight);
         shipHold.setStrokeStyle(2, 0x00ff00);
         shipHold.setOrigin(0.5);
-        const b = this.add.rectangle(boardStartX, boardStartY, cellSize * 10,  cellSize * 10);
-        b.setStrokeStyle(2, 0x00ff00);
-        b.setOrigin(0)
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
         yBoard.setOrigin(0.5);
@@ -99,7 +97,7 @@ class BoardScene extends Phaser.Scene {
         ships.push(this.add.sprite(width * 0.67, height * 0.98, 'logo4').setDisplaySize(cellSize * 4, cellSize).setOrigin(0.5,1));
         // 6
         ships.push(this.add.sprite(width * 1.40, height * 0.93, 'logo6').setDisplaySize(cellSize * 6, cellSize).setOrigin(0.5,1));
-
+        // Ships settings
         ships.forEach(ship => {
             ship.setInteractive();
             this.input.setDraggable(ship);
@@ -127,23 +125,18 @@ class BoardScene extends Phaser.Scene {
             
             const bounds = gameObject.getBounds();
             // Check if the ship is within the board boundaries
-            const isWithinBoard = (bounds.x + 1>= boardStartX && bounds.x + bounds.width <= boardStartX + cellSize * 10 &&
+            const isWithinBoard = (bounds.x >= boardStartX && bounds.x + bounds.width <= boardStartX + cellSize * 10 &&
                                    bounds.y >= boardStartY && bounds.y + bounds.height <= boardStartY + cellSize * 10 );
             // Check if the ship is within the board boundaries
             if (isWithinBoard) {
                     gameObject.setPosition(gridX, gridY);
                     gameObject.lastValidPosition = { x: gameObject.x, y: gameObject.y }; // Update last valid position
                     this.selectedShip.isPlaced = true;
-            } else {
-                this.selectedShip.isPlaced = false;
             }
         });
 
         this.input.on('dragend', (pointer, gameObject) => {
-            if (!gameObject.isPlaced) {
-                // Return to last valid position if not placed
-                gameObject.setPosition(gameObject.lastValidPosition.x, gameObject.lastValidPosition.y);
-            }
+            gameObject.setPosition(gameObject.lastValidPosition.x, gameObject.lastValidPosition.y);
             gameObject.clearTint();
         });
         this.input.keyboard.on('keydown-R', () => {
@@ -163,15 +156,17 @@ class BoardScene extends Phaser.Scene {
                 const newIsWithinBoard = (newBounds.x >= boardStartX && newBounds.x + newBounds.width <= boardStartX + cellSize * 10 &&
                                           newBounds.y >= boardStartY && newBounds.y + newBounds.height <= boardStartY + cellSize * 10);
                 // Check if the selected ship is completely outside board
-                const isCompletelyOutsideBoard = (newBounds.x + newBounds.width < boardStartX || newBounds.x > boardStartX + 10 * cellSize ||
-                                                  newBounds.y + newBounds.height < boardStartY || newBounds.y > boardStartY + 10 * cellSize);
+                const isCompletelyOutsideBoard = (newBounds.x + newBounds.width < boardStartX || newBounds.x > boardStartX + cellSize * 10 ||
+                                                  newBounds.y + newBounds.height < boardStartY || newBounds.y > boardStartY + cellSize * 10);
                 // Check ship is inside or outside
                 if (newIsWithinBoard) {
                     this.selectedShip.angle = newAngle;
                     this.selectedShip.isRotated = !this.selectedShip.isRotated;
+                    this.selectedShip.isPlaced = true;
                 } else if (isCompletelyOutsideBoard) {
                     this.selectedShip.angle = newAngle;
                     this.selectedShip.isRotated = !this.selectedShip.isRotated;
+                    this.selectedShip.isPlaced = false;
                 }
             }
         });
