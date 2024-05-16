@@ -1,5 +1,5 @@
 FROM nginx:latest
 
-COPY views /usr/share/nginx/html
+COPY views /usr/share/nginx/html/views
 
-EXPOSE 80
+EXPOSE ${FRONTEND_PORT}
