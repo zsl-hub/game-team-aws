@@ -2,11 +2,11 @@ services:
   app-backend:
     build: ./backend
     ports:
-      - 3000:3000
+      - ${BACKEND_PORT}:${BACKEND_PORT}
 
   app-frontend:
     build: ./frontend
     ports:
-      - 80:80
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     depends_on:
       - "app-backend"
