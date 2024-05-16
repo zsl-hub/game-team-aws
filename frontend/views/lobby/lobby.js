@@ -9,9 +9,10 @@ document.getElementById("create-lobby").addEventListener("click", () => { create
 
 function assignOpenJoinModalListeners()
 {
+
   const elements = document.getElementsByClassName("open-join-modal");
   for(let i = 0; i < elements.length; i++){
-    elements[i].addEventListener("click", () => { openJoinModal(); });
+    elements[i].addEventListener("click", () => { openJoinModal(elements[i].parentNode); });
   }
 }
 
@@ -35,9 +36,19 @@ function openModal() {
   modal.style.display = "block";
 }
 
-function openJoinModal() {
+/**
+ * 
+ * @param {HTMLElement} ele 
+ */
+function openJoinModal(ele) {
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "block";
+
+  const element = document.createElement("div");
+  element.style.display = "none";
+  element.innerText = ele.children[0].textContent;
+  element.id = "data";
+  joinModal.appendChild(element);
 }
 
 function closeModal() {
@@ -46,36 +57,76 @@ function closeModal() {
 }
 
 function createLobby() {
-    var lobbyName = document.getElementById("text").value;
-    var switchInput = document.querySelector('.switch input');
-    var passwordInput = document.getElementById("password-input");
-    var switchChecked = switchInput.checked;
+  var lobbyName = document.getElementById("text").value;
+  var switchInput = document.querySelector('.switch input');
+  var passwordInput = document.getElementById("password-input");
+  var switchChecked = switchInput.checked;
 
-    if (switchChecked) {
-        var password = passwordInput.value;
-        if (password.length < 4) {
-            alert("Hasło musi mieć co najmniej 4 znaki!");
+  if (switchChecked) {
+      var password = passwordInput.value;
+      if (password.length < 4) {
+          alert("Hasło musi mieć co najmniej 4 znaki!");
+          return;
+      }
+  }
+
+  var lobbyTemplate = document.getElementById("lobbyTemplate");
+  var newLobbyContainer = lobbyTemplate.cloneNode(true);
+  newLobbyContainer.removeAttribute("id");
+  newLobbyContainer.style.display = "block";
+
+  var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+  lobbyNameSpan.textContent = lobbyName;
+
+  var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+  iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+
+  var lobbyContainer = document.querySelector(".lobby");
+  lobbyContainer.appendChild(newLobbyContainer);
+
+  assignOpenJoinModalListeners();
+
+  closeModal();
+}
+
+function createLobbyFromDatabase(data) {
+  if (Array.isArray(data.Items)) {
+    data.Items.forEach(lobby => {
+      var lobbyName = lobby.lobbyName;
+      var passwordInput = lobby.lobbyPass;
+      var switchChecked = lobby.isPrivate;
+
+      if (switchChecked) {
+        var password = passwordInput;
+        /*if (password.length < 4) {
+            //alert("Hasło musi mieć co najmniej 4 znaki!");
             return;
-        }
-    }
+        }*/
+      }
+      if (lobby.lobbyStatus === "waiting"){ 
+        var lobbyTemplate = document.getElementById("lobbyTemplate");
+        var newLobbyContainer = lobbyTemplate.cloneNode(true);
+        newLobbyContainer.removeAttribute("id");
+        newLobbyContainer.style.display = "block";
 
-    var lobbyTemplate = document.getElementById("lobbyTemplate");
-    var newLobbyContainer = lobbyTemplate.cloneNode(true);
-    newLobbyContainer.removeAttribute("id");
-    newLobbyContainer.style.display = "block";
+        var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+        lobbyNameSpan.textContent = lobbyName;
 
-    var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
-    lobbyNameSpan.textContent = lobbyName;
+        var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+        iconSpan.textContent = switchChecked ? "lock" : "lock_open";
 
-    var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
-    iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+        var lobbyContainer = document.querySelector(".lobby");
+        lobbyContainer.appendChild(newLobbyContainer);
 
-    var lobbyContainer = document.querySelector(".lobby");
-    lobbyContainer.appendChild(newLobbyContainer);
+        assignOpenJoinModalListeners();
 
-    assignOpenJoinModalListeners();
-
-    closeModal();
+        closeModal();
+      }
+    });
+  } 
+  else {
+    console.error('Invalid data format: Items property is not an array.');
+  }
 }
 
 function togglePasswordInput() {
@@ -89,12 +140,54 @@ function togglePasswordInput() {
   }
 }
 
-function joinLobby() {
+async function joinLobby() {
   var playerName = document.getElementById("player-name").value;
   var joinPassword = document.getElementById("join-password-input").value;
 
   var joinModal = document.getElementById("JoinModal");
+
+  let dataEle = document.getElementById("data");
+  let data = dataEle.innerText;
+
+  let requestData = {
+    lobbyName: data,
+    player2: playerName,
+    lobbyPassword: joinPassword
+  }
+  dataEle.remove();
   joinModal.style.display = "none";
+
+  try {
+    const res = await fetch(config.host + "/lobby/joinLobby", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    const responseData = await res.json(); 
+  
+      if (res.ok) {
+        console.log("Successfully joined lobby:", responseData.message);
+        console.log(responseData);
+        window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player2;
+      } 
+      else {
+        if (res.status === 401) {
+          console.error("Failed to join lobby:", responseData.message);
+        } 
+        else if (res.status === 403) {
+          console.error("Failed to join lobby:", responseData.message);
+        } 
+        else {
+          console.error("Failed to join lobby - Unknown error:");
+        }
+      }
+    } 
+    catch (error) {
+      console.error("Network error or exception:", error);
+    }
 }
 
 // function openJoinModal() {
@@ -193,3 +286,58 @@ function CancelLobby() {
 }
 
 */
+
+const createLobbyButton = document.getElementById('create-lobby');
+const lobbyCreator = document.getElementById('lobbyCreator');
+const lobbyName = document.getElementById('text'); 
+const isPrivate = document.querySelector('.switch [type=checkbox]');
+const lobbyPass = document.getElementById('password-input');
+
+createLobbyButton.addEventListener('click', async e => {
+  try {
+    let requestBody = {
+      lobbyName: lobbyName.value,
+      isPrivate: isPrivate.checked,
+      lobbyPass: lobbyPass.value,
+      lobbyStatus: 'waiting',
+      player1: lobbyCreator.value
+    };
+
+    const res = await fetch(config.host + "/lobby/createLobby", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    }); 
+
+    if (res.ok) {
+      const responseData = await res.json();
+      console.log(responseData);
+      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1.playerId;
+    } else {
+      console.error("Failed to create lobby");
+    }
+  } 
+  catch (error) {
+    console.error("Error:", error);
+  }
+});
+
+const getAllLobbies = async () => {
+  try {
+    const response = await fetch(config.host + '/lobby');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log(data); 
+    createLobbyFromDatabase(data);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  getAllLobbies();
+});
