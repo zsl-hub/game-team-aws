@@ -59,10 +59,10 @@ function createLobby() {
         }
     }
 
-    // var lobbyTemplate = document.getElementById("lobbyTemplate");
-    // var newLobbyContainer = lobbyTemplate.cloneNode(true);
-    // newLobbyContainer.removeAttribute("id");
-    // newLobbyContainer.style.display = "block";
+    var lobbyTemplate = document.getElementById("lobbyTemplate");
+    var newLobbyContainer = lobbyTemplate.cloneNode(true);
+    newLobbyContainer.removeAttribute("id");
+    newLobbyContainer.style.display = "block";
 
     var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
     lobbyNameSpan.textContent = lobbyName;

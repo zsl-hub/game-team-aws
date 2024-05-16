@@ -3,64 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="lobby1.css">
     <title>Battleships</title>
-    <link rel="stylesheet" href="lobby.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
-    <div class="app">
-        <header>
-            <span>Battleships</span>
-        </header> 
+    <header>
+        <span>LOBBY</span>
+    </header>
 
-        <main>
-            <div class="lobbyContainer"> 
-                <div class="lobby">
-                    <div>
-                      <a class="room" href="#">
-                        LobbyName 
-                        <button class="joinLobbyButton">JOIN</button>
+    <main>
+        <div class="container">
+            <div class="lobby">
+                <div><a class="game" href="#"><span class="text123">Lobby 1</span><button class="open-join-modal" class="join1">JOIN</button>
+                    <span class="material-symbols-outlined">
+                        lock
+                    </span>
+                    </a>
+                </div>
+            </div>
+            <div class="lobby">
+                <div id="lobbyTemplate" style="display: none;">
+                    <a class="game" href="#">
+                        <span class="text123">Lobby two</span>
+                        <button class="join1 open-join-modal">JOIN</button>
                         <span class="material-symbols-outlined">lock</span>
-                      </a>
-                    </div>
+                    </a>
                 </div>
             </div>
-    
-            <div class="createLobbyContainer">
-                <button type="submit" class="createLobbyButton" id="openmodal"><a href="#">Create lobby</a></button>
+        </div>
+        </div>
+
+        <div class="container2">
+            <button type="submit" class="lobby-button" id="open-modal"><a href="#">Create lobby</a></button>
+        </div>
+    </main>
+    <div id="ModalID" class="modal">
+        <input type="text" name="Nickname" class="nickname" maxlength="12" placeholder="Your Nickname" value="">
+        <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby" value="">
+        <div id="error-message" style="color: red; display: none;">Wpisz dane</div>
+        <div class="flex">
+            <div>
+                <label for="private-public" class="label-text">Public/Private</label>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
             </div>
-        </main>
-    
-        <div id="modalID" class="modal">
-            <input type="text" id="text" class="modalInput" maxlength="10" placeholder="Enter lobby name">
-            <div class="flex">
-                <div>
-                    <label for="private-public">Public/Private</label>
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="passwordContainer" style="display: none;">
-                    <input type="password" id="passwordInput" placeholder="Enter lobby password">
-                </div>
+            <div class="password-input-container" style="display: none;">
+                <input type="password" id="password-input" placeholder="Type a passoword">
             </div>
-            <div class="modalButtonWrapper">
-                <button class="modalButton">Create</button>
-                <button class="modalButton">Cancel</button>
-            </div>
+        </div>
+        <div class="modal-button-wrapper">
+            <button class="modal-button" id="create-lobby">CREATE</button>
+            <button class="modal-button" id="close-modal">CANCEL</button>
         </div>
     </div>
 
-    <div id="JoinModal" class="modalne" style="display: none;">
-        <input type="text" id="player-name" class="modalne-input" maxlength="10" placeholder="Enter nickname">
-        <input type="password" id="join-password-input" class="modalne-input" placeholder="Enter lobby passwordy">
-        <button class="modalne-przycisk" onclick="joinLobby()">JOIN</button>
+    <div id="JoinModal" class="modal" style="display: none;">
+        <input type="text" id="player-name" class="modal-input" maxlength="10" placeholder="Nickname">
+        <input type="password" id="join-password-input" class="modal-input" placeholder="Password">
+        <button class="modal-button-join" id="join-lobby">JOIN</button>
+        <button id="modal-button-cancel" id="cancel-lobby">CANCEL</button>
     </div>
 
-    <script type="module" src="lobby.js" defer></script>
+    <script type="module" src="lobby.js"></script>
 </body>
 </html>
