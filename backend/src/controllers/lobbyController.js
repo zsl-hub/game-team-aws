@@ -34,6 +34,71 @@ router.post("/joinLobby", async (req, res) => {
     }
 });
 
+const createPlayer = async (playerName, isReady) => {
+    const data = { playerName, isReady };
+
+    const { error, value } = playerSchema.validate(data);
+
+    if (error) {
+        console.error("Validation error:", error.details[0].message);
+        throw new Error("Validation error");
+    }
+
+    try {
+        const item = {
+            playerId: uuidv4(),
+            playerName: value.playerName, 
+            isReady: value.isReady,
+        };
+
+        const params = {
+            TableName: 'player',
+            Item: item,
+        };
+
+        await dynamoDB.put(params).promise();
+
+        return item;
+    }
+    catch (error) {
+        console.error("Error creating item:", error);
+        throw error;
+    }
+};
+
+router.get("/", async (req, res) => {
+    try {
+        const allLobbies = await getAllItems();
+        res.json(allLobbies)
+    }
+    catch (error) {
+        console.error("Error while getting all lobbies:", error);
+        res.status(500).json({ error: "An error occurred while getting all lobbies" }); 
+    }
+});
+
+router.post("/joinLobby", async (req, res) => {
+    try {
+        const getLobby = await getItemByName(req.body.lobbyName);
+        if (getLobby.lobbyStatus === "waiting") {
+            if (!getLobby.Pass || req.body.lobbyPassword === getLobby.lobbyPass) {
+                const player = await createPlayer(req.body.player2, false);
+                req.body.player2 = player;
+                updatePlayer2(getLobby.lobbyId, req.body);
+                res.status(200).json({ success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2.playerId });
+            } else {
+                res.status(401).json({ success: false, message: "Incorrect lobby password" });
+            }
+        } else {
+            res.status(403).json({ success: false, message: "Lobby is full" }); 
+        }
+        
+    } catch (error) {
+        console.error("Error while getting lobby:", error);
+        res.status(500).json({ success: false, message: "An error occurred while getting lobby" });
+    }
+});
+
 router.post("/createLobby", async (req, res) => {
     try {
         const player = await createPlayer(req.body.player1, false);
