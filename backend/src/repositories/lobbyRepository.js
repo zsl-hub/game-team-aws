@@ -4,7 +4,6 @@ const dynamoDB = require("../database");
 
 // DATA VALIDATION 
 const itemSchema = Joi.object({
-<<<<<<< HEAD
     lobbyName: Joi.string().min(1).max(30).required(),
     isPrivate: Joi.boolean().required(),
     lobbyPass: Joi.when('isPrivate', {
@@ -15,21 +14,10 @@ const itemSchema = Joi.object({
     lobbyStatus: Joi.string().min(1).max(10).required(),
     player1: Joi.string().min(1).max(40).required()
     /*
-=======
-    lobbyName: Joi.string().min(1).max(255).required(),
-    isPrivate: Joi.boolean().required(),
-    lobbyPass: Joi.when('isPrivate', {
-        is: true,
-        then: Joi.string().min(4).max(255).required(),
-        otherwise: Joi.string().allow('').optional()
-    }),
-    lobbyStatus: Joi.string().min(1).max(255).required(),
->>>>>>> ef331b278eb9b99a338687d9c8ef5fc61f2a4f21
     player1: Joi.object().keys({
         playerId: Joi.string().min(1).max(255).required(),
         playerName: Joi.string().min(1).max(255).required(),
         isReady: Joi.boolean().required()
-<<<<<<< HEAD
     }).required()*/
 });
 
@@ -43,19 +31,6 @@ const player2Schema = Joi.object({
         isReady: Joi.boolean().required() 
     }).required(), */
     lobbyPass: Joi.string().allow('').optional()
-=======
-    }).required()
-});
-
-const player2Schema = Joi.object({
-    lobbyName: Joi.string().min(1).max(255).required(),
-    player2: Joi.object().keys({
-        playerId: Joi.string().min(1).max(255).required(),
-        playerName: Joi.string().min(1).max(255).required(),
-        isReady: Joi.boolean().required() 
-    }).required(),
-    lobbyPassword: Joi.string().allow('').optional()
->>>>>>> ef331b278eb9b99a338687d9c8ef5fc61f2a4f21
 });
 
 const playerSchema = Joi.object({

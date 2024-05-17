@@ -39,11 +39,7 @@ router.post("/joinLobby", async (req, res) => {
 router.post("/createLobby", async (req, res) => {
     try {
         const player = await createPlayer(req.body.player1, false);
-<<<<<<< HEAD
         req.body.player1 = player.playerId;
-=======
-        req.body.player1 = player;
->>>>>>> ef331b278eb9b99a338687d9c8ef5fc61f2a4f21
         const newLobby = await createLobby(req.body);
         res.status(201).json(newLobby); 
     } catch (error) {
@@ -54,11 +50,7 @@ router.post("/createLobby", async (req, res) => {
 
 router.get("/lobbyList", async (req, res) => {
     try {
-<<<<<<< HEAD
         const lobbyList = await getAllItems('lobby');
-=======
-        const lobbyList = await getAllLobbies();
->>>>>>> ef331b278eb9b99a338687d9c8ef5fc61f2a4f21
         res.json(lobbyList);
     }
     catch (error) {
