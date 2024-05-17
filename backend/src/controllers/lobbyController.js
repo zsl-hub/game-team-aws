@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const {createLobby, getLobbyById, getLobbyByName, getAllLobbies, getAllItems, updateItem, deleteLobby, createPlayer} = require("../repositories/lobbyRepository");
+const {createItem, getItemById, getItemByProperty, getAllItems, updateItem, deleteLobby, createPlayer} = require("../repositories/lobbyRepository");
+const { v4: uuidv4 } = require('uuid');
+const { itemSchema, player2Schema, playerSchema } = require("../schemas");
 
 router.get("/", async (req, res) => {
     try {
@@ -17,12 +19,20 @@ router.get("/", async (req, res) => {
 
 router.post("/joinLobby", async (req, res) => {
     try {
-        const getLobby = await getLobbyByName(req.body.lobbyName);
+        console.log(req.body.lobbyName)
+        const getLobby = await getItemByProperty("lobby", { "lobbyName": req.body.lobbyName });
         if (getLobby.lobbyStatus === "waiting") {
             if (!getLobby.Pass || req.body.lobbyPass === getLobby.lobbyPass) {
                 const player = await createPlayer(req.body.player2, false);
                 req.body.player2 = player.playerId;
-                updateItem("lobby",{ "lobbyId": getLobby.lobbyId}, { "player2": req.body.player2, "lobbyStatus": "playing"});
+                
+                const { error, value } = player2Schema.validate({ "player2": req.body.player2, "lobbyStatus": "playing"})
+                if (error) {
+                    console.error("Validation error:", error.details[0].message);   
+                    throw new Error(error.details[0].message);
+                }
+                updateItem("lobby",{ "lobbyId": getLobby.lobbyId}, value);
+
                 res.status(200).json({ success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2 });
             } else {
                 res.status(401).json({ success: false, message: "Incorrect lobby password" });
@@ -38,9 +48,23 @@ router.post("/joinLobby", async (req, res) => {
 
 router.post("/createLobby", async (req, res) => {
     try {
-        const player = await createPlayer(req.body.player1, false);
+        const { error: errorPlayer, value: valuePlayer } = playerSchema.validate({"playerName": req.body.player1, "isReady": false});
+        if (errorPlayer) {
+            console.error("Validation error:", errorPlayer.details[0].message);   
+            throw new Error(errorPlayer.details[0].message);
+        }
+        const player = await createItem('player', {"playerId": uuidv4(), "playerName": valuePlayer.player1, "isReady": false });
+
         req.body.player1 = player.playerId;
-        const newLobby = await createLobby(req.body);
+        req.body.lobbyId = uuidv4();
+
+        const { error, value } = itemSchema.validate(req.body);
+        if (error) {
+            console.error("Validation error:", error.details[0].message);   
+            throw new Error(error.details[0].message);
+        }
+        const newLobby = await createItem('lobby', value);
+
         res.status(201).json(newLobby); 
     } catch (error) {
         console.error("Error while creating lobby:", error);
