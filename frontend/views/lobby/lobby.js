@@ -90,8 +90,8 @@ function createLobby() {
 }
 
 function createLobbyFromDatabase(data) {
-  if (Array.isArray(data.Items)) {
-    data.Items.forEach(lobby => {
+  if (Array.isArray(data)) {
+    data.forEach(lobby => {
       var lobbyName = lobby.lobbyName;
       var passwordInput = lobby.lobbyPass;
       var switchChecked = lobby.isPrivate;
@@ -103,25 +103,23 @@ function createLobbyFromDatabase(data) {
             return;
         }*/
       }
-      if (lobby.lobbyStatus === "waiting"){ 
-        var lobbyTemplate = document.getElementById("lobbyTemplate");
-        var newLobbyContainer = lobbyTemplate.cloneNode(true);
-        newLobbyContainer.removeAttribute("id");
-        newLobbyContainer.style.display = "block";
+      var lobbyTemplate = document.getElementById("lobbyTemplate");
+      var newLobbyContainer = lobbyTemplate.cloneNode(true);
+      newLobbyContainer.removeAttribute("id");
+      newLobbyContainer.style.display = "block";
 
-        var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
-        lobbyNameSpan.textContent = lobbyName;
+      var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+      lobbyNameSpan.textContent = lobbyName;
 
-        var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
-        iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+      var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+      iconSpan.textContent = switchChecked ? "lock" : "lock_open";
 
-        var lobbyContainer = document.querySelector(".lobby");
-        lobbyContainer.appendChild(newLobbyContainer);
+      var lobbyContainer = document.querySelector(".lobby");
+      lobbyContainer.appendChild(newLobbyContainer);
 
-        assignOpenJoinModalListeners();
+      assignOpenJoinModalListeners();
 
-        closeModal();
-      }
+      closeModal();
     });
   } 
   else {
@@ -152,7 +150,7 @@ async function joinLobby() {
   let requestData = {
     lobbyName: data,
     player2: playerName,
-    lobbyPassword: joinPassword
+    lobbyPass: joinPassword
   }
   dataEle.remove();
   joinModal.style.display = "none";

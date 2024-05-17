@@ -1,5 +1,16 @@
 import './style.css';
 import Phaser from 'phaser';
+import config from "../../config/config.json"
+import Ably from 'ably'
+
+const realtime = new Ably.Realtime({ 
+    authUrl: config.host + config.endpoints.auth,
+    echoMessages: false
+});
+
+realtime.connection.once("connected", () => {
+    console.log("connected to ably");
+})
 
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
@@ -176,7 +187,7 @@ class BoardScene extends Phaser.Scene {
     }
 }
 
-const config = {
+const gameConfig = {
     type: Phaser.WEBGL,
     width: sizes.width,
     height: sizes.height,
@@ -184,4 +195,4 @@ const config = {
     scene: [BoardScene],
 }
 
-const game = new Phaser.Game(config);
+const game = new Phaser.Game(gameConfig);
