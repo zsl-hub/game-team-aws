@@ -311,8 +311,7 @@ createLobbyButton.addEventListener('click', async e => {
 
     if (res.ok) {
       const responseData = await res.json();
-      console.log(responseData);
-      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1.playerId;
+      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
     } else {
       console.error("Failed to create lobby");
     }
