@@ -1,8 +1,9 @@
 const Ably = require("ably");
-const { getLobby } = require("../repositories/gameRepository");
+const { get, getItemById } = require("../repositories/lobbyRepository");
 const express = require("express");
 const router = express.Router();
-const { updatePlayer } = require("../repositories/gameRepository");
+const { updateItem } = require("../repositories/lobbyRepository");
+const { v4:  uuidv4 } = require("uuid");
 
 function gameBackend()
 {
@@ -37,16 +38,14 @@ function gameBackend()
             const lobbyId = msg.data.lobbyId;
             const playerId = msg.clientId;
 
-            console.log(lobbyId + " " + playerId);
+            let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
+            lobbyDB = lobbyDB.Item;
 
-            let lobby = await getLobby(lobbyId);
-            lobby = lobby.Item;
+            console.log(lobbyDB);
 
-            console.log(lobby);
-
-            if (lobby.player2)
+            if (lobbyDB.player2)
             {
-                if (lobby.player2.playerId !== playerId) return;
+                if (lobbyDB.player2.playerId !== playerId) return;
 
                 const lobbyObj = lobbies[lobbyId];
 
@@ -54,10 +53,13 @@ function gameBackend()
             }
             else
             {
-                console.log(lobby.player1);
-                if (lobby.player1.playerId !== playerId) return;
+                console.log("dsd")
+                console.log(playerId);
+                //if (lobbyDB.player1.playerId != playerId) return;
 
-                createLobby(lobbyId, playerId);
+                console.log("lys")
+
+                createLobby(lobbyDB, playerId);
                 const lobbyObj = lobbies[lobbyId];
                 handlePlayerEnter(lobbyObj)
             }
@@ -67,6 +69,9 @@ function gameBackend()
     const handlePlayerEnter = (lobbyObj, playerId) =>
     {
         console.log("Handle Player Enter");
+
+        lobbyObj.createChannel = realtime.channels.get(`createChannel-${lobbyObj.lobbyId}`);
+        lobbyObj.createChannel.attach();
 
         lobbyObj.winChannel = realtime.channels.get(`winChannel-${lobbyObj.lobbyId}`);
         lobbyObj.winChannel.attach();
@@ -87,12 +92,22 @@ function gameBackend()
     {
         console.log("Handle Game Ready");
 
-        updatePlayer(msg.data.lobbyId, msg.clientId, { "isReady": true });
+        const lobbyId = msg.data.lobbyId;
+
+        let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
+        lobbyDB.game.readyPlayers++
+
+        updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
+        updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
     };
 
     const handleShipPositionChange = (msg) =>
     {
         console.log("Handle Ship Position Change");
+
+
+
+        //updateItem("lobby", { "lobbyId": msg.data.lobbyId }, { "game":  })
     };
 
     const handleShoot = (msg) => 
@@ -100,17 +115,83 @@ function gameBackend()
         console.log("Handle Shoot");
     };
     
-    const createLobby = (lobbyId, firstPlayerId) =>
+    const createLobby = (lobbyDB, firstPlayerId) =>
     {
         console.log("Create Lobby");
 
-        lobbies[lobbyId] = {
-            lobbyId: lobbyId,
+        lobbies[lobbyDB.lobbyId] = {
+            lobbyId: lobbyDB.lobbyId,
             players: [ firstPlayerId ],
             playerChannels: {}
-        }
+        };
+
+        const game = createGame(firstPlayerId);
+
+        updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
+    };
+
+    const createGame = (playerId) => {
+        console.log("Create Game");
+
+        let fields = generateFields(10);
+        
+        let ships = {};        
+        generateShips(3, 2, ships);
+        generateShips(3, 4, ships);
+        generateShips(1, 6, ships);
+
+        return {
+            readyPlayers: 0,
+            ships,
+            fields,
+            turn: playerId,
+        };
     };
     
+    const generateFields = (dimentionLength) => 
+    {
+        console.log("Generate Fields");
+        let fields = [];
+
+        for(let x = 0; x < dimentionLength; x++)
+        {
+            let row = [];
+            for(let y = 0; y < dimentionLength; y++)
+            {
+                const fieldId = uuidv4();
+    
+                let field = {
+                    fieldId: fieldId,
+                    x,
+                    y,
+                    wasShoot: false,
+                }
+    
+                row.push(field);
+            }
+
+            fields.push(row);
+        }
+
+        return fields;
+    };
+    
+    const generateShips = (amount, shipLength, ships) => {
+        console.log("Generate Ships");
+
+        for(let i = 0; i < amount; i++)
+        {
+            const shipId = uuidv4();
+
+            let ship = {
+                shipId: shipId,
+                fields: [],
+                shipLength
+            };
+
+            ships[shipId] = ship;
+        }
+    };
 }
 
 module.exports = { 

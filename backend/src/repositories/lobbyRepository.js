@@ -75,44 +75,6 @@ const createLobby = async (data) => {
     }
 }
 
-const getLobbyById = async (itemId) => {
-    try {
-        const params = {
-            TableName: 'lobby',
-            Key: {
-                lobbyId: itemId,
-            },
-        };
-        return await dynamoDB.get(params).promise();
-    }
-    catch (error) {
-        console.error("Error getting item: ", error);
-        throw error; 
-    }
-}
-
-const getLobbyByName = async (itemName) => {
-    try {
-        const params = {
-            TableName: 'lobby',
-            FilterExpression: 'lobbyName = :name', 
-            ExpressionAttributeValues: {
-                ':name': itemName
-            }
-        };
-        const result = await dynamoDB.scan(params).promise();
-        if (result.Items.length > 0) {
-            return result.Items[0];
-        } else {
-            return null;
-        }
-    }
-    catch (error) {
-        console.error("Error getting item: ", error);
-        throw error; 
-    }
-}
-
 const getAllLobbies = async () => {
     try {
         const params = {
@@ -140,23 +102,13 @@ const getAllItems = async (table) => {
 }
 
 const updateItem = async (table, itemKey, updateData) => {
-    const { error, value } = player2Schema.validate(updateData);
-
-    if (error) throw new Error(error.details[0].message);
-
     try {
-        console.log(itemKey)
-        const existingItem = await getLobbyById(Object.values(itemKey)[0]);
-        if (!existingItem) {
-            throw new Error("Item not found");
-        }
-
         let updateExpression = 'SET';
         const expressionAttributeValues = {};
 
         for (let key in updateData){
             updateExpression += ` ${key} = :${key},`;
-            expressionAttributeValues[`:${key}`] = value[key];
+            expressionAttributeValues[`:${key}`] = updateData[key];
         }
 
         const params = {
@@ -173,56 +125,6 @@ const updateItem = async (table, itemKey, updateData) => {
         throw error;
     }
 }
-
-/*()
-const addPlayer2 = async (itemId, updateData) => {
-    const { error, value } = player2Schema.validate(updateData);
-
-    if (error) throw new Error(error.details[0].message);
-
-    try {
-        const existingItem = await getLobbyById(itemId);
-        if (!existingItem) {
-            throw new Error("Item not found");
-        }
-
-        let updateExpression = 'SET';
-        const expressionAttributeValues = {};
-
-        
-        for(var key in updateData)
-        {
-            updateExpression += `${key} = :${key}';
-            expressionAttributeValues[`:player2``] = value.player2;
-        }
-        for (let key in updateData){
-            console.log(key)
-        }
-
-        if (value.player2) {
-            updateExpression += ' player2 = :player2';
-            expressionAttributeValues[':player2'] = value.player2;
-        }
-
-        updateExpression += ', lobbyStatus = :status';
-        expressionAttributeValues[':status'] = 'playing';
-
-        const params = {
-            TableName: 'lobby',
-            Key: {
-                lobbyId: itemId,
-            },
-            UpdateExpression: updateExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-        };
-        
-        //return await dynamoDB.update(params).promise();
-    }
-    catch (error) {
-        console.error("Error updating item:", error);
-        throw error;
-    }
-} */
 
 const deleteLobby = async (itemId) => {
     try {
@@ -272,13 +174,25 @@ const createPlayer = async (playerName, isReady) => {
     }
 };
 
+const getItemById = async (table, itemKey) => {
+    try {
+        const params = {
+            TableName: table,
+            Key: itemKey
+        };
+        return await dynamoDB.get(params).promise();
+    }
+    catch (error) {
+        console.error("Error getting item: ", error);
+        throw error;
+    }
+}
+
 module.exports = {
     createLobby,
-    getLobbyById,
-    getLobbyByName,
-    getAllLobbies,
     getAllItems,
     updateItem,
     deleteLobby,
-    createPlayer
+    createPlayer,
+    getItemById
 }
