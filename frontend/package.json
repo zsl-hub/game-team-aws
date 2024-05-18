@@ -8,6 +8,7 @@
   },
   "author": "",
   "license": "ISC",
+
   "description": "",
   "dependencies": {
     "ably": "^2.0.4",
