@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import config from "../../config/config.json"
-import { myChannel, globalChannel, lobbyId} from "./ablyConnection.js";
+import { myChannel, globalChannel, lobbyId, lobbyChannel} from "./ablyConnection.js";
 
 export default class BoardScene extends Phaser.Scene {
     constructor() {
@@ -87,10 +87,6 @@ export default class BoardScene extends Phaser.Scene {
                 myChannel.publish("gameReady", {
                     lobbyId: lobbyId,
                 })
-
-                this.scene.start('GameScene'); // start GameScene
-                // Deactivate ships
-
             }
         });
         // Create board for ships
@@ -108,10 +104,10 @@ export default class BoardScene extends Phaser.Scene {
         let shipY = width * 0.10;
 
         myChannel.subscribe("createShip", (msg) => {
-            let ship = this.add.sprite(height * 0.10, shipY, msg.data.shipSprite).setDisplaySize(cellSize * msg.data.shipLength, cellSize).setOrigin(0.5, 1);
+            let ship = this.add.sprite(width * 0.10, shipY, msg.data.shipSprite).setDisplaySize(cellSize * msg.data.shipLength, cellSize).setOrigin(0.5, 1);
             ship.id = msg.data.shipId;
 
-            shipY += width * 0.2;
+            shipY += height * 0.1;
 
             ships.push(ship);
         });
@@ -245,6 +241,10 @@ export default class BoardScene extends Phaser.Scene {
                     this.selectedShip.rotatedHeight = newHeight;
                 }
             }
+        });
+
+        lobbyChannel.subscribe("startSecondStage", (msg) => {
+            this.scene.start('GameScene');
         });
     }
 

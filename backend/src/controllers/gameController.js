@@ -58,15 +58,11 @@ function gameBackend()
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
         lobbyDB = lobbyDB.Item;
 
-        console.log(lobbyDB);
-
         if (lobbyDB.player2)
         {
             //if (lobbyDB.player2.playerId !== playerId) return;
 
             const lobbyObj = lobbies[lobbyId];
-
-            console.log(lobbyObj);
 
             await PlayerUtil.handlePlayerEnter(realtime, lobbyObj, playerId);
         }
@@ -77,8 +73,6 @@ function gameBackend()
             await createLobby(lobbyDB);
             const lobbyObj = lobbies[lobbyId];
 
-            console.log(lobbyObj);
-
             await PlayerUtil.handlePlayerEnter(realtime, lobbyObj, playerId);
         }
 
@@ -86,9 +80,14 @@ function gameBackend()
         lobbyDB = lobbyDB.Item;
 
         if (lobbyDB.game.connectedPlayers ===  PLAYERS_NEEDED_TO_START_GAME){
-            Stages.handleFirstStageStart(lobbyDB, 
+            const lobbyObj = lobbies[lobbyId];
+
+            console.log("outside");
+            console.log(lobbyObj);
+
+            Stages.handleFirstStageStart(lobbyObj, lobbyDB, 
             () => {
-                Stages.handleSecondStageStart();
+                Stages.handleSecondStageStart(lobbyObj);
             });
         }
     }
@@ -101,6 +100,11 @@ function gameBackend()
             lobbyId: lobbyDB.lobbyId,
             playerChannels: {}
         };
+
+        let lobbyObj = lobbies[lobbyDB.lobbyId];
+
+        lobbyObj.lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyObj.lobbyId}`);
+        lobbyObj.lobbyChannel.attach();
 
         const game = {
             connectedPlayers: 0,

@@ -22,7 +22,7 @@ class PlayerUtil{
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
         
-        PlayerUtil.subscribeToPlayerEvents(realtime, lobbyObj, playerId);
+        PlayerUtil.subscribeToPlayerEvents(realtime, lobbyObj, playerId, game);
     }
 
     /**
@@ -31,11 +31,8 @@ class PlayerUtil{
      * @param {object} lobbyObj lobby object containing data about networking of lobby
      * @param {string} playerId 
      */
-    static subscribeToPlayerEvents(realtime, lobbyObj, playerId)
+    static subscribeToPlayerEvents(realtime, lobbyObj, playerId, game)
     {
-        lobbyObj.lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyObj.lobbyId}`);
-        lobbyObj.lobbyChannel.attach();
-
         lobbyObj.playerChannels[playerId] = realtime.channels.get(`clientChannel-${playerId}`);
         lobbyObj.playerChannels[playerId].subscribe("gameReady", (msg) => {
             Events.handleGameReady(msg);
