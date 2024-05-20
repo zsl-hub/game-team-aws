@@ -35,7 +35,7 @@ router.post("/joinLobby", async (req, res) => {
 
                 res.status(200).json({ success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2 });
             } else {
-                res.status(401).json({ success: false, message: "Incorrect lobby password" });
+                res.status(401).json({success: false, message: "Incorrect lobby password"});
             }
         } else {
             res.status(403).json({ success: false, message: "Lobby is full" }); 
@@ -68,7 +68,7 @@ router.post("/createLobby", async (req, res) => {
         res.status(201).json(newLobby); 
     } catch (error) {
         console.error("Error while creating lobby:", error);
-        res.status(500).json({ error: "An error occurred while creating the lobby" }); 
+        res.status(500).json({error: "An error occurred while creating the lobby"}); 
     }
 });
 
@@ -79,7 +79,7 @@ router.get("/lobbyList", async (req, res) => {
     }
     catch (error) {
         console.error("Error while getting all lobbies:", error);
-        res.status(500).json({ error: "An error occurred while joining the lobby" });
+        res.status(500).json({error: "An error occurred while joining the lobby"});
     }
 });
 
