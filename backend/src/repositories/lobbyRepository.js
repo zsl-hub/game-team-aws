@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-const { v4: uuidv4 } = require('uuid');
-=======
->>>>>>> ddf4ce8d813c8f65faf60949b564e27bf49cf471
 const dynamoDB = require("../database");
 
 // DATABASE OPERATIONS
@@ -94,11 +90,7 @@ const updateItem = async (table, itemKey, updateData) => {
         const params = {
             TableName: table,
             Key: itemKey,
-<<<<<<< HEAD
-            UpdateExpression: updateExpression.substring(0,updateExpression.length-1), // deleting last coma
-=======
             UpdateExpression: updateExpression.substring(0, updateExpression.length-1),
->>>>>>> ddf4ce8d813c8f65faf60949b564e27bf49cf471
             ExpressionAttributeValues: expressionAttributeValues,
         };
         
@@ -126,52 +118,11 @@ const deleteLobby = async (table, itemId) => {
     }
 };
 
-<<<<<<< HEAD
-const createPlayer = async (playerName, isReady) => {
-    const value = { playerName, isReady };
-
-    //const { error, value } = playerSchema.validate(data);
-
-    /*if (error) {
-        console.error("Validation error:", error.details[0].message);
-        throw new Error("Validation error");
-    }*/
-
-    try {
-        const item = {
-            playerId: uuidv4(),
-            playerName: value.playerName, 
-            isReady: value.isReady,
-        };
-
-        const params = {
-            TableName: 'player',
-            Item: item,
-        };
-
-        await dynamoDB.put(params).promise();
-
-        return item;
-    }
-    catch (error) {
-        console.error("Error creating item:", error);
-        throw error;
-    }
-};
-
-=======
->>>>>>> ddf4ce8d813c8f65faf60949b564e27bf49cf471
 module.exports = {
     createItem,
     getItemById,
     getItemByProperty,
     getAllItems,
     updateItem,
-<<<<<<< HEAD
-    deleteLobby,
-    createPlayer,
-    getItemById
-=======
     deleteLobby
->>>>>>> ddf4ce8d813c8f65faf60949b564e27bf49cf471
 }
