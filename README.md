@@ -32,6 +32,6 @@ Config files (config.json) located in config folder both in backend and frontend
 
 ### Running app locally
 
-Run `docker compose -f services.yaml --env-file ./env/{filename}.env --build`
+Run `docker compose -f services.yaml --env-file ./env/{filename}.env up --build`
 
 Enjoy app at `localhost/startpage`
