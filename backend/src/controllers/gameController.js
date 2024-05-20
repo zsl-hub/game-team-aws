@@ -9,6 +9,7 @@ const { getItemById, updateItem } = require("../repositories/lobbyRepository.js"
 const ShipUtil = require("../utility/ShipUtil.js");
 const PlayerUtil = require("../utility/PlayerUtil.js");
 const FieldUtil = require("../utility/FieldUtil.js");
+const Stages = require("../utility/Stages.js");
 
 const router = express.Router();
 
@@ -85,14 +86,10 @@ function gameBackend()
         lobbyDB = lobbyDB.Item;
 
         if (lobbyDB.game.connectedPlayers ===  PLAYERS_NEEDED_TO_START_GAME){
-            let lobbyObj = lobbies[lobbyId];
-
-            for(const playerId in lobbyObj.playerChannels)
-            {
-                const playerChannel = lobbyObj.playerChannels[playerId];
-
-                ShipUtil.sendCreateMessages(playerId, lobbyObj, lobbyDB.game);
-            }
+            Stages.handleFirstStageStart(lobbyDB, 
+            () => {
+                Stages.handleSecondStageStart();
+            });
         }
     }
 
@@ -113,33 +110,6 @@ function gameBackend()
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
-
-    const handleGameReady = (msg) => 
-    {
-        console.log("Handle Game Ready");
-
-        const lobbyId = msg.data.lobbyId;
-
-        let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
-        lobbyDB.game.readyPlayers++
-
-        updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
-        updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
-
-        if (lobbyDB.game.readyPlayers === PLAYERS_NEEDED_TO_START_GAME)
-        {
-            handleGameStart();
-        }
-    };
-
-    const handleGameStart = () => {
-        console.log("Game Start");
-    };
-
-    const handleShoot = (msg) => 
-    {
-        console.log("Handle Shoot");
-    };
 }
 
 module.exports = { 
