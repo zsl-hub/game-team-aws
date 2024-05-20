@@ -1,6 +1,14 @@
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
+        this.players = [
+            { name: 'Player 1', isInGame: true },
+            { name: 'Player 2', isInGame: true }
+        ];
+        this.winnerText = null;
+        this.modal = null;
+        this.confirmText = null;
+        this.continueButton = null;
     }
     create() {
         const width = this.scale.width / 2;
@@ -54,13 +62,99 @@ export default class GameScene extends Phaser.Scene {
             ship.setOrigin(0.5, 1);
             ship.angle = shipData.angle;
             ship.isPlaced = true;
-            console.log(shipData.lastValidPosition);
         });
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
         yBoard.setOrigin(0.5);
         const eBoard = this.add.text(width * 1.5, height * 0.15 + boardYOffset, 'Enemy Board', { fontSize: width * 0.05, fill: '#fff' });
         eBoard.setOrigin(0.5);
-    }
-}
 
+        // Create winner text but keep it invisible until a player wins
+        this.winnerText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, '', { fontSize: width * 0.05, fill: '#ffffff' });
+        this.winnerText.setOrigin(0.5);
+        this.winnerText.setVisible(false);
+
+        // Create modal but keep it invisible until "Quit" is clicked
+        this.modal = this.add.graphics();
+        this.modal.fillStyle(0x0000ff, 0.5); // Semi-transparent blue
+        this.modal.fillRect(0, 0, this.scale.width, this.scale.height);
+        this.modal.setVisible(false);
+
+        this.confirmText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'Are you sure you want to quit? You will lose the game.', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+        this.confirmText.setOrigin(0.5);
+        this.confirmText.setVisible(false);
+
+        this.continueButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 50, 'Continue', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+        this.continueButton.setOrigin(0.5);
+        this.continueButton.setInteractive();
+        this.continueButton.setVisible(false);
+
+        // Add pointerover event for hover effect
+        // Add pointerover event for hover effect
+        this.continueButton.on('pointerover', () => {
+            this.continueButton.setFill('#ff0000'); // Red
+            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+        });
+
+        // Add pointerout event to remove hover effect
+        this.continueButton.on('pointerout', () => {
+            this.continueButton.setFill('#ffffff'); // White
+            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+        });
+
+        this.continueButton.on('pointerdown', () => {
+            // Player confirmed they want to quit
+            this.players[0].isInGame = false;
+
+            // Show winner text for Player 2
+            this.winnerText.setText(`${this.players[1].name} wins!`);
+            this.winnerText.setVisible(true);
+
+            // Hide modal
+            this.modal.setVisible(false);
+            this.confirmText.setVisible(false);
+            this.continueButton.setVisible(false);
+
+            // Redirect to another page after 3 seconds
+            setTimeout(() => {
+                window.location.href = '../lobby/lobby.html';
+            }, 3000);
+        });
+
+        const quitButtonBackground = this.add.rectangle(width * 0.5, height * 0.9, width * 0.24, height * 0.08, 0xff0000); // Red rectangle
+        quitButtonBackground.setOrigin(0.5);
+        quitButtonBackground.setInteractive();
+        
+        const quitButton = this.add.text(width * 0.5, height * 0.9, 'QUIT', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+        quitButton.setOrigin(0.5);
+        quitButton.setInteractive();
+
+        // Add pointerover event for hover effect
+        quitButtonBackground
+        quitButton.on('pointerover', () => {
+            quitButton.setFill('#0000ff'); // Blue
+            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+        });
+
+        // Add pointerout event to remove hover effect
+        quitButton.on('pointerout', () => {
+            quitButton.setFill('#ffffff'); // White
+            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+        });
+        quitButton.on('pointerdown', () => {
+            // Show modal
+            this.handleClick();
+        });
+        quitButtonBackground.on('pointerdown', () => {
+            this.handleClick();
+        })
+        quitButton.setOrigin(0.5);
+        
+    }
+    handleClick() {
+        this.modal.setVisible(true);
+        this.confirmText.setVisible(true);
+        this.continueButton.setVisible(true);
+        };
+    
+}
