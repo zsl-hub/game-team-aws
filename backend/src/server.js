@@ -1,7 +1,7 @@
 const dotenv = require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
-const { gameBackend, gameRouter } = require("./controllers/gameController")
+const { gameBackend, gameRouter } = require("./controllers/gameController.js")
 
 const app = express();
 
