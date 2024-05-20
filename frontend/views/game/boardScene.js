@@ -1,4 +1,15 @@
 import Phaser from 'phaser';
+import config from "../../config/config.json"
+import Ably from 'ably'
+
+const realtime = new Ably.Realtime({ 
+    authUrl: config.host + config.endpoints.auth,
+    echoMessages: false
+});
+
+realtime.connection.once("connected", () => {
+    console.log("connected to ably");
+})
 
 export default class BoardScene extends Phaser.Scene {
     constructor() {
