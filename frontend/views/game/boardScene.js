@@ -92,11 +92,13 @@ export default class BoardScene extends Phaser.Scene {
         yBoard.setOrigin(0.5);
         // Battleships
         const ships = [];
+        let shipY = width * 0.10;
 
         myChannel.subscribe("createShip", (msg) => {
-            console.log("negro");
-            let ship = this.add.sprite(width * 0.10, height * 0.10, 'shipx2').setDisplaySize(cellSize * msg.data.shipLength, cellSize).setOrigin(0.5, 1);
+            let ship = this.add.sprite(height * 0.10, shipY, msg.data.shipSprite).setDisplaySize(cellSize * msg.data.shipLength, cellSize).setOrigin(0.5, 1);
             ship.id = msg.data.shipId;
+
+            shipY += width * 0.2;
 
             ships.push(ship);
         });
@@ -202,12 +204,34 @@ export default class BoardScene extends Phaser.Scene {
             realPosX -= Math.round(boardStartX);
             realPosY -= Math.round(boardStartY);
             
-            console.log(boardStartX - boardStartX, realPosX, Math.round(boardStartY), realPosY);
-
+            
             let positionX = Math.round(realPosX / cellSize);
             let positionY = Math.round(realPosY / cellSize);
+            
+            console.log(realPosX, realPosY);
+            console.log(positionX, positionY);
+            console.log(shipSizeX, shipSizeY);
 
-            console.log(cellSize, positionX, positionY);
+            let locations = [];
+
+            for(let x = positionX; x < positionX + shipSizeX; x++)
+            {
+                for(let y = positionY; y < positionY + shipSizeY; y++)
+                {
+                    locations.push({
+                        x,
+                        y
+                    });
+                }
+            }
+
+            console.log(locations);
+            
+            myChannel.publish("shipPosition", {
+                lobbyId,
+                shipId: gameObject.id,
+                fields: locations
+            });
         });
         this.input.keyboard.on('keydown-R', () => {
             if (this.selectedShip) {

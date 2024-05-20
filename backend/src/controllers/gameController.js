@@ -94,6 +94,8 @@ function gameBackend()
 
         game.ships[playerId] = generatePlayerShips();
 
+        await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
+
         console.log(game.ships[playerId]);
        
         subscribeToPlayerEvents(lobbyObj, playerId);
@@ -102,7 +104,8 @@ function gameBackend()
             let ship = game.ships[playerId][key];
             lobbyObj.playerChannels[playerId].publish("createShip", {
                 shipId: ship.shipId,
-                shipLength: ship.shipLength
+                shipLength: ship.shipLength,
+                shipSprite: ship.shipSprite
             });
         }
 
@@ -113,13 +116,13 @@ function gameBackend()
     {
         ships = {};
         
-        generateShips(3, 2, ships);
-        generateShips(3, 4, ships);
-        generateShips(1, 6, ships);
+        generateShips(3, 2, "shipx2", ships);
+        generateShips(3, 4, "shipx4", ships);
+        generateShips(1, 6, "shipx6", ships);
 
         return ships;
     };
-    const generateShips = (amount, shipLength, ships) => {
+    const generateShips = (amount, shipLength, shipSprite, ships) => {
         console.log("Generate Ships");
 
         for(let i = 0; i < amount; i++)
@@ -129,7 +132,8 @@ function gameBackend()
             let ship = {
                 shipId: shipId,
                 fields: [],
-                shipLength
+                shipLength,
+                shipSprite
             };
 
             ships[shipId] = ship;
@@ -172,7 +176,6 @@ function gameBackend()
             handleGameReady(msg);
         });
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
-            console.log("lol")
             handleShipPositionChange(msg);
         });
         lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
@@ -202,15 +205,17 @@ function gameBackend()
         console.log("Game Start");
     };
 
-    const handleShipPositionChange = (msg) =>
+    const handleShipPositionChange = async (msg) =>
     {
         console.log("Handle Ship Position Change");
 
+        let lobbyDB = await getItemById("lobby", { "lobbyId": msg.data.lobbyId });
+        lobbyDB = lobbyDB.Item;
+        let game = lobbyDB.game;
 
+        game.ships[msg.clientId][msg.data.shipId].fields = msg.data.locations;
 
-        //let game = 
-
-        //updateItem("lobby", { "lobbyId": msg.data.lobbyId }, { "game":  })
+        await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     };
 
     const handleShoot = (msg) => 
