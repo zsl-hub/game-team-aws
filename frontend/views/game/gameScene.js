@@ -54,7 +54,7 @@ export default class GameScene extends Phaser.Scene {
             ship.setOrigin(0.5, 1);
             ship.angle = shipData.angle;
             ship.isPlaced = true;
-            console.log(shipData.lastValidPosition);
+            console.log(shipData.lastValidPosition, shipData.displayHeight, shipData.displayWidth);
         });
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });

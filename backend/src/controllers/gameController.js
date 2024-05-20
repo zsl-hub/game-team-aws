@@ -1,9 +1,10 @@
 const Ably = require("ably");
-const { get, getItemById } = require("../repositories/lobbyRepository");
+const { getItemById, updateItem } = require("../repositories/lobbyRepository");
 const express = require("express");
 const router = express.Router();
-const { updateItem } = require("../repositories/lobbyRepository");
 const { v4:  uuidv4 } = require("uuid");
+
+const PLAYERS_NEEDED_TO_START_GAME = 2;
 
 function gameBackend()
 {
@@ -30,7 +31,7 @@ function gameBackend()
             });
     });
 
-    realtime.connection.once("connected", () => {
+    realtime.connection.once("connected", async () => {
         console.log("Connected to Ably!");
 
         globalChannel = realtime.channels.get("globalChannel");
@@ -45,109 +46,95 @@ function gameBackend()
 
             if (lobbyDB.player2)
             {
-                if (lobbyDB.player2.playerId !== playerId) return;
+                //if (lobbyDB.player2.playerId !== playerId) return;
 
                 const lobbyObj = lobbies[lobbyId];
 
-                handlePlayerEnter(lobbyObj)
+                await handlePlayerEnter(lobbyObj, playerId);
             }
             else
             {
-                console.log("dsd")
-                console.log(playerId);
                 //if (lobbyDB.player1.playerId != playerId) return;
 
-                console.log("lys")
-
-                createLobby(lobbyDB, playerId);
+                await createLobby(lobbyDB, playerId);
                 const lobbyObj = lobbies[lobbyId];
-                handlePlayerEnter(lobbyObj)
+
+                await handlePlayerEnter(lobbyObj, playerId);
             }
         });
     });
 
-    const handlePlayerEnter = (lobbyObj, playerId) =>
-    {
-        console.log("Handle Player Enter");
-
-        lobbyObj.createChannel = realtime.channels.get(`createChannel-${lobbyObj.lobbyId}`);
-        lobbyObj.createChannel.attach();
-
-        lobbyObj.winChannel = realtime.channels.get(`winChannel-${lobbyObj.lobbyId}`);
-        lobbyObj.winChannel.attach();
-
-        lobbyObj.playerChannels[playerId] = realtime.channels.get(`clientChannel-${playerId}`);
-        lobbyObj.playerChannels[playerId].subscribe("gameReady", (msg) => {
-            handleGameReady(msg);
-        });
-        lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
-            handleShipPositionChange(msg);
-        });
-        lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
-            handleShoot(msg);
-        });
-    };
-
-    const handleGameReady = (msg) => 
-    {
-        console.log("Handle Game Ready");
-
-        const lobbyId = msg.data.lobbyId;
-
-        let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
-        lobbyDB.game.readyPlayers++
-
-        updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
-        updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
-    };
-
-    const handleShipPositionChange = (msg) =>
-    {
-        console.log("Handle Ship Position Change");
-
-
-
-        //updateItem("lobby", { "lobbyId": msg.data.lobbyId }, { "game":  })
-    };
-
-    const handleShoot = (msg) => 
-    {
-        console.log("Handle Shoot");
-    };
-    
-    const createLobby = (lobbyDB, firstPlayerId) =>
+    const createLobby = async (lobbyDB) =>
     {
         console.log("Create Lobby");
 
         lobbies[lobbyDB.lobbyId] = {
             lobbyId: lobbyDB.lobbyId,
-            players: [ firstPlayerId ],
+            players: [],
             playerChannels: {}
         };
 
-        const game = createGame(firstPlayerId);
+        const game = {
+            readyPlayers: 0,
+            ships: {},
+        };
 
-        updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
+        await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     };
 
-    const createGame = (playerId) => {
-        console.log("Create Game");
+    const handlePlayerEnter = async (lobbyObj, playerId) =>
+    {
+        console.log("Handle Player Enter");
 
-        let fields = generateFields(10);
+        let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId });
+        lobbyDB = lobbyDB.Item;
+        let game = lobbyDB.game;
+
+        console.log(lobbyDB);
+
+        game.ships[playerId] = generatePlayerShips();
+
+        console.log(game.ships[playerId]);
+       
+        subscribeToPlayerEvents(lobbyObj, playerId);
+
+        for(var key in game.ships[playerId]){
+            let ship = game.ships[playerId][key];
+            lobbyObj.playerChannels[playerId].publish("createShip", {
+                shipId: ship.shipId,
+                shipLength: ship.shipLength
+            });
+        }
+
+        lobbyObj.playerChannels[playerId].publish("createdAllShips", {});
+    };
+
+    const generatePlayerShips = () =>
+    {
+        ships = {};
         
-        let ships = {};        
         generateShips(3, 2, ships);
         generateShips(3, 4, ships);
         generateShips(1, 6, ships);
 
-        return {
-            readyPlayers: 0,
-            ships,
-            fields,
-            turn: playerId,
-        };
+        return ships;
     };
-    
+    const generateShips = (amount, shipLength, ships) => {
+        console.log("Generate Ships");
+
+        for(let i = 0; i < amount; i++)
+        {
+            const shipId = uuidv4();
+
+            let ship = {
+                shipId: shipId,
+                fields: [],
+                shipLength
+            };
+
+            ships[shipId] = ship;
+        }
+    };
     const generateFields = (dimentionLength) => 
     {
         console.log("Generate Fields");
@@ -175,23 +162,62 @@ function gameBackend()
 
         return fields;
     };
-    
-    const generateShips = (amount, shipLength, ships) => {
-        console.log("Generate Ships");
 
-        for(let i = 0; i < amount; i++)
+    const subscribeToPlayerEvents = (lobbyObj, playerId) => {
+        lobbyObj.winChannel = realtime.channels.get(`winChannel-${lobbyObj.lobbyId}`);
+        lobbyObj.winChannel.attach();
+
+        lobbyObj.playerChannels[playerId] = realtime.channels.get(`clientChannel-${playerId}`);
+        lobbyObj.playerChannels[playerId].subscribe("gameReady", (msg) => {
+            handleGameReady(msg);
+        });
+        lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
+            console.log("lol")
+            handleShipPositionChange(msg);
+        });
+        lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
+            handleShoot(msg);
+        });
+    }
+
+    const handleGameReady = (msg) => 
+    {
+        console.log("Handle Game Ready");
+
+        const lobbyId = msg.data.lobbyId;
+
+        let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
+        lobbyDB.game.readyPlayers++
+
+        updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
+        updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
+
+        if (lobbyDB.game.readyPlayers === PLAYERS_NEEDED_TO_START_GAME)
         {
-            const shipId = uuidv4();
-
-            let ship = {
-                shipId: shipId,
-                fields: [],
-                shipLength
-            };
-
-            ships[shipId] = ship;
+            handleGameStart();
         }
     };
+
+    const handleGameStart = () => {
+        console.log("Game Start");
+    };
+
+    const handleShipPositionChange = (msg) =>
+    {
+        console.log("Handle Ship Position Change");
+
+
+
+        //let game = 
+
+        //updateItem("lobby", { "lobbyId": msg.data.lobbyId }, { "game":  })
+    };
+
+    const handleShoot = (msg) => 
+    {
+        console.log("Handle Shoot");
+    };
+
 }
 
 module.exports = { 
