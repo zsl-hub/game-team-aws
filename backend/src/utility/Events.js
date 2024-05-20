@@ -18,11 +18,13 @@ class Events{
 
     static handleGameReady(msg) 
     {
-        console.log("Handle Game Ready");
-
         const lobbyId = msg.data.lobbyId;
 
         let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
+        if (game.connectedPlayers < 2) return;
+
+        console.log("Handle Game Ready");
+
         lobbyDB.game.readyPlayers++
 
         updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
