@@ -1,15 +1,4 @@
 import Phaser from 'phaser';
-import config from "../../config/config.json"
-import Ably from 'ably'
-
-const realtime = new Ably.Realtime({ 
-    authUrl: config.host + config.endpoints.auth,
-    echoMessages: false
-});
-
-realtime.connection.once("connected", () => {
-    console.log("connected to ably");
-})
 
 export default class BoardScene extends Phaser.Scene {
     constructor() {
@@ -27,7 +16,6 @@ export default class BoardScene extends Phaser.Scene {
         const width = this.scale.width / 2;
         const height = this.scale.height;
         const cellSize = Math.min(width, height) / 15;
-
         const boardYOffset = -height * 0.05;
         // Board x and y
         const boardStartX = (width - cellSize * 10) + width * 0.5;
@@ -44,13 +32,31 @@ export default class BoardScene extends Phaser.Scene {
                 rect.setOrigin(0);
             }
         }
-        // Button "Ready"
-        const readyButton = this.add.text(width * 0.5, height * 0.95, 'Ready', { fontSize: width * 0.06, fill: '#fff', backgroundColor: '#00ff00', padding: { x: width * 0.030, y: height * 0.015 }, fixedWidth: width * 0.24, fixedHeight: height * 0.08 });
-        readyButton.setInteractive({ useHandCursor: true })
-            .on('pointerover', () => readyButton.setBackgroundColor('#33ff33')) // Hover background
-            .on('pointerout', () => readyButton.setBackgroundColor('#00ff00')); // None hover
 
+        // Button "Ready"
+        
+
+        
+        const readyButtonBackground = this.add.rectangle(width * 0.2, height * 0.90 - height * 0.10, width * 0.24, height * 0.08, 0x00ff00); // Green rectangle
+        readyButtonBackground.setOrigin(0.5);
+        const readyButton = this.add.text(width * 0.2, height * 0.90, 'Ready', { fontSize: width * 0.06, fill: '#ffffff',}); // White text
         readyButton.setOrigin(0.5);
+        readyButton.setInteractive();
+
+        // Add pointerover event for hover effect
+        readyButton.on('pointerover', () => {
+            readyButton.setFill('#0000ff'); // Blue
+            readyButtonBackground.setFillStyle(0xff0000); // Blue
+            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+        });
+
+        // Add pointerout event to remove hover effect
+        readyButton.on('pointerout', () => {
+            readyButton.setFill('#ffffff'); // White
+            readyButtonBackground.setFillStyle(0x00ff00); // Green
+            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+        });
+
         readyButton.setPosition(width * 0.2, height * 0.8)
         readyButton.setInteractive();
         readyButton.on('pointerdown', () => {
