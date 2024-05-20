@@ -1,63 +1,15 @@
-const { v4: uuidv4 } = require('uuid');
-const Joi = require('joi');
 const dynamoDB = require("../database");
 
-// DATA VALIDATION 
-const itemSchema = Joi.object({
-    lobbyName: Joi.string().min(1).max(255).required(),
-    isPrivate: Joi.boolean().required(),
-    lobbyPass: Joi.when('isPrivate', {
-        is: true,
-        then: Joi.string().min(4).max(255).required(),
-        otherwise: Joi.string().allow('').optional()
-    }),
-    lobbyStatus: Joi.string().min(1).max(255).required(),
-    player1: Joi.object().keys({
-        playerId: Joi.string().min(1).max(255).required(),
-        playerName: Joi.string().min(1).max(255).required(),
-        isReady: Joi.boolean().required()
-    }).required()
-});
-
-const player2Schema = Joi.object({
-    lobbyName: Joi.string().min(1).max(255).required(),
-    player2: Joi.object().keys({
-        playerId: Joi.string().min(1).max(255).required(),
-        playerName: Joi.string().min(1).max(255).required(),
-        isReady: Joi.boolean().required() 
-    }).required(),
-    lobbyPassword: Joi.string().allow('').optional()
-});
-
-const playerSchema = Joi.object({
-    playerName: Joi.string().min(1).max(255).required(),
-    isReady: Joi.boolean().required()
-})
-
 // DATABASE OPERATIONS
-const createLobby = async (data) => {
-    const { error, value } = itemSchema.validate(data);
-
-    if (error) {
-        console.error("Validation error:", error.details[0].message);
-        throw new Error("Validation error");
-    }
-
+const createItem = async (table, data) => {
     try {
-        const item = {
-            lobbyId: uuidv4(),
-            lobbyName: value.lobbyName, 
-            isPrivate: value.isPrivate,
-            lobbyStatus: value.lobbyStatus,
-            player1: value.player1
-        };
-        
-        if (value.isPrivate) {
-            item.lobbyPass = value.lobbyPass;
+        const item = {};
+        for (let key in data) {
+            item[key] = data[key]
         }
 
         const params = {
-            TableName: 'lobby',
+            TableName: table, 
             Item: item,
         };
 
@@ -71,13 +23,11 @@ const createLobby = async (data) => {
     }
 }
 
-const getLobbyById = async (itemId) => {
+const getItemById = async (table, itemKey) => {
     try {
         const params = {
-            TableName: 'lobby',
-            Key: {
-                lobbyId: itemId,
-            },
+            TableName: table,
+            Key: itemKey
         };
         return await dynamoDB.get(params).promise();
     }
@@ -87,13 +37,13 @@ const getLobbyById = async (itemId) => {
     }
 }
 
-const getLobbyByName = async (itemName) => {
+const getItemByProperty = async (table, itemKey) => {
     try {
         const params = {
-            TableName: 'lobby',
-            FilterExpression: 'lobbyName = :name', 
+            TableName: table,
+            FilterExpression: `${Object.keys(itemKey)[0]} = :name`,
             ExpressionAttributeValues: {
-                ':name': itemName
+                ':name': Object.values(itemKey)[0]
             }
         };
         const result = await dynamoDB.scan(params).promise();
@@ -109,10 +59,10 @@ const getLobbyByName = async (itemName) => {
     }
 }
 
-const getAllLobbies = async () => {
+const getAllItems = async (table) => { 
     try {
         const params = {
-            TableName: 'lobby'
+            TableName: table
         };
         return await dynamoDB.scan(params).promise();
     }
@@ -122,57 +72,9 @@ const getAllLobbies = async () => {
     }
 }
 
-const updateLobby = async (itemId, updateData) => {
-    const { error, value } = itemSchema.validate(updateData);
-
-    if (error) throw new Error(error.details[0].message);
-
+const updateItem = async (table, itemKey, updateData) => {
     try {
-        const existingItem = await getLobbyById(itemId);
-        if (!existingItem) {
-            throw new Error("Item not found");
-        }
-
-        let updateExpression = 'SET lobbyName = :lobbyName, isPrivate = :isPrivate, lobbyStatus = :lobbyStatus, player1 = :player1';
-        const expressionAttributeValues = {
-            ':lobbyName': value.lobbyName,
-            ':isPrivate': value.isPrivate,
-            ':lobbyStatus': value.lobbyStatus,
-            ':player1': value.player1
-        };
-
-        if (!value.isPrivate) {
-            updateExpression += ' REMOVE lobbyPass';
-        }
-        else {
-            updateExpression += ', lobbyPass = :lobbyPass';
-            expressionAttributeValues[':lobbyPass'] = value.lobbyPass;
-        }
-
-        const params = {
-            TableName: 'lobby',
-            Key: {
-                lobbyId: itemId,
-            },
-            UpdateExpression: updateExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-        };
-        
-        return await dynamoDB.update(params).promise();
-    }
-    catch (error) {
-        console.error("Error updating item:", error);
-        throw error;
-    }
-}
-
-const addPlayer2 = async (itemId, updateData) => {
-    const { error, value } = player2Schema.validate(updateData);
-
-    if (error) throw new Error(error.details[0].message);
-
-    try {
-        const existingItem = await getLobbyById(itemId);
+        const existingItem = await getItemById(table, itemKey);
         if (!existingItem) {
             throw new Error("Item not found");
         }
@@ -180,22 +82,16 @@ const addPlayer2 = async (itemId, updateData) => {
         let updateExpression = 'SET';
         const expressionAttributeValues = {};
 
-        if (value.player2) {
-            updateExpression += ' player2 = :player2';
-            expressionAttributeValues[':player2'] = value.player2;
+        for (let key in updateData){
+            updateExpression += ` ${key} = :${key},`;
+            expressionAttributeValues[`:${key}`] = updateData[key];
         }
 
-        updateExpression += ', lobbyStatus = :status';
-        expressionAttributeValues[':status'] = 'playing';
-
         const params = {
-            TableName: 'lobby',
-            Key: {
-                lobbyId: itemId,
-            },
-            UpdateExpression: updateExpression,
+            TableName: table,
+            Key: itemKey,
+            UpdateExpression: updateExpression.substring(0, updateExpression.length-1),
             ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: 'ALL_NEW'
         };
         
         return await dynamoDB.update(params).promise();
@@ -206,10 +102,10 @@ const addPlayer2 = async (itemId, updateData) => {
     }
 }
 
-const deleteLobby = async (itemId) => {
+const deleteLobby = async (table, itemId) => {
     try {
         const params = {
-            TableName: 'lobby',
+            TableName: table,
             Key: {
               lobbyId: itemId,
             },
@@ -222,45 +118,11 @@ const deleteLobby = async (itemId) => {
     }
 };
 
-const createPlayer = async (playerName, isReady) => {
-    const data = { playerName, isReady };
-
-    const { error, value } = playerSchema.validate(data);
-
-    if (error) {
-        console.error("Validation error:", error.details[0].message);
-        throw new Error("Validation error");
-    }
-
-    try {
-        const item = {
-            playerId: uuidv4(),
-            playerName: value.playerName, 
-            isReady: value.isReady,
-        };
-
-        const params = {
-            TableName: 'player',
-            Item: item,
-        };
-
-        await dynamoDB.put(params).promise();
-
-        return item;
-    }
-    catch (error) {
-        console.error("Error creating item:", error);
-        throw error;
-    }
-};
-
 module.exports = {
-    createLobby,
-    getLobbyById,
-    getLobbyByName,
-    getAllLobbies,
-    updateLobby,
-    addPlayer2,
-    deleteLobby,
-    createPlayer
+    createItem,
+    getItemById,
+    getItemByProperty,
+    getAllItems,
+    updateItem,
+    deleteLobby
 }
