@@ -35,7 +35,7 @@ class PlayerUtil{
     {
         lobbyObj.playerChannels[playerId] = realtime.channels.get(`clientChannel-${playerId}`);
         lobbyObj.playerChannels[playerId].subscribe("gameReady", (msg) => {
-            Events.handleGameReady(msg);
+            Events.handleGameReady(msg, lobbyObj);
         });
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
             Events.handleShipPositionChange(msg);

@@ -17,7 +17,7 @@ class Events{
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
 
-    static async handleGameReady(msg) 
+    static async handleGameReady(msg, lobbyObj) 
     {
         const lobbyId = msg.data.lobbyId;
 
@@ -35,7 +35,7 @@ class Events{
 
         if (lobbyDB.game.readyPlayers === 2)
         {
-            Stages.handleSecondStageStart();
+            Stages.handleSecondStageStart(lobbyObj);
         }
     }
 
