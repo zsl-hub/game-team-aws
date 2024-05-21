@@ -4,6 +4,6 @@
         "createLobby": "/lobby/createLobby",
         "deleteLobby": "/lobby/deleteLobby",
         "joinLobby": "/lobby/joinLobby",
-        "auth": "/auth"
+        "ablyAuth": "/game/auth"
     }
 }

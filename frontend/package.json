@@ -1,21 +1,18 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "dev": "vite"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "vite": "^5.2.0"
-  },
+
+  "description": "",
   "dependencies": {
     "ably": "^2.0.4",
+    "phaser": "^3.80.1",
     "vite": "^5.2.11"
   }
 }

@@ -2,6 +2,7 @@
     "endpoints": {
         "createLobby": "/lobby/createLobby",
         "deleteLobby": "/lobby/deleteLobby",
-        "joinLobby": "/lobby/joinLobby"
+        "joinLobby": "/lobby/joinLobby",
+        "authenticateAbly": "/game/auth"
     }
 }
