@@ -72,12 +72,12 @@ class Stages{
 
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
 
-        await Stages.createPlayerFields(lobbyObj);
+        await Stages.#createPlayerFields(lobbyObj);
 
-        await Stages.createPlayerShips(lobbyObj);
+        await Stages.#createPlayerShips(lobbyObj);
     }
 
-    static async createPlayerFields(lobbyObj){
+    static async #createPlayerFields(lobbyObj){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId});
         lobby = lobby.Item;
         
@@ -104,7 +104,7 @@ class Stages{
         await updateItem("lobby", { "lobbyId": lobbyObj.lobbyId }, { "game": game });
     }
 
-    static async createPlayerShips(lobbyObj){
+    static async #createPlayerShips(lobbyObj){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId });
         lobby = lobby.Item;
 
@@ -119,6 +119,25 @@ class Stages{
                 ships: game.ships[playerId]
             });
         }
+
+        // for(const playerId in lobbyObj.playerChannels)
+        // {
+        //     const playerChannel = lobbyObj.playerChannels[playerId];
+
+        //     for(const shipId in game.ships[playerId])
+        //     {
+        //         const ship = game.ships[playerId][shipId];
+
+        //         ship.fields.forEach(shipField => {
+        //             const field = game.fields[playerId][shipField.x][shipField.y];
+
+        //             playerChannel.publish("updateField", {
+        //                 fieldId: field.fieldId,
+        //                 wasShoot: true
+        //             });          
+        //         });        
+        //     }
+        // }
     }
 }
 

@@ -1,5 +1,6 @@
 const Stages = require("./Stages");
 const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const ShipUtil = require("./ShipUtil");
 
 class Events{
     static async handleShipPositionChange(msg)
@@ -49,35 +50,31 @@ class Events{
         const lobbyId = msg.data.lobbyId;
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
         lobbyDB = lobbyDB.Item;
-        
+
         let game = lobbyDB.game;
         if (game.turn !== msg.clientId) return;
-
-        console.log("Handle Shoot");
-
-        const field = game.fields[msg.clientId][msg.data.x, msg.data.y];
+        
+        let enemyPlayerId = Events.#getNextTurnPlayerId(msg.clientId, lobbyDB);
+        
+        const field = game.fields[enemyPlayerId][msg.data.x][msg.data.y];
         if (field.wasShoot) return;
-
+        
+        console.log("Handle Shoot");
+        
         field.wasShoot = true;
 
-        let shootShipId;
+        let hittedShip = false;
 
-        for(const shipId in game.ships[msg.clientId])
+        for(const shipId in game.ships[enemyPlayerId])
         {
-            const ship = game.ships[msg.clientId][shipId];
+            const ship = game.ships[enemyPlayerId][shipId];
 
-            ship.fields.forEach(location => {
-                if (location.x === field.x && location.y === field.y){
-                    ship.shootsLeft--;
-
-                    if (ship.shootsLeft <= 0)
-                    {
-                        ship.isDestroyed = true;
-                    }
-
-                    shootShipId = ship.shipId;
-                }
-            });
+            if (ShipUtil.isShipOnField(ship, field))
+            {
+                ship.fieldsLeft--;
+                hittedShip = true;
+                console.log(ship);
+            }
         }
 
         for(const playerId in lobbyObj.playerChannels)
@@ -86,9 +83,20 @@ class Events{
 
             playerChannel.publish("updateField", {
                 fieldId: field.fieldId,
-                wasShoot: field.wasShoot
+                hittedShip
             });
         }
+
+        game.turn = enemyPlayerId;
+
+        await updateItem("lobby", { "lobbyId": lobbyId }, { "game": game });
+    }
+
+    static #getNextTurnPlayerId(currentTurnPlayerId, lobbyDB)
+    {
+        let isFirstPlayer = currentTurnPlayerId === lobbyDB.player1;
+
+        return isFirstPlayer === true? lobbyDB.player2 : lobbyDB.player1;
     }
 }
 

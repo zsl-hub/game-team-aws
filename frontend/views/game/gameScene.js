@@ -49,8 +49,6 @@ export default class GameScene extends Phaser.Scene {
                     rect.setOrigin(0);
                     rect.id = data.fields[x][y].fieldId;
 
-                    console.log(rect.id);
-
                     row.push(rect);
                     fieldsById[rect.id] = rect;
                 }
@@ -82,7 +80,7 @@ export default class GameScene extends Phaser.Scene {
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
-                        rect.setFillStyle(0x00ff00, 1); // Green
+                        //rect.setFillStyle(0x00ff00, 1); // Green
                         
                         myChannel.publish("shootField", {
                             lobbyId: lobbyId,
@@ -112,8 +110,6 @@ export default class GameScene extends Phaser.Scene {
 
             for(const shipId in data.ships){
                 const shipData = data.ships[shipId];
-            
-                console.log(shipData);
 
                 const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
                 ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
@@ -123,8 +119,6 @@ export default class GameScene extends Phaser.Scene {
                 ship.id = shipId;
 
                 ships[shipId] = ship;
-
-                console.log(shipData.lastValidPosition, shipData.displayHeight, shipData.displayWidth);
             }
         });
 
@@ -141,15 +135,14 @@ export default class GameScene extends Phaser.Scene {
             console.log("updateField");
 
             let data = msg.data;
-
             let field = fieldsById[data.fieldId];
 
-            // console.log(field);
-            // console.log(data.wasShoot);
-
-            if(data.wasShoot === true)
+            if(data.hittedShip === true)
             {
-                console.log(field);
+                field.setFillStyle(0x00ff00, 1);
+            }
+            else
+            {
                 field.setFillStyle(0xff0000, 1);
             }
         });
@@ -232,7 +225,7 @@ export default class GameScene extends Phaser.Scene {
 
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
 
-        this.startTurnTimer();
+        //this.startTurnTimer();
     }
 
     handleClick() {
