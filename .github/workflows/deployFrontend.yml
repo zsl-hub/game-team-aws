@@ -13,7 +13,7 @@ env:
   ECS_SERVICE: BattleshipGame
   ECS_CLUSTER: BattleshipGameCluster
   ECS_TASK_DEFINITION: .github/workflows/BattleshipGameFrontend-task-definition.json
-  CONTAINER_NAME: frontend-latest
+  CONTAINER_NAME: BattleshipGameFrontend
 
 jobs:
   deploy:
