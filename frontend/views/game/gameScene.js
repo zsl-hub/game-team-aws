@@ -1,5 +1,4 @@
 import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
-
 import './style.css';
 import Phaser from 'phaser';
 export default class GameScene extends Phaser.Scene {
