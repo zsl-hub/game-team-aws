@@ -1,5 +1,7 @@
 import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
 
+import './style.css';
+import Phaser from 'phaser';
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
@@ -11,14 +13,21 @@ export default class GameScene extends Phaser.Scene {
         this.modal = null;
         this.confirmText = null;
         this.continueButton = null;
+        this.currentPlayerIndex = 0; // 0 for Player 1, 1 for Player 2
+        this.turnTimeLimit = 60000; // 1 minute in milliseconds
+        this.timer = null;
+        this.timeText = null;
+        this.remainingTime = this.turnTimeLimit;
+        this.turnStartTime = null; // New property to store the start time of the turn
+        this.isVisible = true; // New property to track visibility
     }
+
     create() {
         const width = this.scale.width / 2;
         const height = this.scale.height;
         const cellSize = Math.min(width, height) / 15;
 
         const boardYOffset = -height * 0.05;
-        // Board x and y
         const boardStartX = (width - cellSize * 10) / 2;
         const boardStartY = (height - cellSize * 10) / 2 + boardYOffset;
 
@@ -125,92 +134,185 @@ export default class GameScene extends Phaser.Scene {
         const eBoard = this.add.text(width * 1.5, height * 0.15 + boardYOffset, 'Enemy Board', { fontSize: width * 0.05, fill: '#fff' });
         eBoard.setOrigin(0.5);
 
-        // Create winner text but keep it invisible until a player wins
         this.winnerText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, '', { fontSize: width * 0.05, fill: '#ffffff' });
         this.winnerText.setOrigin(0.5);
         this.winnerText.setVisible(false);
 
-        // Create modal but keep it invisible until "Quit" is clicked
         this.modal = this.add.graphics();
-        this.modal.fillStyle(0x0000ff, 0.5); // Semi-transparent blue
+        this.modal.fillStyle(0x0000ff, 0.5);
         this.modal.fillRect(0, 0, this.scale.width, this.scale.height);
         this.modal.setVisible(false);
 
-        this.confirmText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'Are you sure you want to quit? You will lose the game.', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+        this.confirmText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'Are you sure you want to quit? You will lose the game.', { fontSize: width * 0.05, fill: '#ffffff' });
         this.confirmText.setOrigin(0.5);
         this.confirmText.setVisible(false);
 
-        this.continueButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 50, 'Continue', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+        this.continueButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 50, 'Continue', { fontSize: width * 0.05, fill: '#ffffff' });
         this.continueButton.setOrigin(0.5);
         this.continueButton.setInteractive();
         this.continueButton.setVisible(false);
 
-        // Add pointerover event for hover effect
-        // Add pointerover event for hover effect
         this.continueButton.on('pointerover', () => {
-            this.continueButton.setFill('#ff0000'); // Red
-            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+            this.continueButton.setFill('#ff0000');
+            this.game.canvas.style.cursor = 'pointer';
         });
 
-        // Add pointerout event to remove hover effect
         this.continueButton.on('pointerout', () => {
-            this.continueButton.setFill('#ffffff'); // White
-            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+            this.continueButton.setFill('#ffffff');
+            this.game.canvas.style.cursor = 'default';
         });
 
         this.continueButton.on('pointerdown', () => {
-            // Player confirmed they want to quit
-            this.players[0].isInGame = false;
-
-            // Show winner text for Player 2
-            this.winnerText.setText(`${this.players[1].name} wins!`);
-            this.winnerText.setVisible(true);
-
-            // Hide modal
+            this.endGame(1 - this.currentPlayerIndex);
             this.modal.setVisible(false);
             this.confirmText.setVisible(false);
             this.continueButton.setVisible(false);
-
-            // Redirect to another page after 3 seconds
-            setTimeout(() => {
-                window.location.href = '../lobby/lobby.html';
-            }, 3000);
         });
 
-        const quitButtonBackground = this.add.rectangle(width * 0.5, height * 0.9, width * 0.24, height * 0.08, 0xff0000); // Red rectangle
+        const quitButtonBackground = this.add.rectangle(width * 0.5, height * 0.9, width * 0.24, height * 0.08, 0xff0000);
         quitButtonBackground.setOrigin(0.5);
         quitButtonBackground.setInteractive();
-        
-        const quitButton = this.add.text(width * 0.5, height * 0.9, 'QUIT', { fontSize: width * 0.05, fill: '#ffffff' }); // White text
+
+        const quitButton = this.add.text(width * 0.5, height * 0.9, 'QUIT', { fontSize: width * 0.05, fill: '#ffffff' });
         quitButton.setOrigin(0.5);
         quitButton.setInteractive();
 
-        // Add pointerover event for hover effect
-        quitButtonBackground
-        quitButton.on('pointerover', () => {
-            quitButton.setFill('#0000ff'); // Blue
-            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+        quitButtonBackground.on('pointerover', () => {
+            this.game.canvas.style.cursor = 'pointer';
+        });
+        quitButtonBackground.on('pointerout', () => {
+            this.game.canvas.style.cursor = 'default';
         });
 
-        // Add pointerout event to remove hover effect
+        quitButton.on('pointerover', () => {
+            quitButton.setFill('#0000ff');
+            this.game.canvas.style.cursor = 'pointer';
+        });
+
         quitButton.on('pointerout', () => {
-            quitButton.setFill('#ffffff'); // White
-            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+            quitButton.setFill('#ffffff');
+            this.game.canvas.style.cursor = 'default';
         });
         quitButton.on('pointerdown', () => {
-            // Show modal
             this.handleClick();
         });
         quitButtonBackground.on('pointerdown', () => {
             this.handleClick();
-        })
+        });
         quitButton.setOrigin(0.5);
-        
+
+        this.timeText = this.add.text(width, height * 0.05, 'Time: 60', { fontSize: width * 0.05, fill: '#ffffff' });
+        this.timeText.setOrigin(0.5);
+
+        document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+
+        this.startTurnTimer();
     }
+
     handleClick() {
         this.modal.setVisible(true);
         this.confirmText.setVisible(true);
         this.continueButton.setVisible(true);
-    };
-    
+    }
+
+    handleShot(rect) {
+        if (this.players[this.currentPlayerIndex].isInGame) {
+            // Check if the cell has been shot already
+            if (!rect.getData('isShot')) {
+                if (this.currentPlayerIndex === 0) {
+                    rect.setFillStyle(0x00ff00, 1);
+                } else {
+                    rect.setFillStyle(0x0000ff, 1);
+                }
+
+                // Mark the cell as shot
+                rect.setData('isShot', true);
+
+                this.currentPlayerIndex = 1 - this.currentPlayerIndex;
+                this.startTurnTimer();
+            }
+        }
+    }
+
+    startTurnTimer() {
+        if (this.timer) {
+            this.timer.remove(false);
+        }
+
+        this.turnStartTime = Date.now();
+        this.remainingTime = this.turnTimeLimit;
+        this.updateTimeText();
+
+        this.timer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.remainingTime -= 1000;
+                this.updateTimeText();
+
+                if (this.remainingTime <= 0) {
+                    this.timer.remove(false);
+                    this.endGameDueToTimeout();
+                }
+            },
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    handleVisibilityChange() {
+        if (document.visibilityState === 'hidden') {
+            this.isVisible = false;
+            if (this.timer) {
+                this.timer.paused = true;
+            }
+        } else {
+            this.isVisible = true;
+            if (this.timer) {
+                const now = Date.now();
+                const elapsed = now - this.turnStartTime;
+                this.remainingTime -= elapsed;
+
+                if (this.remainingTime <= 0) {
+                    this.remainingTime = 0;
+                    this.timer.paused = false;
+                    this.timer.remove(false);
+                    this.endGameDueToTimeout();
+                } else {
+                    this.turnStartTime = now;
+                    this.timer.paused = false;
+                }
+                this.updateTimeText();
+            }
+        }
+    }
+
+    updateTimeText() {
+        const remainingSeconds = Math.floor(this.remainingTime / 1000);
+        this.timeText.setText(`Time: ${remainingSeconds}`);
+    }
+
+    endGameDueToTimeout() {
+        const loser = this.players[this.currentPlayerIndex];
+        loser.isInGame = false;
+        const winnerIndex = 1 - this.currentPlayerIndex;
+        this.endGame(winnerIndex);
+    }
+
+    endGame(winnerIndex) {
+        if (this.timer) {
+            this.timer.remove(false);
+        }
+
+        const winner = this.players[winnerIndex];
+        this.winnerText.setText(`${winner.name} wins!`);
+        this.winnerText.setVisible(true);
+
+        setTimeout(() => {
+            window.location.href = '../lobby/lobby.html';
+        }, 3000);
+    }
+
+    shutdown() {
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+    }
 }
