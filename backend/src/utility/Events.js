@@ -61,34 +61,29 @@ class Events{
         
         field.wasShoot = true;
 
-        let hittedShip = false;
+        let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId,
+            (ship) => {
+                lobbyObj.playerChannels[enemyPlayerId].publish("destoyedShip", {
+                    shipId: ship.shipId,
+                    lastValidPosition: ship.lastValidPosition,
+                    displayWidth: ship.displayWidth,
+                    displayHeight: ship.displayHeight,
+                    angle: ship.angle,
+                    textureKey: ship.textureKey
+                });
+                
+                game.shipsLeft[enemyPlayerId]--;
 
-        //check wether any ship was shoot
-        for(const shipId in game.ships[enemyPlayerId])
-        {
-            const ship = game.ships[enemyPlayerId][shipId];
-
-            if (ShipUtil.isShipOnField(ship, field))
-            {
-                ship.fieldsLeft--;
-                hittedShip = true;
+                if (game.shipsLeft[enemyPlayerId] <= 0)
+                {
+                    lobbyObj.lobbyChannel.publish("winner", {
+                        playerId: msg.clientId
+                    });
+                }
             }
-        }
+        );
 
-        //update field and in all clients
-        lobbyObj.lobbyChannel.publish("updateField", {
-            fieldId: field.fieldId,
-            hittedShip
-        });
-
-        // let playerDB = await getItemById("player", { "playerId": msg.clientId });
-        // playerDB = playerDB.Item;
-
-        //update turn in all clients
-        lobbyObj.lobbyChannel.publish("updateTurn", {
-            turnPlayerId: enemyPlayerId,
-            //turnPlayerName: null
-        });
+        Events.#updateClients(lobbyObj, hittedShip);
 
         game.turn = enemyPlayerId;
 
@@ -100,6 +95,43 @@ class Events{
         let isFirstPlayer = currentTurnPlayerId === lobbyDB.player1;
 
         return isFirstPlayer === true? lobbyDB.player2 : lobbyDB.player1;
+    }
+
+    static #wereShipsShoot(game, enemyPlayerId, destroyShipCallBack){
+        let hittedShip = false;
+
+        for(const shipId in game.ships[enemyPlayerId])
+        {
+            const ship = game.ships[enemyPlayerId][shipId];
+
+            if (ShipUtil.isShipOnField(ship, field))
+            {
+                ship.fieldsLeft--;
+                hittedShip = true;
+
+                if (ship.fieldsLeft <= 0)
+                {
+                    destroyShipCallBack(ship);
+                }
+            }
+        }
+
+        return hittedShip;
+    }
+
+    static #updateClients(lobbyObj, hittedShip){
+        lobbyObj.lobbyChannel.publish("updateField", {
+            fieldId: field.fieldId,
+            hittedShip
+        });
+
+        // let playerDB = await getItemById("player", { "playerId": msg.clientId });
+        // playerDB = playerDB.Item;
+
+        lobbyObj.lobbyChannel.publish("updateTurn", {
+            turnPlayerId: enemyPlayerId,
+            //turnPlayerName: null
+        });
     }
 }
 
