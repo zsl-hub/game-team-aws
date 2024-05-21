@@ -69,9 +69,6 @@ class Stages{
     static handleSecondStageStart(lobbyObj){
         console.log("Second Stage Start");
 
-        console.log("inside");
-        console.log(lobbyObj);
-
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
     }
 }

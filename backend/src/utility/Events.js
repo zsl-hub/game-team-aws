@@ -13,6 +13,10 @@ class Events{
         if (!msg.data.fields) return;
 
         game.ships[msg.clientId][msg.data.shipId].fields = msg.data.locations;
+        game.ships[msg.clientId][msg.data.shipId].lastValidPosition = msg.data.lastValidPosition;
+        game.ships[msg.clientId][msg.data.shipId].displayWidth = msg.data.displayWidth;
+        game.ships[msg.clientId][msg.data.shipId].displayHeight = msg.data.displayHeight;
+        game.ships[msg.clientId][msg.data.shipId].angle = msg.data.angle;
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
@@ -42,6 +46,8 @@ class Events{
     static handleShoot(msg) 
     {
         console.log("Handle Shoot");
+
+        
     }
 }
 

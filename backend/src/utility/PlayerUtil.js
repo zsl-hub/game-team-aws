@@ -19,6 +19,9 @@ class PlayerUtil{
         let game = lobbyDB.game;
         game.ships[playerId] = ShipUtil.generatePlayerShips();
         game.connectedPlayers++;
+        game.connectedPlayers = game.connectedPlayers % 3;
+
+        console.log(game.connectedPlayers);
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
         
