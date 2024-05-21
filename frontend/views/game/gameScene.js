@@ -1,3 +1,5 @@
+import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
@@ -24,46 +26,95 @@ export default class GameScene extends Phaser.Scene {
         playerBackground.setDisplaySize(cellSize * 10, cellSize * 10);
         playerBackground.setOrigin(0.5);
 
-        // Create boards 10x10
-        for (let x = 0; x < 10; x++) {
-            for (let y = 0; y < 10; y++) {
-                const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                rect.setStrokeStyle(2, 0xffffff);
-                rect.setOrigin(0);
+        let myBoard = [];
+
+        myChannel.subscribe("createMyBoard", (msg) => {
+            const data = msg.data;
+
+            // Create boards 10x10
+            for (let x = 0; x < 10; x++) {
+                let row = [];
+                for (let y = 0; y < 10; y++) {
+                    const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
+                    rect.setStrokeStyle(2, 0xffffff);
+                    rect.setOrigin(0);
+                    rect.id = data.fields[x, y].fieldId;
+
+                    row.push(rect);
+                }
+                myBoard.push(row);
             }
-        }
+        });
+
         const enemyBoardOffsetX = width;
 
         const enemyBackground = this.add.image(enemyBoardOffsetX + boardStartX + (cellSize * 10) / 2, boardStartY + (cellSize * 10) / 2, 'background');
         enemyBackground.setDisplaySize(cellSize * 10, cellSize * 10);
         enemyBackground.setOrigin(0.5);
 
-        for (let x = 0; x < 10; x++) {
-            for (let y = 0; y < 10; y++) {
-                const rect = this.add.rectangle(enemyBoardOffsetX + x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                rect.setStrokeStyle(2, 0xff0000);
-                rect.setOrigin(0);
-                rect.setInteractive();
-                rect.setDepth(1);
-                // Add pointerdown event to highlight the cell. Here you can add connection with database
-                rect.on('pointerdown', () => {
+        let enemyRectangles = [];
 
-                    rect.setFillStyle(0x00ff00, 1); // Green
+        myChannel.subscribe("createEnemyBoard", (msg) => {
+            let data = msg.data;
 
-                });
+            for (let x = 0; x < 10; x++) {
+                let row = [];
+                for (let y = 0; y < 10; y++) {
+                    const rect = this.add.rectangle(enemyBoardOffsetX + x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
+                    rect.setStrokeStyle(2, 0xff0000);
+                    rect.setOrigin(0);
+                    rect.setInteractive();
+                    rect.setDepth(1);
+                    rect.id = data.fields[x, y].fieldId;
+                    // Add pointerdown event to highlight the cell. Here you can add connection with database
+                    rect.on('pointerdown', () => {
+    
+                        rect.setFillStyle(0x00ff00, 1); // Green
+                        
+                        myChannel.publish("shootShip", {
+                            lobbyId: lobbyId,
+                            x,
+                            y
+                        });
+                    });
+
+                    row.push(rect);
+                }
+                enemyRectangles.push(row);
             }
-        }
+        });
+
         const playerPosX = boardStartX + width * 0.5; // Need this to paste ships correct
         const enemyPosX = boardStartX + width * 0.5 - enemyBoardOffsetX;
-        const ships = this.registry.get('ships'); // Can be changed to load data from database
-        ships.forEach(shipData => {
-            const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
-            ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
-            ship.setOrigin(0.5, 1);
-            ship.angle = shipData.angle;
-            ship.isPlaced = true;
-            console.log(shipData.lastValidPosition, shipData.displayHeight, shipData.displayWidth);
+
+        let ships = {};
+
+        myChannel.subscribe("createShips", (msg) => {
+            let data = msg.data;
+
+            for(const shipId in data.ships){
+                const shipData = data.ships[shipId];
+            
+                const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
+                ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
+                ship.setOrigin(0.5, 1);
+                ship.angle = shipData.angle;
+                ship.isPlaced = true;
+                ship.id = shipId;
+
+                ships[shipId] = ship;
+
+                console.log(shipData.lastValidPosition, shipData.displayHeight, shipData.displayWidth);
+            }
         });
+
+        myChannel.subscribe("updateShip", (msg) => {
+            let data = msg.data;
+
+            let shipData = ships[data.shipId];
+            let ship = ships[shipData.shipId];
+        });
+            
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
         yBoard.setOrigin(0.5);
@@ -156,6 +207,6 @@ export default class GameScene extends Phaser.Scene {
         this.modal.setVisible(true);
         this.confirmText.setVisible(true);
         this.continueButton.setVisible(true);
-        };
+    };
     
 }
