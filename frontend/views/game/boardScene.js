@@ -36,11 +36,7 @@ export default class BoardScene extends Phaser.Scene {
                 rect.setOrigin(0);
             }
         }
-
         // Button "Ready"
-        
-
-        
         const readyButtonBackground = this.add.rectangle(width * 0.2, height * 0.90 - height * 0.10, width * 0.24, height * 0.08, 0x00ff00); // Green rectangle
         readyButtonBackground.setOrigin(0.5);
         const readyButton = this.add.text(width * 0.2, height * 0.90, 'Ready', { fontSize: width * 0.06, fill: '#ffffff',}); // White text

@@ -1,6 +1,7 @@
 const ShipUtil = require("./ShipUtil");
 const { getItemById, updateItem } = require("../repositories/lobbyRepository");
 const Ably = require("ably");
+const Events = require("./Events");
 
 class PlayerUtil{
     /**
@@ -32,18 +33,18 @@ class PlayerUtil{
      */
     static subscribeToPlayerEvents(realtime, lobbyObj, playerId)
     {
-        lobbyObj.winChannel = realtime.channels.get(`winChannel-${lobbyObj.lobbyId}`);
-        lobbyObj.winChannel.attach();
+        lobbyObj.lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyObj.lobbyId}`);
+        lobbyObj.lobbyChannel.attach();
 
         lobbyObj.playerChannels[playerId] = realtime.channels.get(`clientChannel-${playerId}`);
         lobbyObj.playerChannels[playerId].subscribe("gameReady", (msg) => {
-            handleGameReady(msg);
+            Events.handleGameReady(msg);
         });
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
-            ShipUtil.handleShipPositionChange(msg);
+            Events.handleShipPositionChange(msg);
         });
         lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
-            handleShoot(msg);
+            Events.handleShoot(msg);
         });
     }
 }

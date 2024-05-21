@@ -64,21 +64,6 @@ class ShipUtil{
 
         lobbyObj.playerChannels[playerId].publish("createdAllShips", {});
     }
-
-    static async handleShipPositionChange(msg)
-    {
-        console.log("Handle Ship Position Change");
-
-        let lobbyDB = await getItemById("lobby", { "lobbyId": msg.data.lobbyId });
-        lobbyDB = lobbyDB.Item;
-        let game = lobbyDB.game;
-
-        if (!msg.data.fields) return;
-
-        game.ships[msg.clientId][msg.data.shipId].fields = msg.data.locations;
-
-        await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
-    }
 }
 
 module.exports = ShipUtil;
