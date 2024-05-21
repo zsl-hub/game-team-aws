@@ -38,11 +38,6 @@ class Events{
 
         await updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
         await updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
-
-        if (lobbyDB.game.readyPlayers === 2)
-        {
-            Stages.handleSecondStageStart(lobbyObj);
-        }
     }
 
     static async handleShootField(msg, lobbyObj) 
@@ -73,7 +68,6 @@ class Events{
             {
                 ship.fieldsLeft--;
                 hittedShip = true;
-                console.log(ship);
             }
         }
 
