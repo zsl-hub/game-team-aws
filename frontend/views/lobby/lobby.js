@@ -16,7 +16,7 @@ function assignOpenJoinModalListeners()
   }
 }
 
-// sdfasdfafdfafsdff
+// IM NOT HERE OK?
 
 document.addEventListener('DOMContentLoaded', function() {
 
