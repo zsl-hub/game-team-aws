@@ -1,4 +1,4 @@
-import './style.css';
+import "./style.css";
 import Phaser from 'phaser';
 import BoardScene from './boardScene';
 import GameScene from './gameScene';
@@ -17,6 +17,6 @@ const config = {
   height: sizes.height,
   canvas: gameCanvas,
   scene: [BoardScene, GameScene],
-}
+};
 
 const game = new Phaser.Game(config);

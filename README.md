@@ -21,8 +21,9 @@ BACKEND_START_ENVIRONMENT="your environment" (either: loc, dev or prod)
 
 2. Env folder at the backend folder (in .gitignore)
 It contains all sensitive data required for running backend such as:
-AWS_ACCESS_KEY_ID = "Your AWS access key id" 
-AWS_SECRET_ACCESS_KEY = "Your AWS secret access key"
+AWS_ACCESS_KEY_ID="Your AWS access key id" 
+AWS_SECRET_ACCESS_KEY="Your AWS secret access key"
+ABLY_API_KEY="your api key"
 
 When running the app through docker compose you will have to specify the env file used to run docker with --enf-file flag
 
