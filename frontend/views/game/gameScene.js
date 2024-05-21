@@ -120,6 +120,13 @@ export default class GameScene extends Phaser.Scene {
         quitButton.setOrigin(0.5);
         quitButton.setInteractive();
 
+        quitButtonBackground.on('pointerover', () => {
+            this.game.canvas.style.cursor = 'pointer';
+        });
+        quitButtonBackground.on('pointerout', () => {
+            this.game.canvas.style.cursor = 'default';
+        });
+
         quitButton.on('pointerover', () => {
             quitButton.setFill('#0000ff');
             this.game.canvas.style.cursor = 'pointer';
