@@ -114,6 +114,7 @@ function gameBackend()
             connectedPlayers: 0,
             readyPlayers: 0,
             ships: {},
+            fields: {}
         };
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
