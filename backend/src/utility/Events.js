@@ -1,4 +1,5 @@
 const Stages = require("./Stages");
+const { getItemById, updateItem } = require("../repositories/lobbyRepository");
 
 class Events{
     static async handleShipPositionChange(msg)
@@ -16,23 +17,25 @@ class Events{
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
 
-    static handleGameReady(msg) 
+    static async handleGameReady(msg, lobbyObj) 
     {
         const lobbyId = msg.data.lobbyId;
 
-        let lobbyDB = getItemById("lobby", { "lobbyId": lobbyId });
-        if (game.connectedPlayers < 2) return;
+        let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
+        lobbyDB = lobbyDB.Item;
+
+        if (lobbyDB.game.connectedPlayers < 2) return;
 
         console.log("Handle Game Ready");
 
         lobbyDB.game.readyPlayers++
 
-        updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
-        updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
+        await updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
+        await updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
 
         if (lobbyDB.game.readyPlayers === 2)
         {
-            Stages.handleSecondStageStart();
+            Stages.handleSecondStageStart(lobbyObj);
         }
     }
 

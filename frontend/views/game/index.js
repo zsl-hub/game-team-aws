@@ -1,3 +1,4 @@
+import "./style.css";
 import Phaser from 'phaser';
 import BoardScene from './boardScene';
 import GameScene from './gameScene';

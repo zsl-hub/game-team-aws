@@ -1,4 +1,4 @@
-const { getItemById } = require("../repositories/lobbyRepository");
+const { getItemById, updateItem } = require("../repositories/lobbyRepository");
 const ShipUtil = require("./ShipUtil");
 const Ably = require("ably");
 
@@ -7,13 +7,11 @@ class Stages{
      * @param {object} lobbyDB 
      * @param {void} callBack callback to execute when timer finishes ticking
      */
-    static handleFirstStageStart(lobbyDB, callBack)
+    static handleFirstStageStart(lobbyObj, lobbyDB, callBack)
     {
         console.log("First Stage Start");
 
         lobbyObj.lobbyChannel.publish("startFirstStage", {});
-
-        let lobbyObj = lobbies[lobbyId];
 
         for(const playerId in lobbyObj.playerChannels)
         {
@@ -37,8 +35,8 @@ class Stages{
 
         await updateItem("lobby", { "lobbyId": lobbyId }, { "game": game });
 
-        setInterval(() => { 
-            Stages.checkForTimerEnd(timeLeft, callBack);
+        const interval = setInterval(() => { 
+            Stages.checkForTimerEnd(timeLeft, lobbyId, interval, callBack);
         }, 1000);
     }
 
@@ -46,16 +44,21 @@ class Stages{
      * @param {number} timeLeft 
      * @param {void} callBack callback to execute when timer finishes ticking
      */
-    static async checkForTimerEnd(timeLeft, callBack){
+    static async checkForTimerEnd(timeLeft, lobbyId, interval, callBack){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyId});
         lobby = lobby.Item;
 
         let game = lobby.game;
 
+        timeLeft *= 1000;
+
         let diff = new Date().getTime() - game.firstStageStart;
+
+        console.log(diff);
 
         if (diff >= timeLeft)
         {
+            clearInterval(interval);
             callBack();
         }
     }
@@ -65,6 +68,9 @@ class Stages{
      */
     static handleSecondStageStart(lobbyObj){
         console.log("Second Stage Start");
+
+        console.log("inside");
+        console.log(lobbyObj);
 
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
     }

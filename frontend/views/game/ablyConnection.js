@@ -39,12 +39,7 @@ realtime.connection.once("connected", () => {
 console.log(`clientChannel-${playerId}`);
 export let myChannel = realtime.channels.get(`clientChannel-${playerId}`);
 
-console.log(realtime);
-
-const channel = realtime.channels.get("amogus");
-channel.subscribe("negro", (msg) => {
-    console.log("negro");
-});
+export let lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyId}`);
 
 export let globalChannel = realtime.channels.get("globalChannel");
 globalChannel.presence.enter({ lobbyId: lobbyId });
