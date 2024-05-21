@@ -12,14 +12,12 @@ class Events{
 
         if (!msg.data.fields) return;
 
-        game.ships[msg.clientId][msg.data.shipId].fields = msg.data.locations;
+        game.ships[msg.clientId][msg.data.shipId].fields = msg.data.fields;
         game.ships[msg.clientId][msg.data.shipId].lastValidPosition = msg.data.lastValidPosition;
         game.ships[msg.clientId][msg.data.shipId].displayWidth = msg.data.displayWidth;
         game.ships[msg.clientId][msg.data.shipId].displayHeight = msg.data.displayHeight;
         game.ships[msg.clientId][msg.data.shipId].angle = msg.data.angle;
         game.ships[msg.clientId][msg.data.shipId].textureKey = msg.data.textureKey;
-
-        console.log(game.ships[msg.clientId][msg.data.shipId]);
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
@@ -46,11 +44,51 @@ class Events{
         }
     }
 
-    static handleShoot(msg) 
+    static async handleShootField(msg, lobbyObj) 
     {
+        const lobbyId = msg.data.lobbyId;
+        let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
+        lobbyDB = lobbyDB.Item;
+        
+        let game = lobbyDB.game;
+        if (game.turn !== msg.clientId) return;
+
         console.log("Handle Shoot");
 
+        const field = game.fields[msg.clientId][msg.data.x, msg.data.y];
+        if (field.wasShoot) return;
 
+        field.wasShoot = true;
+
+        let shootShipId;
+
+        for(const shipId in game.ships[msg.clientId])
+        {
+            const ship = game.ships[msg.clientId][shipId];
+
+            ship.fields.forEach(location => {
+                if (location.x === field.x && location.y === field.y){
+                    ship.shootsLeft--;
+
+                    if (ship.shootsLeft <= 0)
+                    {
+                        ship.isDestroyed = true;
+                    }
+
+                    shootShipId = ship.shipId;
+                }
+            });
+        }
+
+        for(const playerId in lobbyObj.playerChannels)
+        {
+            const playerChannel = lobbyObj.playerChannels[playerId];
+
+            playerChannel.publish("updateField", {
+                fieldId: field.fieldId,
+                wasShoot: field.wasShoot
+            });
+        }
     }
 }
 

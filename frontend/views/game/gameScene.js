@@ -35,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
         playerBackground.setOrigin(0.5);
 
         let myBoard = [];
+        let fieldsById = {};
 
         myChannel.subscribe("createMyBoard", (msg) => {
             const data = msg.data;
@@ -46,9 +47,12 @@ export default class GameScene extends Phaser.Scene {
                     const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
                     rect.setStrokeStyle(2, 0xffffff);
                     rect.setOrigin(0);
-                    rect.id = data.fields[x, y].fieldId;
+                    rect.id = data.fields[x][y].fieldId;
+
+                    console.log(rect.id);
 
                     row.push(rect);
+                    fieldsById[rect.id] = rect;
                 }
                 myBoard.push(row);
             }
@@ -73,13 +77,14 @@ export default class GameScene extends Phaser.Scene {
                     rect.setOrigin(0);
                     rect.setInteractive();
                     rect.setDepth(1);
-                    rect.id = data.fields[x, y].fieldId;
+                    rect.id = data.fields[x][y].fieldId;
+                    
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
                         rect.setFillStyle(0x00ff00, 1); // Green
                         
-                        myChannel.publish("shootShip", {
+                        myChannel.publish("shootField", {
                             lobbyId: lobbyId,
                             x,
                             y
@@ -87,10 +92,13 @@ export default class GameScene extends Phaser.Scene {
                     });
 
                     row.push(rect);
+                    fieldsById[rect.id] = rect;
                 }
                 enemyRectangles.push(row);
             }
         });
+
+        console.log(fieldsById);
 
         const playerPosX = boardStartX + width * 0.5; // Need this to paste ships correct
         const enemyPosX = boardStartX + width * 0.5 - enemyBoardOffsetX;
@@ -120,11 +128,30 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-        myChannel.subscribe("updateShip", (msg) => {
+        // myChannel.subscribe("updateShip", (msg) => {
+        //     let data = msg.data;
+
+        //     let shipData = ships[data.shipId];
+        //     let ship = ships[shipData.shipId];
+
+
+        // });
+
+        myChannel.subscribe("updateField", (msg) => {
+            console.log("updateField");
+
             let data = msg.data;
 
-            let shipData = ships[data.shipId];
-            let ship = ships[shipData.shipId];
+            let field = fieldsById[data.fieldId];
+
+            // console.log(field);
+            // console.log(data.wasShoot);
+
+            if(data.wasShoot === true)
+            {
+                console.log(field);
+                field.setFillStyle(0xff0000, 1);
+            }
         });
             
         // Text

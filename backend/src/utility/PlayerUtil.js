@@ -19,7 +19,11 @@ class PlayerUtil{
         let game = lobbyDB.game;
         game.ships[playerId] = ShipUtil.generatePlayerShips();
         game.connectedPlayers++;
-        game.connectedPlayers = game.connectedPlayers % 3;
+
+        if (game.connectedPlayers === 1)
+        {
+            game.turn = playerId;
+        }
 
         console.log(game.connectedPlayers);
 
@@ -43,8 +47,8 @@ class PlayerUtil{
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
             Events.handleShipPositionChange(msg);
         });
-        lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
-            Events.handleShoot(msg);
+        lobbyObj.playerChannels[playerId].subscribe("shootField", (msg) => {
+            Events.handleShootField(msg, lobbyObj);
         });
     }
 }

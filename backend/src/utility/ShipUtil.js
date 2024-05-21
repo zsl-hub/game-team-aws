@@ -36,7 +36,9 @@ class ShipUtil{
                 shipId: shipId,
                 fields: [],
                 shipLength,
-                shipSprite
+                shipSprite,
+                fieldsLeft: shipLength,
+                isDestroyed: false
             };
 
             ships[shipId] = ship;
@@ -58,7 +60,7 @@ class ShipUtil{
             lobbyObj.playerChannels[playerId].publish("createShip", {
                 shipId: ship.shipId,
                 shipLength: ship.shipLength,
-                shipSprite: ship.shipSprite
+                shipSprite: ship.shipSprite,
             });
         }
 
