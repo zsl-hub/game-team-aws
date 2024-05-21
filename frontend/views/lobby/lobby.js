@@ -16,6 +16,8 @@ function assignOpenJoinModalListeners()
   }
 }
 
+// sdfasdfafdfafsdff
+
 document.addEventListener('DOMContentLoaded', function() {
 
   var switchInput = document.querySelector('.switch input');
