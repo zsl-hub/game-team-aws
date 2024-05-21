@@ -16,6 +16,9 @@ function assignOpenJoinModalListeners()
   }
 }
 
+// IM NOT HERE OK?
+// ENJOYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYING ;)
+
 document.addEventListener('DOMContentLoaded', function() {
 
   var switchInput = document.querySelector('.switch input');
