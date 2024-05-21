@@ -260,7 +260,12 @@ export default class BoardScene extends Phaser.Scene {
             myChannel.publish("shipPosition", {
                 lobbyId,
                 shipId: gameObject.id,
-                fields: locations
+                fields: locations,
+                lastValidPosition: { x: gameObject.lastValidPosition.x, y: gameObject.lastValidPosition.y},
+                displayWidth: gameObject.displayWidth,
+                displayHeight: gameObject.displayHeight,
+                angle: gameObject.angle,
+                textureKey: gameObject.texture.key
             });
         });
 

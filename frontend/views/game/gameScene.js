@@ -100,9 +100,13 @@ export default class GameScene extends Phaser.Scene {
         myChannel.subscribe("createShips", (msg) => {
             let data = msg.data;
 
+            console.log("createShips");
+
             for(const shipId in data.ships){
                 const shipData = data.ships[shipId];
             
+                console.log(shipData);
+
                 const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
                 ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
                 ship.setOrigin(0.5, 1);
