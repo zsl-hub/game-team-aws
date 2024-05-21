@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
-
-=======
 import './style.css';
 import Phaser from 'phaser';
->>>>>>> 801a091141e7b4072123ceb3a7905ece47c75526
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
