@@ -19,11 +19,15 @@ router.get("/", async (req, res) => {
 
 router.post("/joinLobby", async (req, res) => {
     try {
-        console.log(req.body.lobbyName)
-        const getLobby = await getItemByProperty("lobby", { "lobbyName": req.body.lobbyName });
+        const getLobby = await getItemByProperty("lobby", { "lobbyName": req.body.lobbyName});
         if (getLobby.lobbyStatus === "waiting") {
             if (!getLobby.Pass || req.body.lobbyPass === getLobby.lobbyPass) {
-                const player = await createPlayer(req.body.player2, false);
+                const { error: errorPlayer, value: valuePlayer } = playerSchema.validate({"playerName": req.body.player2, "isReady": false});
+                if (errorPlayer) {
+                    console.error("Validation error:", errorPlayer.details[0].message);   
+                    throw new Error(errorPlayer.details[0].message);
+                }
+                const player = await createItem('player', {"playerId": uuidv4(), "playerName": valuePlayer.player2, "isReady": false})
                 req.body.player2 = player.playerId;
                 
                 const { error, value } = player2Schema.validate({ "player2": req.body.player2, "lobbyStatus": "playing"})
@@ -31,9 +35,9 @@ router.post("/joinLobby", async (req, res) => {
                     console.error("Validation error:", error.details[0].message);   
                     throw new Error(error.details[0].message);
                 }
-                updateItem("lobby",{ "lobbyId": getLobby.lobbyId}, value);
+                updateItem("lobby", {"lobbyId": getLobby.lobbyId}, value);
 
-                res.status(200).json({ success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2 });
+                res.status(200).json({success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2});
             } else {
                 res.status(401).json({success: false, message: "Incorrect lobby password"});
             }
@@ -42,7 +46,7 @@ router.post("/joinLobby", async (req, res) => {
         }
     } catch (error) {
         console.error("Error while getting lobby:", error);
-        res.status(500).json({ success: false, message: "An error occurred while getting lobby" });
+        res.status(500).json({success: false, message: "An error occurred while getting lobby"});
     }
 });
 
