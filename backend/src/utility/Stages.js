@@ -120,6 +120,11 @@ class Stages{
             });
         }
 
+        lobbyObj.lobbyChannel.publish("updateTurn", {
+            turnPlayerId: game.turn,
+            //turnPlayerName: null
+        });
+
         // for(const playerId in lobbyObj.playerChannels)
         // {
         //     const playerChannel = lobbyObj.playerChannels[playerId];

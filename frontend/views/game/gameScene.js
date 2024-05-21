@@ -1,4 +1,4 @@
-import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
+import { myChannel, globalChannel, lobbyChannel, lobbyId, playerId } from "./ablyConnection";
 import './style.css';
 import Phaser from 'phaser';
 export default class GameScene extends Phaser.Scene {
@@ -125,13 +125,10 @@ export default class GameScene extends Phaser.Scene {
         // myChannel.subscribe("updateShip", (msg) => {
         //     let data = msg.data;
 
-        //     let shipData = ships[data.shipId];
         //     let ship = ships[shipData.shipId];
-
-
         // });
 
-        myChannel.subscribe("updateField", (msg) => {
+        lobbyChannel.subscribe("updateField", (msg) => {
             console.log("updateField");
 
             let data = msg.data;
@@ -146,6 +143,15 @@ export default class GameScene extends Phaser.Scene {
                 field.setFillStyle(0xff0000, 1);
             }
         });
+
+        lobbyChannel.subscribe("updateTurn", (msg) => {
+            let data = msg.data;
+
+            if (data.turnPlayerId === playerId)
+            {
+                this.startTurnTimer();
+            }
+        })
             
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
@@ -295,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
                     this.remainingTime = 0;
                     this.timer.paused = false;
                     this.timer.remove(false);
-                    this.endGameDueToTimeout();
+                    //this.endGameDueToTimeout();
                 } else {
                     this.turnStartTime = now;
                     this.timer.paused = false;

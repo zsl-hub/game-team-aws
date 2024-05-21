@@ -42,15 +42,18 @@ class Events{
 
     static async handleShootField(msg, lobbyObj) 
     {
+        //get lobby
         const lobbyId = msg.data.lobbyId;
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
         lobbyDB = lobbyDB.Item;
 
+        //check if its client turn
         let game = lobbyDB.game;
         if (game.turn !== msg.clientId) return;
         
         let enemyPlayerId = Events.#getNextTurnPlayerId(msg.clientId, lobbyDB);
         
+        //check if field was already shoot
         const field = game.fields[enemyPlayerId][msg.data.x][msg.data.y];
         if (field.wasShoot) return;
         
@@ -60,6 +63,7 @@ class Events{
 
         let hittedShip = false;
 
+        //check wether any ship was shoot
         for(const shipId in game.ships[enemyPlayerId])
         {
             const ship = game.ships[enemyPlayerId][shipId];
@@ -71,15 +75,20 @@ class Events{
             }
         }
 
-        for(const playerId in lobbyObj.playerChannels)
-        {
-            const playerChannel = lobbyObj.playerChannels[playerId];
+        //update field and in all clients
+        lobbyObj.lobbyChannel.publish("updateField", {
+            fieldId: field.fieldId,
+            hittedShip
+        });
 
-            playerChannel.publish("updateField", {
-                fieldId: field.fieldId,
-                hittedShip
-            });
-        }
+        // let playerDB = await getItemById("player", { "playerId": msg.clientId });
+        // playerDB = playerDB.Item;
+
+        //update turn in all clients
+        lobbyObj.lobbyChannel.publish("updateTurn", {
+            turnPlayerId: enemyPlayerId,
+            //turnPlayerName: null
+        });
 
         game.turn = enemyPlayerId;
 
