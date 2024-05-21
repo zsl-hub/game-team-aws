@@ -19,7 +19,7 @@ class Stages{
             ShipUtil.sendCreateMessages(playerId, lobbyObj, lobbyDB.game);
         }
 
-        Stages.startFirstStageTimer(60, lobbyDB.lobbyId, callBack);
+        Stages.startFirstStageTimer(25, lobbyDB.lobbyId, callBack);
     }
 
     /**
@@ -124,25 +124,6 @@ class Stages{
             turnPlayerId: game.turn,
             //turnPlayerName: null
         });
-
-        // for(const playerId in lobbyObj.playerChannels)
-        // {
-        //     const playerChannel = lobbyObj.playerChannels[playerId];
-
-        //     for(const shipId in game.ships[playerId])
-        //     {
-        //         const ship = game.ships[playerId][shipId];
-
-        //         ship.fields.forEach(shipField => {
-        //             const field = game.fields[playerId][shipField.x][shipField.y];
-
-        //             playerChannel.publish("updateField", {
-        //                 fieldId: field.fieldId,
-        //                 wasShoot: true
-        //             });          
-        //         });        
-        //     }
-        // }
     }
 }
 
