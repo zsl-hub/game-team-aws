@@ -246,7 +246,11 @@ export default class BoardScene extends Phaser.Scene {
                 {
                     locations.push({
                         x,
-                        y
+                        y,
+                        lastValidPosition: { x: gameObject.lastValidPosition.x, y: gameObject.lastValidPosition.y},
+                        displayWidth: gameObject.displayWidth,
+                        displayHeight: gameObject.displayHeight,
+                        angle: gameObject.angle
                     });
                 }
             }
