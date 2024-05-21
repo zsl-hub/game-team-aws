@@ -17,6 +17,9 @@ class Events{
         game.ships[msg.clientId][msg.data.shipId].displayWidth = msg.data.displayWidth;
         game.ships[msg.clientId][msg.data.shipId].displayHeight = msg.data.displayHeight;
         game.ships[msg.clientId][msg.data.shipId].angle = msg.data.angle;
+        game.ships[msg.clientId][msg.data.shipId].textureKey = msg.data.textureKey;
+
+        console.log(game.ships[msg.clientId][msg.data.shipId]);
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
@@ -47,7 +50,7 @@ class Events{
     {
         console.log("Handle Shoot");
 
-        
+
     }
 }
 

@@ -72,6 +72,12 @@ class Stages{
 
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
 
+        await Stages.createPlayerFields(lobbyObj);
+
+        await Stages.createPlayerShips(lobbyObj);
+    }
+
+    static async createPlayerFields(lobbyObj){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId});
         lobby = lobby.Item;
         
@@ -96,6 +102,23 @@ class Stages{
         });
 
         await updateItem("lobby", { "lobbyId": lobbyObj.lobbyId }, { "game": game });
+    }
+
+    static async createPlayerShips(lobbyObj){
+        let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId });
+        lobby = lobby.Item;
+
+        let game = lobby.game;
+
+        for(const playerId in lobbyObj.playerChannels){
+            const playerChannel = lobbyObj.playerChannels[playerId];
+
+            console.log("ship");
+
+            playerChannel.publish("createShips", {
+                ships: game.ships[playerId]
+            });
+        }
     }
 }
 
