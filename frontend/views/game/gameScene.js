@@ -74,7 +74,7 @@ export default class GameScene extends Phaser.Scene {
                     rect.setStrokeStyle(2, 0xff0000);
                     rect.setOrigin(0);
                     rect.setInteractive();
-                    rect.setDepth(1);
+                    rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
                     
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
@@ -134,6 +134,8 @@ export default class GameScene extends Phaser.Scene {
             let data = msg.data;
             let field = fieldsById[data.fieldId];
 
+            console.log(data.hittedShip);
+
             if(data.hittedShip === true)
             {
                 field.setFillStyle(0x00ff00, 1);
@@ -152,6 +154,17 @@ export default class GameScene extends Phaser.Scene {
                 this.startTurnTimer();
             }
         })
+
+        myChannel.subscribe("destoyedShip", (msg) => {
+            let shipData = msg.data;
+
+            console.log("destoryShip");
+
+            const ship = this.add.sprite(shipData.lastValidPosition.x - enemyPosX, shipData.lastValidPosition.y, shipData.textureKey);
+            ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
+            ship.setOrigin(0.5, 1);
+            ship.angle = shipData.angle;
+        });
             
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
@@ -240,25 +253,6 @@ export default class GameScene extends Phaser.Scene {
         this.continueButton.setVisible(true);
     }
 
-    handleShot(rect) {
-        if (this.players[this.currentPlayerIndex].isInGame) {
-            // Check if the cell has been shot already
-            if (!rect.getData('isShot')) {
-                if (this.currentPlayerIndex === 0) {
-                    rect.setFillStyle(0x00ff00, 1);
-                } else {
-                    rect.setFillStyle(0x0000ff, 1);
-                }
-
-                // Mark the cell as shot
-                rect.setData('isShot', true);
-
-                this.currentPlayerIndex = 1 - this.currentPlayerIndex;
-                this.startTurnTimer();
-            }
-        }
-    }
-
     startTurnTimer() {
         if (this.timer) {
             this.timer.remove(false);
@@ -276,7 +270,7 @@ export default class GameScene extends Phaser.Scene {
 
                 if (this.remainingTime <= 0) {
                     this.timer.remove(false);
-                    this.endGameDueToTimeout();
+                    //this.endGameDueToTimeout();
                 }
             },
             callbackScope: this,

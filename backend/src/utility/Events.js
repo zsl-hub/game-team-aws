@@ -61,9 +61,9 @@ class Events{
         
         field.wasShoot = true;
 
-        let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId,
+        let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId, field,
             (ship) => {
-                lobbyObj.playerChannels[enemyPlayerId].publish("destoyedShip", {
+                lobbyObj.playerChannels[msg.clientId].publish("destoyedShip", {
                     shipId: ship.shipId,
                     lastValidPosition: ship.lastValidPosition,
                     displayWidth: ship.displayWidth,
@@ -83,7 +83,7 @@ class Events{
             }
         );
 
-        Events.#updateClients(lobbyObj, hittedShip);
+        Events.#updateClients(lobbyObj, hittedShip, field, enemyPlayerId);
 
         game.turn = enemyPlayerId;
 
@@ -97,7 +97,7 @@ class Events{
         return isFirstPlayer === true? lobbyDB.player2 : lobbyDB.player1;
     }
 
-    static #wereShipsShoot(game, enemyPlayerId, destroyShipCallBack){
+    static #wereShipsShoot(game, enemyPlayerId, field, destroyShipCallBack){
         let hittedShip = false;
 
         for(const shipId in game.ships[enemyPlayerId])
@@ -106,8 +106,11 @@ class Events{
 
             if (ShipUtil.isShipOnField(ship, field))
             {
+                console.log("true");
                 ship.fieldsLeft--;
                 hittedShip = true;
+
+                console.log(ship.fieldsLeft);
 
                 if (ship.fieldsLeft <= 0)
                 {
@@ -119,7 +122,7 @@ class Events{
         return hittedShip;
     }
 
-    static #updateClients(lobbyObj, hittedShip){
+    static #updateClients(lobbyObj, hittedShip, field, enemyPlayerId){
         lobbyObj.lobbyChannel.publish("updateField", {
             fieldId: field.fieldId,
             hittedShip
