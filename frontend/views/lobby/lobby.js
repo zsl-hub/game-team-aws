@@ -90,11 +90,12 @@ function createLobby() {
 }
 
 function createLobbyFromDatabase(data) {
-  if (Array.isArray(data)) {
-    data.forEach(lobby => {
+  if (Array.isArray(data.Items)) {
+    data.Items.forEach(lobby => {
       var lobbyName = lobby.lobbyName;
       var passwordInput = lobby.lobbyPass;
       var switchChecked = lobby.isPrivate;
+      let lobbyStatus = lobby.lobbyStatus; 
 
       if (switchChecked) {
         var password = passwordInput;

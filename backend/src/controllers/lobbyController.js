@@ -7,9 +7,9 @@ const { itemSchema, player2Schema, playerSchema } = require("../schemas");
 router.get("/", async (req, res) => {
     try {
         const allLobbies = await getAllItems('lobby');
-        const waitingLobbies = allLobbies.Items.filter(item => item.lobbyStatus === 'waiting');
-
-        res.json(waitingLobbies)
+        //const waitingLobbies = allLobbies.Items.filter(item => item.lobbyStatus === 'waiting');
+        
+        res.json(allLobbies)
     }
     catch (error) {
         console.error("Error while getting all lobbies:", error);
@@ -37,10 +37,10 @@ router.post("/joinLobby", async (req, res) => {
                 }
                 updateItem("lobby", {"lobbyId": getLobby.lobbyId}, value);
 
-                res.status(200).json({success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2});
+                res.status(200).json({success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2}); 
             } else {
                 res.status(401).json({success: false, message: "Incorrect lobby password"});
-            }
+            } 
         } else {
             res.status(403).json({ success: false, message: "Lobby is full" }); 
         }
