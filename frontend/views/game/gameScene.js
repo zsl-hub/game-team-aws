@@ -77,7 +77,7 @@ export default class GameScene extends Phaser.Scene {
                     rect.setInteractive();
                     rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
-  
+
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
@@ -272,8 +272,22 @@ export default class GameScene extends Phaser.Scene {
     }
     //Reset the game timer and hide it from view
     resetTimer() {
+
         if (this.timer) {
             clearInterval(this.timer);
+        }
+    
+        this.turnStartTime = Date.now();
+        this.remainingTime = this.turnTimeLimit;
+        this.updateTimeText();
+      
+        // Hide the timer
+        this.timeText.setVisible(false);
+    }
+
+    resetTimer() {
+        if (this.timer) {
+            this.timer.remove(false);
         }
     
         this.turnStartTime = Date.now();

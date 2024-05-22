@@ -1,43 +1,50 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-north-1:028156156088:task-definition/BattleshipGameFrontend",
+    "taskDefinitionArn": "arn:aws:ecs:eu-north-1:028156156088:task-definition/InfraStackInfraFargate1737AB90C:6",
     "containerDefinitions": [
         {
-            "name": "BattleshipGameFrontend",
-            "image": "028156156088.dkr.ecr.eu-north-1.amazonaws.com/battleship-game",
+            "name": "InfraFargate1Container",
+            "image": "028156156088.dkr.ecr.eu-north-1.amazonaws.com/battleship-game:frontend-cae21150de85493f282abdf0adbc9a1bc4b5d62c",
             "cpu": 0,
+            "links": [],
             "portMappings": [
                 {
-                    "name": "battleshipgamefrontend-5173-tcp",
                     "containerPort": 5173,
                     "hostPort": 5173,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
+                    "protocol": "tcp"
                 }
             ],
             "essential": true,
+            "entryPoint": [],
+            "command": [],
             "environment": [],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
+            "secrets": [],
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "dockerLabels": {},
             "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-create-group": "true",
-                    "awslogs-group": "/ecs/BattleshipGameFrontend",
+                    "awslogs-group": "InfraStack-InfraFargate1InfraFargate1ContainerLogGroup2499131D-Etc3lSS3Zre6",
                     "awslogs-region": "eu-north-1",
-                    "awslogs-stream-prefix": "ecs"
+                    "awslogs-stream-prefix": "sss"
                 },
                 "secretOptions": []
             },
-            "systemControls": []
+            "systemControls": [],
+            "credentialSpecs": []
         }
     ],
-    "family": "BattleshipGameFrontend",
-    "taskRoleArn": "arn:aws:iam::028156156088:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::028156156088:role/ecsTaskExecutionRole",
+    "family": "InfraStackInfraFargate1737AB90C",
+    "taskRoleArn": "arn:aws:iam::028156156088:role/InfraStack-InfraFargate1TaskRoleB05D8DBF-e9CUkL07h7v5",
+    "executionRoleArn": "arn:aws:iam::028156156088:role/InfraStack-InfraFargate1ExecutionRoleB3C957C0-4MoZTRPe260u",
     "networkMode": "awsvpc",
-    "revision": 1,
+    "revision": 6,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -54,6 +61,9 @@
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
         },
         {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+        },
+        {
             "name": "com.amazonaws.ecs.capability.task-iam-role"
         },
         {
@@ -64,9 +74,6 @@
         },
         {
             "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
         }
     ],
     "placementConstraints": [],
@@ -79,11 +86,7 @@
     ],
     "cpu": "1024",
     "memory": "3072",
-    "runtimePlatform": {
-        "cpuArchitecture": "X86_64",
-        "operatingSystemFamily": "LINUX"
-    },
-    "registeredAt": "2024-05-21T09:01:02.822Z",
-    "registeredBy": "arn:aws:iam::028156156088:user/szymon",
+    "registeredAt": "2024-05-22T10:40:00.847Z",
+    "registeredBy": "arn:aws:sts::028156156088:assumed-role/cdk-hnb659fds-cfn-exec-role-028156156088-eu-north-1/AWSCloudFormation",
     "tags": []
 }

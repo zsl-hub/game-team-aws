@@ -18,7 +18,8 @@
     <main>
         <div class="container">
             <div class="lobby">
-                <div><a class="game" href="#"><span class="text123">Lobby 1</span><button class="open-join-modal" class="join1">JOIN</button>
+                <div><a class="game" href="#"><span class="text123">Lobby 1</span><span class="nr_of_ppl">1/2 <!-- or 2/2--></span><span class="isFull">Waiting <!-- or Full --></span>
+                    <button class="open-join-modal" class="join1">JOIN</button>
                     <span class="material-symbols-outlined">
                         lock
                     </span>
@@ -29,7 +30,7 @@
                 <div id="lobbyTemplate" style="display: none;">
                     <a class="game" href="#">
                         <span class="text123">Lobby two</span>
-                        <button class="join1 open-join-modal">JOIN</button>
+                        <!-- <button class="join1 open-join-modal">JOIN</button> -->
                         <span class="material-symbols-outlined">lock</span>
                     </a>
                 </div>
@@ -46,13 +47,11 @@
         <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby" value="">
         <div id="error-message" style="color: red; display: none;">Wpisz dane</div>
         <div class="flex">
-            <div>
-                <label for="private-public" class="label-text">Public/Private</label>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round"></span>
-                </label>
-            </div>
+            <label class="custom-checkbox checkbox-box">
+                <input type="checkbox" id="privacyCheckbox" class="checkbox">
+                <span class="checkmark"></span>
+                <span class="label-text" id="privacyLabel">Public</span>
+            </label>
             <div class="password-input-container" style="display: none;">
                 <input type="password" id="password-input" placeholder="Type a passoword">
             </div>
@@ -64,10 +63,11 @@
     </div>
 
     <div id="JoinModal" class="modal" style="display: none;">
-        <input type="text" id="player-name" class="modal-input" maxlength="10" placeholder="Nickname">
-        <input type="password" id="join-password-input" class="modal-input" placeholder="Password">
-        <button class="modal-button-join" id="join-lobby">JOIN</button>
+        <input type="text" id="player-name" class="modal-input" maxlength="10" placeholder="Nickname" value="">
+        <input type="password" id="join-password-input" class="modal-input" placeholder="Password" value="" style="display: none;">
+        <button class="modal-button-join" id="join-lobby" onclick="checkPassword()">JOIN</button>
         <button id="modal-button-cancel" id="cancel-lobby">CANCEL</button>
+        <p id="message" style="color: red; font-weight: 800;"></p>
     </div>
 
     <script type="module" src="lobby.js"></script>
