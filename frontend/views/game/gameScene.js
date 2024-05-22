@@ -20,7 +20,8 @@ export default class GameScene extends Phaser.Scene {
         this.turnStartTime = null; // New property to store the start time of the turn
         this.isVisible = true; // New property to track visibility
     }
-
+    
+    
     create() {
         const width = this.scale.width / 2;
         const height = this.scale.height;
@@ -76,7 +77,7 @@ export default class GameScene extends Phaser.Scene {
                     rect.setInteractive();
                     rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
-                    
+                    console.log(rect.id)
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
@@ -134,16 +135,17 @@ export default class GameScene extends Phaser.Scene {
             let data = msg.data;
             let field = fieldsById[data.fieldId];
 
-            console.log(data.hittedShip);
-
             if(data.hittedShip === true)
             {
-                field.setFillStyle(0x00ff00, 1);
+                const hitSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'hit');
+                hitSprite.setDisplaySize(cellSize, cellSize);
             }
             else
             {
-                field.setFillStyle(0xff0000, 1);
+                const missSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'miss');
+                missSprite.setDisplaySize(cellSize, cellSize);
             }
+            this.resetTimer();
         });
 
         lobbyChannel.subscribe("updateTurn", (msg) => {
@@ -154,17 +156,6 @@ export default class GameScene extends Phaser.Scene {
                 this.startTurnTimer();
             }
         })
-
-        myChannel.subscribe("destoyedShip", (msg) => {
-            let shipData = msg.data;
-
-            console.log("destoryShip");
-
-            const ship = this.add.sprite(shipData.lastValidPosition.x - enemyPosX, shipData.lastValidPosition.y, shipData.textureKey);
-            ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
-            ship.setOrigin(0.5, 1);
-            ship.angle = shipData.angle;
-        });
             
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
@@ -253,29 +244,49 @@ export default class GameScene extends Phaser.Scene {
         this.continueButton.setVisible(true);
     }
 
+
     startTurnTimer() {
         if (this.timer) {
             this.timer.remove(false);
         }
-
+    
         this.turnStartTime = Date.now();
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
-
+    
+        // Hide the timer at the start of the turn
+        this.timeText.setVisible(false);
+    
         this.timer = this.time.addEvent({
             delay: 1000,
             callback: () => {
+                // Show the timer when the turn starts
+                this.timeText.setVisible(true);
+    
                 this.remainingTime -= 1000;
                 this.updateTimeText();
-
+    
                 if (this.remainingTime <= 0) {
                     this.timer.remove(false);
-                    //this.endGameDueToTimeout();
+                    // this.endGameDueToTimeout();
                 }
             },
             callbackScope: this,
             loop: true
         });
+    }
+
+    resetTimer() {
+        if (this.timer) {
+            this.timer.remove(false);
+        }
+    
+        this.turnStartTime = Date.now();
+        this.remainingTime = this.turnTimeLimit;
+        this.updateTimeText();
+    
+        // Hide the timer
+        this.timeText.setVisible(false);
     }
 
     handleVisibilityChange() {
