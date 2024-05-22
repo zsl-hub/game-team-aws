@@ -10,7 +10,6 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: battleship-game
-  ABLY_SECRET_KEY: ${{ secrets.ABLY_SECRET_KEY }}
 
 jobs:
   deploy:
@@ -38,6 +37,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          ABLY_SECRET_KEY: ${{ secrets.ABLY_SECRET_KEY }}
         run: |
           docker build --build-arg ABLY_SECRET_KEY=$ABLY_SECRET_KEY -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG ./backend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG

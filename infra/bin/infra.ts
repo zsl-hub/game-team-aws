@@ -8,7 +8,7 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, TargetType } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 const app = new cdk.App();
-const infraStack = new InfraStack(app, 'InfraStackOrangu', {});
+const infraStack = new InfraStack(app, 'InfraStackBQ', {});
 const infraVpc = new Vpc(infraStack, "InfraStackVpc")
 const infraCluster = new Cluster(infraStack, 'InfraCluster', { vpc: infraVpc });
 
@@ -45,7 +45,7 @@ fargate1TaskDef.addContainer(
 )
 
 fargate2TaskDef.addContainer("InfraFargate2Container", {
-  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-f7b92bb43343ed2c97b6eae85919be29dd5c73a1"),
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-37b94b6da7e239d9911b0591fe16a62be6bc0282"),
   portMappings: [{hostPort: 3000, containerPort: 3000}],
   logging: LogDriver.awsLogs({
     streamPrefix: "backend"
