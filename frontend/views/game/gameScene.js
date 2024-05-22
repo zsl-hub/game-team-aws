@@ -46,7 +46,7 @@ export default class GameScene extends Phaser.Scene {
                 let row = [];
                 for (let y = 0; y < 10; y++) {
                     const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                    rect.setStrokeStyle(2, 0xffffff);
+                    rect.setStrokeStyle(1, 0xc0c0c0);
                     rect.setOrigin(0);
                     rect.id = data.fields[x][y].fieldId;
 
@@ -72,12 +72,12 @@ export default class GameScene extends Phaser.Scene {
                 let row = [];
                 for (let y = 0; y < 10; y++) {
                     const rect = this.add.rectangle(enemyBoardOffsetX + x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                    rect.setStrokeStyle(2, 0xff0000);
+                    rect.setStrokeStyle(1, 0xff0000);
                     rect.setOrigin(0);
                     rect.setInteractive();
                     rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
-                    console.log(rect.id)
+
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
@@ -231,6 +231,7 @@ export default class GameScene extends Phaser.Scene {
         quitButton.setOrigin(0.5);
 
         this.timeText = this.add.text(width, height * 0.05, 'Time: 60', { fontSize: width * 0.05, fill: '#ffffff' });
+        this.timeText.setVisible(false);
         this.timeText.setOrigin(0.5);
 
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
@@ -247,33 +248,41 @@ export default class GameScene extends Phaser.Scene {
 
     startTurnTimer() {
         if (this.timer) {
-            this.timer.remove(false);
+            clearInterval(this.timer);
         }
     
         this.turnStartTime = Date.now();
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
     
-        // Hide the timer before the turn
+        // Show the timer when the turn starts
+        this.timeText.setVisible(true);
+    
+        this.timer = setInterval(() => {
+            this.remainingTime -= 10;
+            this.updateTimeText();
+    
+            if (this.remainingTime <= 0) {
+                clearInterval(this.timer);
+                // Hide the timer
+                this.timeText.setVisible(false);
+                // this.endGameDueToTimeout();
+            }
+        }, 10);
+    }
+    //Reset the game timer and hide it from view
+    resetTimer() {
+
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+    
+        this.turnStartTime = Date.now();
+        this.remainingTime = this.turnTimeLimit;
+        this.updateTimeText();
+      
+        // Hide the timer
         this.timeText.setVisible(false);
-    
-        this.timer = this.time.addEvent({
-            delay: 1000,
-            callback: () => {
-                // Show the timer when the turn starts
-                this.timeText.setVisible(true);
-    
-                this.remainingTime -= 1000;
-                this.updateTimeText();
-    
-                if (this.remainingTime <= 0) {
-                    this.timer.remove(false);
-                    // this.endGameDueToTimeout();
-                }
-            },
-            callbackScope: this,
-            loop: true
-        });
     }
 
     resetTimer() {
@@ -293,7 +302,7 @@ export default class GameScene extends Phaser.Scene {
         if (document.visibilityState === 'hidden') {
             this.isVisible = false;
             if (this.timer) {
-                this.timer.paused = true;
+                clearInterval(this.timer);
             }
         } else {
             this.isVisible = true;
@@ -304,12 +313,11 @@ export default class GameScene extends Phaser.Scene {
 
                 if (this.remainingTime <= 0) {
                     this.remainingTime = 0;
-                    this.timer.paused = false;
-                    this.timer.remove(false);
+                    clearInterval(this.timer);
                     //this.endGameDueToTimeout();
                 } else {
                     this.turnStartTime = now;
-                    this.timer.paused = false;
+                    this.startTurnTimer();
                 }
                 this.updateTimeText();
             }
