@@ -10,7 +10,6 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: battleship-game
-  ABLY_SECRET_KEY: ${{ secrets.ABLY_SECRET_KEY }}
 
 jobs:
   deploy:
