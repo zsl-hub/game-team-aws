@@ -4,18 +4,32 @@ const {createItem, getItemById, getItemByProperty, getAllItems, updateItem, dele
 const { v4: uuidv4 } = require('uuid');
 const { itemSchema, player2Schema, playerSchema } = require("../schemas");
 
+router.get("/orangutan", async (req, res) => {
+    try {
+        res.json("HELLO, EVERYTHING IS WORKING JUST FINE!!!!!");
+    }
+    catch (error){
+        console.error("Error while getting all lobbies:", error);
+        res.status(401).json({ error: "An error occurred while getting all lobbies" }); 
+    }
+});
+
 router.get("/", async (req, res) => {
     try {
         const allLobbies = await getAllItems('lobby');
-        const waitingLobbies = allLobbies.Items.filter(item => item.lobbyStatus === 'waiting');
-
-        res.json(waitingLobbies)
+        //const waitingLobbies = allLobbies.Items.filter(item => item.lobbyStatus === 'waiting');
+        
+        res.json(allLobbies)
     }
     catch (error) {
         console.error("Error while getting all lobbies:", error);
         res.status(500).json({ error: "An error occurred while getting all lobbies" }); 
     }
 });
+// asdnfidsafyf
+// nasdufidabfuyafvasfuyvsdaydfafdaffafsaf
+// rtest number sadiadsbuyfsf
+// asdfsafsff
 
 router.post("/joinLobby", async (req, res) => {
     try {
@@ -39,10 +53,10 @@ router.post("/joinLobby", async (req, res) => {
                 }
                 await updateItem("lobby", {"lobbyId": getLobby.lobbyId}, value);
 
-                res.status(200).json({success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2});
+                res.status(200).json({success: true, message: "Joined lobby successfully", lobbyId: getLobby.lobbyId, player2: req.body.player2}); 
             } else {
                 res.status(401).json({success: false, message: "Incorrect lobby password"});
-            }
+            } 
         } else {
             res.status(403).json({ success: false, message: "Lobby is full" }); 
         }

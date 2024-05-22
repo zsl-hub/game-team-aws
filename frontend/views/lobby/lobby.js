@@ -7,34 +7,35 @@ document.getElementById("join-lobby").addEventListener("click", () => { joinLobb
 document.getElementById("modal-button-cancel").addEventListener("click", () => { CancelLobby(); });
 document.getElementById("create-lobby").addEventListener("click", () => { createLobby(); });
 
-function assignOpenJoinModalListeners()
-{
-
+function assignOpenJoinModalListeners() {
   const elements = document.getElementsByClassName("open-join-modal");
-  for(let i = 0; i < elements.length; i++){
+  for (let i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", () => { openJoinModal(elements[i].parentNode); });
   }
 }
 
-// IM NOT HERE OK?
-// ENJOYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYING ;)
-// ASHDUSADGBDFSVAFSTYADVSTYAVSAYAFVSAVFYSDAYVFSAVFFVSYATFVYSTAFVYSATFVSTYAFVSTYAVFTYAVFSDTYAVFSDTYAVFSTYAF
-// asdfasfsdf
-
 document.addEventListener('DOMContentLoaded', function() {
-
-  var switchInput = document.querySelector('.switch input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   switchInput.addEventListener('change', togglePasswordInput);
 
   switchInput.addEventListener('change', function() {
-      var iconSpan = document.querySelector('.material-symbols-outlined');
-      if (this.checked) {
-          iconSpan.textContent = 'lock';
-      } else {
-          iconSpan.textContent = 'lock_open';
-      }
+    var iconSpan = document.querySelector('.material-symbols-outlined');
+    if (this.checked) {
+      iconSpan.textContent = 'lock';
+    } else {
+      iconSpan.textContent = 'lock_open';
+    }
   });
-});
+
+  // SDFNSDUATYFVSAVFYASFVACTRSADFASF
+
+  const container = document.querySelector('.container');
+  if (container) {
+    container.scrollLeft += 20;
+  }
+
+  getAllLobbies();
+}); 
 
 function openModal() {
   var modal = document.getElementById("ModalID");
@@ -63,16 +64,16 @@ function closeModal() {
 
 function createLobby() {
   var lobbyName = document.getElementById("text").value;
-  var switchInput = document.querySelector('.switch input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   var passwordInput = document.getElementById("password-input");
   var switchChecked = switchInput.checked;
 
   if (switchChecked) {
-      var password = passwordInput.value;
-      if (password.length < 4) {
-          alert("Hasło musi mieć co najmniej 4 znaki!");
-          return;
-      }
+    var password = passwordInput.value;
+    if (password.length < 4) {
+      alert("Hasło musi mieć co najmniej 4 znaki!");
+      return;
+    }
   }
 
   var lobbyTemplate = document.getElementById("lobbyTemplate");
@@ -80,26 +81,56 @@ function createLobby() {
   newLobbyContainer.removeAttribute("id");
   newLobbyContainer.style.display = "block";
 
+  // Set lobby name
   var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
   lobbyNameSpan.textContent = lobbyName;
 
+  // Create and set number of players
+  var nrOfPplSpan = document.createElement("span");
+  nrOfPplSpan.className = "nr_of_ppl";
+  nrOfPplSpan.textContent = "1/2";
+
+  // Create and set lobby status
+  var lobbyStatusSpan = document.createElement("span");
+  lobbyStatusSpan.className = "isFull";
+  lobbyStatusSpan.textContent = "Waiting";
+
+  // Create join button
+  var joinButton = document.createElement("button");
+  joinButton.textContent = "Join";
+  joinButton.className = "join-button";
+
+  // Set lock icon
   var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
   iconSpan.textContent = switchChecked ? "lock" : "lock_open";
 
+  // Append elements in the correct order
+  var lobbyContent = newLobbyContainer.querySelector("a");
+  lobbyContent.appendChild(lobbyNameSpan);
+  lobbyContent.appendChild(nrOfPplSpan);
+  lobbyContent.appendChild(lobbyStatusSpan);
+  lobbyContent.appendChild(joinButton);
+  lobbyContent.appendChild(iconSpan);
+
+  // Append the new lobby container to the lobby list
   var lobbyContainer = document.querySelector(".lobby");
   lobbyContainer.appendChild(newLobbyContainer);
 
+  // Reassign event listeners to the new join buttons
   assignOpenJoinModalListeners();
 
+  // Close the modal after creating the lobby
   closeModal();
 }
 
+
 function createLobbyFromDatabase(data) {
-  if (Array.isArray(data)) {
-    data.forEach(lobby => {
+  if (Array.isArray(data.Items)) {
+    data.Items.forEach(lobby => {
       var lobbyName = lobby.lobbyName;
       var passwordInput = lobby.lobbyPass;
       var switchChecked = lobby.isPrivate;
+      let lobbyStatus = lobby.lobbyStatus; 
 
       if (switchChecked) {
         var password = passwordInput;
@@ -116,8 +147,34 @@ function createLobbyFromDatabase(data) {
       var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
       lobbyNameSpan.textContent = lobbyName;
 
+      var nrOfPplSpan = document.createElement("span");
+      nrOfPplSpan.className = "nr_of_ppl";
+      if (lobbyStatus === 'waiting'){
+        nrOfPplSpan.textContent = "1/2";
+      } else if (lobbyStatus === 'playing') {
+        nrOfPplSpan.textContent = "2/2";
+      }
+
+      var lobbyStatusSpan = document.createElement("span");
+      lobbyStatusSpan.className = "isFull";
+      lobbyStatusSpan.textContent = lobbyStatus;
+
+      var joinButton = document.createElement("button");
+      joinButton.textContent = "Join";
+      joinButton.className = "join-button open-join-modal";
+
       var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
       iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+
+      var lobbyContainer = document.querySelector(".lobby");
+      lobbyContainer.appendChild(newLobbyContainer);
+
+      var lobbyContent = newLobbyContainer.querySelector("a");
+      lobbyContent.appendChild(lobbyNameSpan);
+      lobbyContent.appendChild(nrOfPplSpan);
+      lobbyContent.appendChild(lobbyStatusSpan);
+      lobbyContent.appendChild(joinButton);
+      lobbyContent.appendChild(iconSpan);
 
       var lobbyContainer = document.querySelector(".lobby");
       lobbyContainer.appendChild(newLobbyContainer);
@@ -137,9 +194,9 @@ function togglePasswordInput() {
   var switchChecked = this.checked;
 
   if (switchChecked) {
-      passwordInputContainer.style.display = "block";
+    passwordInputContainer.style.display = "block";
   } else {
-      passwordInputContainer.style.display = "none";
+    passwordInputContainer.style.display = "none";
   }
 }
 
@@ -169,46 +226,29 @@ async function joinLobby() {
       body: JSON.stringify(requestData)
     });
 
-    const responseData = await res.json(); 
-  
-      if (res.ok) {
-        console.log("Successfully joined lobby:", responseData.message);
-        console.log(responseData);
-        window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player2;
+    const responseData = await res.json();
+
+    if (res.ok) {
+      console.log("Successfully joined lobby:", responseData.message);
+      console.log(responseData);
+      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player2;
+    } 
+    else {
+      if (res.status === 401) {
+        console.error("Failed to join lobby:", responseData.message);
+      } 
+      else if (res.status === 403) {
+        console.error("Failed to join lobby:", responseData.message);
       } 
       else {
-        if (res.status === 401) {
-          console.error("Failed to join lobby:", responseData.message);
-        } 
-        else if (res.status === 403) {
-          console.error("Failed to join lobby:", responseData.message);
-        } 
-        else {
-          console.error("Failed to join lobby - Unknown error:");
-        }
+        console.error("Failed to join lobby - Unknown error:");
       }
-    } 
-    catch (error) {
-      console.error("Network error or exception:", error);
     }
+  } 
+  catch (error) {
+    console.error("Network error or exception:", error);
+  }
 }
-
-// function openJoinModal() {
-//   var joinModal = document.getElementById("JoinModal");
-//   var switchInput = document.querySelector('.switch input');
-//   var passwordInputContainer = document.querySelector('.password-input-container');
-
-//   var iconSpan = document.querySelector('.material-symbols-outlined');
-//   var iconType = iconSpan.textContent;
-
-//   if (iconType === 'lock') {
-//       passwordInputContainer.style.display = "block";
-//   } else {
-//       passwordInputContainer.style.display = "none";
-//   }
-  
-//   joinModal.style.display = "block";
-// }
 
 let x1=0, y1=0;
 window.client
@@ -293,7 +333,7 @@ function CancelLobby() {
 const createLobbyButton = document.getElementById('create-lobby');
 const lobbyCreator = document.getElementById('lobbyCreator');
 const lobbyName = document.getElementById('text'); 
-const isPrivate = document.querySelector('.switch [type=checkbox]');
+const isPrivate = document.querySelector("#privacyCheckbox");
 const lobbyPass = document.getElementById('password-input');
 
 
@@ -323,25 +363,39 @@ createLobbyButton.addEventListener('click', async e => {
     } else {
       console.error("Failed to create lobby");
     }
-  } 
-  catch (error) {
-    console.error("Error:", error);
-  }
-});
-
-const getAllLobbies = async () => {
-  try {
-    const response = await fetch(config.host + '/lobby');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
     const data = await response.json();
     console.log(data); 
     createLobbyFromDatabase(data);
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
   }
+});
+
+ async function getAllLobbies() {
+  try {
+    const response = await fetch(config.host + '/lobby');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log(data);
+    createLobbyFromDatabase(data);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  const checkbox = document.getElementById('privacyCheckbox');
+  const label = document.getElementById('privacyLabel');
+  checkbox.addEventListener('change', function() {
+    if (checkbox.checked) {
+      label.textContent = 'Private';
+    } else {
+      label.textContent = 'Public';
+    }
+  });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   getAllLobbies();
