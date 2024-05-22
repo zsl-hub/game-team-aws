@@ -254,7 +254,7 @@ export default class GameScene extends Phaser.Scene {
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
     
-        // Hide the timer at the start of the turn
+        // Hide the timer before the turn
         this.timeText.setVisible(false);
     
         this.timer = this.time.addEvent({
