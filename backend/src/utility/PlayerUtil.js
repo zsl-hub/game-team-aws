@@ -23,6 +23,13 @@ class PlayerUtil{
 
         console.log(game.connectedPlayers);
 
+        if (game.connectedPlayers === 1)
+        {
+            game.turn = playerId;
+        }
+
+        console.log(game.connectedPlayers);
+
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
         
         PlayerUtil.subscribeToPlayerEvents(realtime, lobbyObj, playerId, game);
@@ -43,8 +50,8 @@ class PlayerUtil{
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
             Events.handleShipPositionChange(msg);
         });
-        lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
-            Events.handleShoot(msg);
+        lobbyObj.playerChannels[playerId].subscribe("shootField", (msg) => {
+            Events.handleShootField(msg, lobbyObj);
         });
     }
 }

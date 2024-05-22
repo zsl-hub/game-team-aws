@@ -57,7 +57,7 @@ class Stages{
 
         console.log(diff);
 
-        if (diff >= timeLeft)
+        if (diff >= timeLeft || game.readyPlayers === 2)
         {
             clearInterval(interval);
             callBack();
@@ -72,12 +72,12 @@ class Stages{
 
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
 
-        await Stages.createPlayerFields(lobbyObj);
+        await Stages.#createPlayerFields(lobbyObj);
 
-        await Stages.createPlayerShips(lobbyObj);
+        await Stages.#createPlayerShips(lobbyObj);
     }
 
-    static async createPlayerFields(lobbyObj){
+    static async #createPlayerFields(lobbyObj){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId});
         lobby = lobby.Item;
         
@@ -104,7 +104,7 @@ class Stages{
         await updateItem("lobby", { "lobbyId": lobbyObj.lobbyId }, { "game": game });
     }
 
-    static async createPlayerShips(lobbyObj){
+    static async #createPlayerShips(lobbyObj){
         let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId });
         lobby = lobby.Item;
 
@@ -119,6 +119,11 @@ class Stages{
                 ships: game.ships[playerId]
             });
         }
+
+        lobbyObj.lobbyChannel.publish("updateTurn", {
+            turnPlayerId: game.turn,
+            //turnPlayerName: null
+        });
     }
 }
 

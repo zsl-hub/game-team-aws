@@ -36,7 +36,9 @@ class ShipUtil{
                 shipId: shipId,
                 fields: [],
                 shipLength,
-                shipSprite
+                shipSprite,
+                fieldsLeft: shipLength,
+                isDestroyed: false
             };
 
             ships[shipId] = ship;
@@ -58,11 +60,27 @@ class ShipUtil{
             lobbyObj.playerChannels[playerId].publish("createShip", {
                 shipId: ship.shipId,
                 shipLength: ship.shipLength,
-                shipSprite: ship.shipSprite
+                shipSprite: ship.shipSprite,
             });
         }
 
         lobbyObj.playerChannels[playerId].publish("createdAllShips", {});
+    }
+
+    /**
+     * @param {object} ship 
+     * @param {object} field 
+     * @returns {boolean}
+     */
+    static isShipOnField(ship, field)
+    {
+        let isOnField = false;
+        
+        ship.fields.forEach(shipField => {
+            if(shipField.x === field.x && shipField.y === field.y) isOnField = true;
+        })
+
+        return isOnField;
     }
 }
 

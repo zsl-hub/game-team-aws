@@ -1,4 +1,4 @@
-import { myChannel, globalChannel, lobbyChannel, lobbyId } from "./ablyConnection";
+import { myChannel, globalChannel, lobbyChannel, lobbyId, playerId } from "./ablyConnection";
 import './style.css';
 import Phaser from 'phaser';
 export default class GameScene extends Phaser.Scene {
@@ -35,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
         playerBackground.setOrigin(0.5);
 
         let myBoard = [];
+        let fieldsById = {};
 
         myChannel.subscribe("createMyBoard", (msg) => {
             const data = msg.data;
@@ -46,9 +47,10 @@ export default class GameScene extends Phaser.Scene {
                     const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
                     rect.setStrokeStyle(2, 0xffffff);
                     rect.setOrigin(0);
-                    rect.id = data.fields[x, y].fieldId;
+                    rect.id = data.fields[x][y].fieldId;
 
                     row.push(rect);
+                    fieldsById[rect.id] = rect;
                 }
                 myBoard.push(row);
             }
@@ -73,13 +75,14 @@ export default class GameScene extends Phaser.Scene {
                     rect.setOrigin(0);
                     rect.setInteractive();
                     rect.setDepth(1);
-                    rect.id = data.fields[x, y].fieldId;
+                    rect.id = data.fields[x][y].fieldId;
+                    
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
-                        rect.setFillStyle(0x00ff00, 1); // Green
+                        //rect.setFillStyle(0x00ff00, 1); // Green
                         
-                        myChannel.publish("shootShip", {
+                        myChannel.publish("shootField", {
                             lobbyId: lobbyId,
                             x,
                             y
@@ -87,10 +90,13 @@ export default class GameScene extends Phaser.Scene {
                     });
 
                     row.push(rect);
+                    fieldsById[rect.id] = rect;
                 }
                 enemyRectangles.push(row);
             }
         });
+
+        console.log(fieldsById);
 
         const playerPosX = boardStartX + width * 0.5; // Need this to paste ships correct
         const enemyPosX = boardStartX + width * 0.5 - enemyBoardOffsetX;
@@ -104,8 +110,6 @@ export default class GameScene extends Phaser.Scene {
 
             for(const shipId in data.ships){
                 const shipData = data.ships[shipId];
-            
-                console.log(shipData);
 
                 const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
                 ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
@@ -115,17 +119,39 @@ export default class GameScene extends Phaser.Scene {
                 ship.id = shipId;
 
                 ships[shipId] = ship;
-
-                console.log(shipData.lastValidPosition, shipData.displayHeight, shipData.displayWidth);
             }
         });
 
-        myChannel.subscribe("updateShip", (msg) => {
+        // myChannel.subscribe("updateShip", (msg) => {
+        //     let data = msg.data;
+
+        //     let ship = ships[shipData.shipId];
+        // });
+
+        lobbyChannel.subscribe("updateField", (msg) => {
+            console.log("updateField");
+
+            let data = msg.data;
+            let field = fieldsById[data.fieldId];
+
+            if(data.hittedShip === true)
+            {
+                field.setFillStyle(0x00ff00, 1);
+            }
+            else
+            {
+                field.setFillStyle(0xff0000, 1);
+            }
+        });
+
+        lobbyChannel.subscribe("updateTurn", (msg) => {
             let data = msg.data;
 
-            let shipData = ships[data.shipId];
-            let ship = ships[shipData.shipId];
-        });
+            if (data.turnPlayerId === playerId)
+            {
+                this.startTurnTimer();
+            }
+        })
             
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
@@ -205,7 +231,7 @@ export default class GameScene extends Phaser.Scene {
 
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
 
-        this.startTurnTimer();
+        //this.startTurnTimer();
     }
 
     handleClick() {
@@ -275,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
                     this.remainingTime = 0;
                     this.timer.paused = false;
                     this.timer.remove(false);
-                    this.endGameDueToTimeout();
+                    //this.endGameDueToTimeout();
                 } else {
                     this.turnStartTime = now;
                     this.timer.paused = false;
