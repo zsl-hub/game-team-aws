@@ -231,8 +231,8 @@ export default class BoardScene extends Phaser.Scene {
             realPosY -= Math.round(boardStartY);
             
             
-            let positionX = Math.round(realPosX / cellSize);
-            let positionY = Math.round(realPosY / cellSize);
+            let positionX = Math.floor(realPosX / cellSize);
+            let positionY = Math.floor(realPosY / cellSize);
 
             let locations = [];
 
@@ -250,6 +250,9 @@ export default class BoardScene extends Phaser.Scene {
                     });
                 }
             }
+
+            // console.log(realPosX / cellSize, realPosY / cellSize);
+            // console.log(positionX, positionY);
             
             myChannel.publish("shipPosition", {
                 lobbyId,

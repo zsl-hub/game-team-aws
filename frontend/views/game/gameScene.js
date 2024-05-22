@@ -134,8 +134,6 @@ export default class GameScene extends Phaser.Scene {
             let data = msg.data;
             let field = fieldsById[data.fieldId];
 
-            console.log(data.hittedShip);
-
             if(data.hittedShip === true)
             {
                 field.setFillStyle(0x00ff00, 1);

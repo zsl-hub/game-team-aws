@@ -40,7 +40,7 @@ class Events{
         await updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
     }
 
-    static async handleShootField(msg, lobbyObj) 
+    static async handleShootField(msg, lobbyObj)
     {
         //get lobby
         const lobbyId = msg.data.lobbyId;
@@ -73,6 +73,8 @@ class Events{
                 });
                 
                 game.shipsLeft[enemyPlayerId]--;
+
+                console.log(game.shipsLeft[enemyPlayerId]);
 
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
