@@ -7,11 +7,9 @@ document.getElementById("join-lobby").addEventListener("click", () => { joinLobb
 document.getElementById("modal-button-cancel").addEventListener("click", () => { CancelLobby(); });
 document.getElementById("create-lobby").addEventListener("click", () => { createLobby(); });
 
-function assignOpenJoinModalListeners()
-{
-
+function assignOpenJoinModalListeners() {
   const elements = document.getElementsByClassName("open-join-modal");
-  for(let i = 0; i < elements.length; i++){
+  for (let i = 0; i < elements.length; i++) {
     elements[i].addEventListener("click", () => { openJoinModal(elements[i].parentNode); });
   }
 }
@@ -22,18 +20,24 @@ function assignOpenJoinModalListeners()
 // asdfasfsdf
 
 document.addEventListener('DOMContentLoaded', function() {
-
   var switchInput = document.querySelector('.switch input');
   switchInput.addEventListener('change', togglePasswordInput);
 
   switchInput.addEventListener('change', function() {
-      var iconSpan = document.querySelector('.material-symbols-outlined');
-      if (this.checked) {
-          iconSpan.textContent = 'lock';
-      } else {
-          iconSpan.textContent = 'lock_open';
-      }
+    var iconSpan = document.querySelector('.material-symbols-outlined');
+    if (this.checked) {
+      iconSpan.textContent = 'lock';
+    } else {
+      iconSpan.textContent = 'lock_open';
+    }
   });
+
+  const container = document.querySelector('.container');
+  if (container) {
+    container.scrollLeft += 20;
+  }
+
+  getAllLobbies();
 });
 
 function openModal() {
@@ -68,11 +72,11 @@ function createLobby() {
   var switchChecked = switchInput.checked;
 
   if (switchChecked) {
-      var password = passwordInput.value;
-      if (password.length < 4) {
-          alert("Hasło musi mieć co najmniej 4 znaki!");
-          return;
-      }
+    var password = passwordInput.value;
+    if (password.length < 4) {
+      alert("Hasło musi mieć co najmniej 4 znaki!");
+      return;
+    }
   }
 
   var lobbyTemplate = document.getElementById("lobbyTemplate");
@@ -80,66 +84,58 @@ function createLobby() {
   newLobbyContainer.removeAttribute("id");
   newLobbyContainer.style.display = "block";
 
+  // Set lobby name
   var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
   lobbyNameSpan.textContent = lobbyName;
 
+  // Create and set number of players
+  var nrOfPplSpan = document.createElement("span");
+  nrOfPplSpan.className = "nr_of_ppl";
+  nrOfPplSpan.textContent = "1/2";
+
+  // Create and set lobby status
+  var lobbyStatusSpan = document.createElement("span");
+  lobbyStatusSpan.className = "isFull";
+  lobbyStatusSpan.textContent = "Waiting";
+
+  // Create join button
+  var joinButton = document.createElement("button");
+  joinButton.textContent = "Join";
+  joinButton.className = "join-button";
+
+  // Set lock icon
   var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
   iconSpan.textContent = switchChecked ? "lock" : "lock_open";
 
+  // Append elements in the correct order
+  var lobbyContent = newLobbyContainer.querySelector("a");
+  lobbyContent.appendChild(lobbyNameSpan);
+  lobbyContent.appendChild(nrOfPplSpan);
+  lobbyContent.appendChild(lobbyStatusSpan);
+  lobbyContent.appendChild(joinButton);
+  lobbyContent.appendChild(iconSpan);
+
+  // Append the new lobby container to the lobby list
   var lobbyContainer = document.querySelector(".lobby");
   lobbyContainer.appendChild(newLobbyContainer);
 
+  // Reassign event listeners to the new join buttons
   assignOpenJoinModalListeners();
 
+  // Close the modal after creating the lobby
   closeModal();
 }
 
-function createLobbyFromDatabase(data) {
-  if (Array.isArray(data)) {
-    data.forEach(lobby => {
-      var lobbyName = lobby.lobbyName;
-      var passwordInput = lobby.lobbyPass;
-      var switchChecked = lobby.isPrivate;
 
-      if (switchChecked) {
-        var password = passwordInput;
-        /*if (password.length < 4) {
-            //alert("Hasło musi mieć co najmniej 4 znaki!");
-            return;
-        }*/
-      }
-      var lobbyTemplate = document.getElementById("lobbyTemplate");
-      var newLobbyContainer = lobbyTemplate.cloneNode(true);
-      newLobbyContainer.removeAttribute("id");
-      newLobbyContainer.style.display = "block";
-
-      var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
-      lobbyNameSpan.textContent = lobbyName;
-
-      var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
-      iconSpan.textContent = switchChecked ? "lock" : "lock_open";
-
-      var lobbyContainer = document.querySelector(".lobby");
-      lobbyContainer.appendChild(newLobbyContainer);
-
-      assignOpenJoinModalListeners();
-
-      closeModal();
-    });
-  } 
-  else {
-    console.error('Invalid data format: Items property is not an array.');
-  }
-}
 
 function togglePasswordInput() {
   var passwordInputContainer = document.querySelector('.password-input-container');
   var switchChecked = this.checked;
 
   if (switchChecked) {
-      passwordInputContainer.style.display = "block";
+    passwordInputContainer.style.display = "block";
   } else {
-      passwordInputContainer.style.display = "none";
+    passwordInputContainer.style.display = "none";
   }
 }
 
@@ -169,46 +165,29 @@ async function joinLobby() {
       body: JSON.stringify(requestData)
     });
 
-    const responseData = await res.json(); 
-  
-      if (res.ok) {
-        console.log("Successfully joined lobby:", responseData.message);
-        console.log(responseData);
-        window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player2;
+    const responseData = await res.json();
+
+    if (res.ok) {
+      console.log("Successfully joined lobby:", responseData.message);
+      console.log(responseData);
+      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player2;
+    } 
+    else {
+      if (res.status === 401) {
+        console.error("Failed to join lobby:", responseData.message);
+      } 
+      else if (res.status === 403) {
+        console.error("Failed to join lobby:", responseData.message);
       } 
       else {
-        if (res.status === 401) {
-          console.error("Failed to join lobby:", responseData.message);
-        } 
-        else if (res.status === 403) {
-          console.error("Failed to join lobby:", responseData.message);
-        } 
-        else {
-          console.error("Failed to join lobby - Unknown error:");
-        }
+        console.error("Failed to join lobby - Unknown error:");
       }
-    } 
-    catch (error) {
-      console.error("Network error or exception:", error);
     }
+  } 
+  catch (error) {
+    console.error("Network error or exception:", error);
+  }
 }
-
-// function openJoinModal() {
-//   var joinModal = document.getElementById("JoinModal");
-//   var switchInput = document.querySelector('.switch input');
-//   var passwordInputContainer = document.querySelector('.password-input-container');
-
-//   var iconSpan = document.querySelector('.material-symbols-outlined');
-//   var iconType = iconSpan.textContent;
-
-//   if (iconType === 'lock') {
-//       passwordInputContainer.style.display = "block";
-//   } else {
-//       passwordInputContainer.style.display = "none";
-//   }
-  
-//   joinModal.style.display = "block";
-// }
 
 let x1=0, y1=0;
 window.client
@@ -220,21 +199,42 @@ const
     '1.1rem', '1.4rem', '.8rem', '1.7rem'
   ],
   colors = [
-  '#E23636',
-  '#F9F3EE',
-  '#E1F8DC',
-  '#B8AFE6',
-  '#AEE1CD',
-  '#5EB0E5'
-],
-  rand = (min, max) => 
+    '#E23636',
+    '#F9F3EE',
+    '#E1F8DC',
+    '#B8AFE6',
+    '#AEE1CD',
+    '#5EB0E5'
+  ],
+  rand = (min, max) =>
     Math.floor(Math.random() * (max - min + 1)) + min,
-  selRand = (o) => o[rand(0, o.length -1)],
-  distanceTo =  (x1, y1, x2, y2) => 
+  selRand = (o) => o[rand(0, o.length - 1)],
+  distanceTo = (x1, y1, x2, y2) =>
     Math.sqrt((Math.pow(x2-x1,2))+(Math.pow(y2-y1,2))),
-  shouldDraw = (x, y) => 
+  shouldDraw = (x, y) =>
     (distanceTo(x1, y1, x, y) >= dist_to_draw),
   addStr = (x, y) => {
+      const str = document.createElement("div");
+      str.innerHTML = '&#x2022;'
+      Object.assign(str.style, {
+        position: 'absolute',
+        top: `${y}px`,
+        left: `${x}px`,
+        color: selRand(colors),
+        fontSize: selRand(fsize),
+        opacity: .2
+      })
+      document.body.append(str)
+      setTimeout(() => {
+        str.remove()
+      }, delay)
+    },
+    mouseMove = (e) => {
+      const {clientX: x, clientY: y} = e
+      if (shouldDraw(x, y)) {
+        x1=x, y1=y
+        addStr(x, y)
+      }
     const str = document.createElement("div");
     str.innerHTML = '&#10022;';
     str.className = 'star';
@@ -320,18 +320,40 @@ createLobbyButton.addEventListener('click', async e => {
     } else {
       console.error("Failed to create lobby");
     }
-  } 
-  catch (error) {
-    console.error("Error:", error);
-  }
-});
-
-const getAllLobbies = async () => {
-  try {
-    const response = await fetch(config.host + '/lobby');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+  window.addEventListener('mousemove', mouseMove)
+  
+  /*async function getAllLobbies() {
+    try {
+      const res = await fetch(config.host + "/lobby/getAllLobbies", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      const responseData = await res.json(); 
+    
+      if (res.ok) {
+        console.log("Successfully fetched all lobbies:", responseData);
+        createLobbyFromDatabase(responseData);
+      } else {
+        if (res.status === 401) {
+          console.error("Failed to fetch lobbies:", responseData.message);
+        } else if (res.status === 403) {
+          console.error("Failed to fetch lobbies:", responseData.message);
+        } else {
+          console.error("Failed to fetch lobbies - Unknown error:");
+        }
+      }
+    } catch (error) {
+      console.error("Network error or exception:", error);
     }
+  } */
+  
+  function CancelLobby() {
+    var joinModal = document.getElementById("JoinModal");
+    joinModal.style.display = "none";
+  }
     const data = await response.json();
     console.log(data); 
     createLobbyFromDatabase(data);
