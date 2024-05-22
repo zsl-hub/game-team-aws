@@ -20,6 +20,8 @@ class Events{
         game.ships[msg.clientId][msg.data.shipId].angle = msg.data.angle;
         game.ships[msg.clientId][msg.data.shipId].textureKey = msg.data.textureKey;
 
+        console.log(game.ships[msg.clientId][msg.data.shipId]);
+
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
 
@@ -42,6 +44,8 @@ class Events{
     static #changesUpdated = true;
     static async handleShootField(msg, lobbyObj)
     {
+        console.log("first");
+
         if (Events.#changesUpdated === false) {
             setTimeout(() => {
                 Events.#changesUpdated = true;
@@ -128,12 +132,8 @@ class Events{
 
             if (ShipUtil.isShipOnField(ship, field))
             {
-                console.log("true");
                 ship.fieldsLeft--;
                 hittedShip = true;
-
-                console.log("shipFieldsLeft");
-                console.log(ship.fieldsLeft);
 
                 if (ship.fieldsLeft <= 0)
                 {

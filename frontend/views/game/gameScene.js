@@ -74,7 +74,7 @@ export default class GameScene extends Phaser.Scene {
                     rect.setStrokeStyle(2, 0xff0000);
                     rect.setOrigin(0);
                     rect.setInteractive();
-                    rect.setDepth(0);
+                    rect.setDepth(1);
                     rect.id = data.fields[x][y].fieldId;
                     
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
@@ -134,6 +134,9 @@ export default class GameScene extends Phaser.Scene {
             let data = msg.data;
             let field = fieldsById[data.fieldId];
 
+            console.log(field);
+            console.log(data.hittedShip);
+
             if(data.hittedShip === true)
             {
                 field.setFillStyle(0x00ff00, 1);
@@ -157,11 +160,13 @@ export default class GameScene extends Phaser.Scene {
             let shipData = msg.data;
 
             console.log("destoryShip");
+            console.log(shipData);
 
-            const ship = this.add.sprite(shipData.lastValidPosition.x - enemyPosX, shipData.lastValidPosition.y, shipData.textureKey);
+            const ship = this.add.sprite(shipData.lastValidPosition.x, shipData.lastValidPosition.y, shipData.textureKey);
             ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
             ship.setOrigin(0.5, 1);
             ship.angle = shipData.angle;
+            ship.setDepth(0);
         });
             
         // Text

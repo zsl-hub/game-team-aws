@@ -30,7 +30,7 @@ router.post("/joinLobby", async (req, res) => {
                 }
 
                 const player = await createItem('player', {"playerId": uuidv4(), "playerName": valuePlayer.playerName, "isReady": false})
-                req.body.player2 = player.playerName;
+                req.body.player2 = player.playerId;
                 
                 const { error, value } = player2Schema.validate({ "player2": req.body.player2, "lobbyStatus": "playing"})
                 if (error) {
