@@ -4,6 +4,16 @@ const {createItem, getItemById, getItemByProperty, getAllItems, updateItem, dele
 const { v4: uuidv4 } = require('uuid');
 const { itemSchema, player2Schema, playerSchema } = require("../schemas");
 
+router.get("/orangutan", async (req, res) => {
+    try {
+        res.json("HELLO, EVERYTHING IS WORKING JUST FINE!!!!!");
+    }
+    catch (error){
+        console.error("Error while getting all lobbies:", error);
+        res.status(401).json({ error: "An error occurred while getting all lobbies" }); 
+    }
+});
+
 router.get("/", async (req, res) => {
     try {
         const allLobbies = await getAllItems('lobby');
