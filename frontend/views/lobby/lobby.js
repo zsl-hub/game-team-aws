@@ -14,6 +14,11 @@ function assignOpenJoinModalListeners() {
   }
 }
 
+// IM NOT HERE OK?
+// ENJOYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYING ;)
+// ASHDUSADGBDFSVAFSTYADVSTYAVSAYAFVSAVFYSDAYVFSAVFFVSYATFVYSTAFVYSATFVSTYAFVSTYAVFTYAVFSDTYAVFSDTYAVFSTYAF
+// asdfasfsdf
+
 document.addEventListener('DOMContentLoaded', function() {
   var switchInput = document.querySelector('.switch input');
   switchInput.addEventListener('change', togglePasswordInput);
@@ -230,6 +235,90 @@ const
         x1=x, y1=y
         addStr(x, y)
       }
+    const str = document.createElement("div");
+    str.innerHTML = '&#10022;';
+    str.className = 'star';
+    str.style.top = `${y + rand(-20,20)}px`;
+    str.style.left = `${x}px`;
+    str.style.color = selRand(colors);
+    str.style.fontSize = selRand(fsize);
+    document.body.appendChild(str);
+    const fs = 10 + 5 * parseFloat(getComputedStyle(str).fontSize);
+    str.animate({
+      translate: `0 ${(y+fs)>vh?vh-y:fs}px`,
+      opacity: 0,
+      transform: `rotateX(${rand(1, 500)}deg) rotateY(${rand(1, 500)}deg)`
+    }, {
+      duration: delay,
+      fill: 'forwards',
+
+    });
+    setTimeout(() => {
+        str.remove();
+      }, delay);
+  }
+
+addEventListener("mousemove", (e) => {
+  const {clientX, clientY} = e;
+  if(shouldDraw(clientX, clientY)){
+    addStr(clientX, clientY);
+    x1 = clientX;
+    y1 = clientY;
+  }
+});
+
+function CancelLobby() {
+  var joinModal = document.getElementById("JoinModal");
+  joinModal.style.display = "none";
+}
+
+/*
+function CancelLobby() {
+  var joinModal = document.getElementById("JoinModal");
+  joinModal.style.display = "none";
+}function checkOverflow() {
+  var lobbies = document.querySelectorAll('.lobby');
+
+  lobbies.forEach(function(lobby) {
+    if (lobby.scrollHeight > lobby.clientHeight) {
+      lobby.style.overflowY = 'scroll';
+    } else {
+      lobby.style.overflowY = 'hidden';
+    }
+  });
+}
+
+*/
+
+const createLobbyButton = document.getElementById('create-lobby');
+const lobbyCreator = document.getElementById('lobbyCreator');
+const lobbyName = document.getElementById('text'); 
+const isPrivate = document.querySelector('.switch [type=checkbox]');
+const lobbyPass = document.getElementById('password-input');
+
+createLobbyButton.addEventListener('click', async e => {
+  try {
+    let requestBody = {
+      lobbyName: lobbyName.value,
+      isPrivate: isPrivate.checked,
+      lobbyPass: lobbyPass.value,
+      lobbyStatus: 'waiting',
+      player1: lobbyCreator.value
+    };
+
+    const res = await fetch(config.host + "/lobby/createLobby", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    }); 
+
+    if (res.ok) {
+      const responseData = await res.json();
+      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
+    } else {
+      console.error("Failed to create lobby");
     }
   window.addEventListener('mousemove', mouseMove)
   
@@ -265,3 +354,14 @@ const
     var joinModal = document.getElementById("JoinModal");
     joinModal.style.display = "none";
   }
+    const data = await response.json();
+    console.log(data); 
+    createLobbyFromDatabase(data);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  getAllLobbies();
+});

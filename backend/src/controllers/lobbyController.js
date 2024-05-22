@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {createItem, getItemById, getItemByProperty, getAllItems, updateItem, deleteLobby} = require("../repositories/lobbyRepository");
+const {createItem, getItemById, getItemByProperty, getAllItems, updateItem, deleteLobby, createPlayer} = require("../repositories/lobbyRepository");
 const { v4: uuidv4 } = require('uuid');
 const { itemSchema, player2Schema, playerSchema } = require("../schemas");
 
@@ -57,7 +57,7 @@ router.post("/createLobby", async (req, res) => {
             console.error("Validation error:", errorPlayer.details[0].message);   
             throw new Error(errorPlayer.details[0].message);
         }
-        const player = await createItem('player', {"playerId": uuidv4(), "playerName": valuePlayer.player1, "isReady": false});
+        const player = await createItem('player', {"playerId": uuidv4(), "playerName": valuePlayer.player1, "isReady": false });
 
         req.body.player1 = player.playerId;
         req.body.lobbyId = uuidv4();

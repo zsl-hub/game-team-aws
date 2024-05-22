@@ -1,8 +1,13 @@
 import Phaser from 'phaser';
+import config from "../../config/config.json"
+import { myChannel, globalChannel, lobbyId, lobbyChannel} from "./ablyConnection.js";
 
 export default class BoardScene extends Phaser.Scene {
     constructor() {
         super({ key: 'BoardScene' });
+
+        this.firstTime = false;
+        this.shipsLoaded = false;
     }
 
     preload() {
@@ -32,16 +37,61 @@ export default class BoardScene extends Phaser.Scene {
                 rect.setOrigin(0);
             }
         }
-
         // Button "Ready"
-        
-
-        
         const readyButtonBackground = this.add.rectangle(width * 0.2, height * 0.90 - height * 0.10, width * 0.24, height * 0.08, 0x00ff00); // Green rectangle
         readyButtonBackground.setOrigin(0.5);
+
+        readyButtonBackground.on('pointerover', () => {
+            readyButton.setFill('#0000ff'); // Blue
+            readyButtonBackground.setFillStyle(0xff0000); // Blue
+            this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
+        });
+
+        readyButtonBackground.on('pointerout', () => {
+            readyButton.setFill('#ffffff'); // White
+            readyButtonBackground.setFillStyle(0x00ff00); // Green
+            this.game.canvas.style.cursor = 'default'; // Change cursor back to default
+        });
+
+        readyButtonBackground.on('pointerdown', () => {
+            allShipsPlaced = true;
+            ships.forEach(ship => {
+                if (ship.isPlaced === false) {
+                    allShipsPlaced = false;
+                    return;
+                }
+            });
+            if (allShipsPlaced && this.shipsLoaded) {
+                shipHold.destroy(); // Drop shipHold
+                readyButton.destroy();
+                readyButtonBackground.destroy(); // Drop readyButton
+                const shipsData = ships.map(ship => ({
+                    x: ship.x,
+                    y: ship.y,
+                    angle: ship.angle,
+                    textureKey: ship.texture.key,
+                    displayWidth: ship.displayWidth,
+                    displayHeight: ship.displayHeight,
+                    lastValidPosition: ship.lastValidPosition
+                }));
+                ships.forEach(ship => {
+                    ship.disableInteractive();
+                });
+                this.registry.set('ships', shipsData);
+
+                myChannel.publish("gameReady", {
+                    lobbyId: lobbyId,
+                })
+            }
+        });
+        
         const readyButton = this.add.text(width * 0.2, height * 0.90, 'Ready', { fontSize: width * 0.06, fill: '#ffffff',}); // White text
         readyButton.setOrigin(0.5);
-        readyButton.setInteractive();
+
+        if (this.shipsLoaded) {
+            readyButtonBackground.setInteractive();
+            readyButton.setInteractive();
+        }
 
         // Add pointerover event for hover effect
         readyButton.on('pointerover', () => {
@@ -58,7 +108,6 @@ export default class BoardScene extends Phaser.Scene {
         });
 
         readyButton.setPosition(width * 0.2, height * 0.8)
-        readyButton.setInteractive();
         readyButton.on('pointerdown', () => {
             allShipsPlaced = true;
             ships.forEach(ship => {
@@ -67,9 +116,10 @@ export default class BoardScene extends Phaser.Scene {
                     return;
                 }
             });
-            if (allShipsPlaced) {
+            if (allShipsPlaced && this.shipsLoaded) {
                 shipHold.destroy(); // Drop shipHold
                 readyButton.destroy(); // Drop readyButton
+                readyButtonBackground.destroy(); // Drop readyButton
                 const shipsData = ships.map(ship => ({
                     x: ship.x,
                     y: ship.y,
@@ -83,14 +133,15 @@ export default class BoardScene extends Phaser.Scene {
                     ship.disableInteractive();
                 });
                 this.registry.set('ships', shipsData);
-                this.scene.start('GameScene'); // start GameScene
-                // Deactivate ships
 
+                myChannel.publish("gameReady", {
+                    lobbyId: lobbyId,
+                })
             }
         });
         // Create board for ships
         const shipHoldWidth = width * 0.45;
-        const shipHoldHeight = height * 0.65;
+        const shipHoldHeight = height * 0.75;
         const shipHold = this.add.rectangle(width * 0.225, height * 0.325, shipHoldWidth, shipHoldHeight);
         shipHold.setStrokeStyle(2, 0x00ff00);
         shipHold.setOrigin(0.5);
@@ -100,45 +151,40 @@ export default class BoardScene extends Phaser.Scene {
         yBoard.setOrigin(0.5);
         // Battleships
         const ships = [];
+        let shipY = width * 0.10;
 
-        // 2
-        let ship1 = this.add.sprite(width * 0.10, height * 0.10, 'shipx2').setDisplaySize(cellSize * 2, cellSize).setOrigin(0.5, 1);
-        ship1.id = '2x1';
-        ships.push(ship1);
-        let ship2 = this.add.sprite(width * 0.10, height * 0.20, 'shipx2').setDisplaySize(cellSize * 2, cellSize).setOrigin(0.5, 1);
-        ship2.id = '2x2';
-        ships.push(ship2);
-        let ship3 = this.add.sprite(width * 0.30, height * 0.15, 'shipx2').setDisplaySize(cellSize * 2, cellSize).setOrigin(0.5, 1);
-        ship3.id = '2x3';
-        ships.push(ship3);
-        // 4
-        let ship4 = this.add.sprite(width * 0.165, height * 0.30, 'shipx4').setDisplaySize(cellSize * 4, cellSize).setOrigin(0.5, 1);
-        ship4.id = '3x1';
-        ships.push(ship4);
-        let ship5 = this.add.sprite(width * 0.165, height * 0.40, 'shipx4').setDisplaySize(cellSize * 4, cellSize).setOrigin(0.5, 1);
-        ship5.id = '3x2';
-        ships.push(ship5);
-        let ship6 = this.add.sprite(width * 0.165, height * 0.50, 'shipx4').setDisplaySize(cellSize * 4, cellSize).setOrigin(0.5, 1);
-        ship6.id = '3x3';
-        ships.push(ship6);
-        // 6
-        let ship7 = this.add.sprite(width * 0.23, height * 0.60, 'shipx6').setDisplaySize(cellSize * 6, cellSize).setOrigin(0.5, 1);
-        ship7.id = '6x1';
-        ships.push(ship7);
-        // Ships settings
-        ships.forEach(ship => {
-            ship.setInteractive();
-            this.input.setDraggable(ship);
-            ship.isRotated = false;
-            ship.isPlaced = false;
-            // Initialize lastValidPosition
-            ship.lastValidPosition = { x: ship.x, y: ship.y };
+        myChannel.subscribe("createShip", (msg) => {
+            let ship = this.add.sprite(width * 0.21, shipY, msg.data.shipSprite).setDisplaySize(cellSize * msg.data.shipLength, cellSize).setOrigin(0.5, 1);
+            ship.id = msg.data.shipId;
 
-            ship.on('pointerdown', () => {
-                this.selectedShip = ship; // Track the selected ship 
-            });
+            shipY += height * 0.1;
+
+            ships.push(ship);
         });
-        console.log(ships.filter(ship => ship.name === '2x1'))
+
+        myChannel.subscribe("createdAllShips", (msg) => {
+            // Ships settings
+            ships.forEach(ship => {
+                ship.rotatedWidth = ship.displayWidth;
+                ship.rotatedHeight = ship.displayHeight;
+                ship.setInteractive();
+                this.input.setDraggable(ship);
+                ship.isRotated = false;
+                ship.isPlaced = false;
+                // Initialize lastValidPosition
+                ship.lastValidPosition = { x: ship.x, y: ship.y };
+
+                ship.on('pointerdown', () => {
+                    this.selectedShip = ship; // Track the selected ship 
+                });
+            });
+            this.shipsLoaded = true; // Ustawienie shipsLoaded na true po utworzeniu wszystkich statków
+            if (readyButton && readyButtonBackground) {
+                readyButtonBackground.setInteractive(); // Aktywacja przycisku "Ready"
+                readyButton.setInteractive();
+            }
+        });
+
         this.input.on('dragstart', function (pointer, gameObject) {
             gameObject.setTint(0xff0000);
 
@@ -166,12 +212,64 @@ export default class BoardScene extends Phaser.Scene {
         this.input.on('dragend', (pointer, gameObject) => {
             gameObject.setPosition(gameObject.lastValidPosition.x, gameObject.lastValidPosition.y);
             gameObject.clearTint();
+
+            myChannel.publish("shipPosition", {
+                lobbyId: lobbyId,
+                x: gameObject.lastValidPosition.x,
+                y: gameObject.lastValidPosition.y
+            });
+
+            let shipSizeX = gameObject.rotatedWidth / cellSize;
+            let shipSizeY = gameObject.rotatedHeight / cellSize;
+ 
+            let offsetPosModifierX = shipSizeX === 1? 1 : 2;
+            let offsetPosModifierY = shipSizeY === 1? 1 : 2;
+
+            let realPosX =  Math.round(Math.round(gameObject.lastValidPosition.x - cellSize * shipSizeX / offsetPosModifierX));
+            let realPosY =  Math.round(Math.round(gameObject.lastValidPosition.y - cellSize * shipSizeY / offsetPosModifierY));
+            realPosX -= Math.round(boardStartX);
+            realPosY -= Math.round(boardStartY);
+            
+            
+            let positionX = Math.round(realPosX / cellSize);
+            let positionY = Math.round(realPosY / cellSize);
+
+            let locations = [];
+
+            for(let x = positionX; x < positionX + shipSizeX; x++)
+            {
+                for(let y = positionY; y < positionY + shipSizeY; y++)
+                {
+                    locations.push({
+                        x,
+                        y,
+                        lastValidPosition: { x: gameObject.lastValidPosition.x, y: gameObject.lastValidPosition.y},
+                        displayWidth: gameObject.displayWidth,
+                        displayHeight: gameObject.displayHeight,
+                        angle: gameObject.angle
+                    });
+                }
+            }
+            
+            myChannel.publish("shipPosition", {
+                lobbyId,
+                shipId: gameObject.id,
+                fields: locations,
+                lastValidPosition: { x: gameObject.lastValidPosition.x, y: gameObject.lastValidPosition.y},
+                displayWidth: gameObject.displayWidth,
+                displayHeight: gameObject.displayHeight,
+                angle: gameObject.angle,
+                textureKey: gameObject.texture.key
+            });
         });
+
         this.input.keyboard.on('keydown-R', () => {
             if (this.selectedShip) {
                 // Check if the selected ship is within the board after rotation
-                const newAngle = this.selectedShip.angle + 90;
-                const isVertical = newAngle % 180 === 90;
+                let isVertical = this.selectedShip.angle % 180 === 0;
+                console.log(isVertical);
+                const newAngle = isVertical? this.selectedShip.angle - 90 : this.selectedShip.angle + 90;
+                isVertical = this.selectedShip.angle % 180 === 0;
                 const newWidth = isVertical ? this.selectedShip.displayHeight : this.selectedShip.displayWidth;
                 const newHeight = isVertical ? this.selectedShip.displayWidth : this.selectedShip.displayHeight;
 
@@ -191,15 +289,23 @@ export default class BoardScene extends Phaser.Scene {
                     this.selectedShip.angle = newAngle;
                     this.selectedShip.isRotated = !this.selectedShip.isRotated;
                     this.selectedShip.isPlaced = true;
+                    this.selectedShip.rotatedWidth = newWidth;
+                    this.selectedShip.rotatedHeight = newHeight;
                 } else if (isCompletelyOutsideBoard) {
                     this.selectedShip.angle = newAngle;
                     this.selectedShip.isRotated = !this.selectedShip.isRotated;
                     this.selectedShip.isPlaced = false;
+                    this.selectedShip.rotatedWidth = newWidth;
+                    this.selectedShip.rotatedHeight = newHeight;
                 }
             }
+        });
+
+        lobbyChannel.subscribe("startSecondStage", (msg) => {
+            this.scene.start('GameScene');
         });
     }
 
     update() {
-    }
+    }   
 }
