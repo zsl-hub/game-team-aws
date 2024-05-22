@@ -16,6 +16,7 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: "An error occurred while getting all lobbies" }); 
     }
 });
+// asdnfidsafyf
 
 router.post("/joinLobby", async (req, res) => {
     try {
