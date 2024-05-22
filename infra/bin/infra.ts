@@ -17,6 +17,11 @@ const fargate1TaskDef = new FargateTaskDefinition(infraStack, "InfraFargate1", {
   memoryLimitMiB: 3072 
 })
 
+const fargate2TaskDef = new FargateTaskDefinition(infraStack, "InfraFargate2", {
+  cpu: 1024,
+  memoryLimitMiB: 3072 
+});
+
 const battleshiprepo = Repository.fromRepositoryArn(infraStack,"InfraBattleShipRepo", "arn:aws:ecr:eu-north-1:028156156088:repository/battleship-game")
 
 const infraSecurityGroup = new SecurityGroup(infraStack, "blablabla", {
@@ -25,17 +30,27 @@ const infraSecurityGroup = new SecurityGroup(infraStack, "blablabla", {
 })
 
 infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.HTTP)
+infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(5173)); // it may not be working because of it
+infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(3000)); // it may not be working because of it
 
 fargate1TaskDef.addContainer(
   "InfraFargate1Container",
   {
-    image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-cae21150de85493f282abdf0adbc9a1bc4b5d62c"),
+    image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-0a4ff5b28411d9d6d6c8a33744e3907f1cc27a89"),
     portMappings: [{hostPort: 5173, containerPort: 5173}],
     logging: LogDriver.awsLogs({
-      streamPrefix: "sss"
+      streamPrefix: "frontend"
     })
   }
 )
+
+fargate2TaskDef.addContainer("InfraFargate2Container", {
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-1234567890abcdef"),
+  portMappings: [{hostPort: 3000, containerPort: 3000}],
+  logging: LogDriver.awsLogs({
+    streamPrefix: "backend"
+  })
+});
 
 //cloudmap
 
@@ -46,12 +61,19 @@ const fargateService = new FargateService(infraStack, "InfraFargateService", {
   assignPublicIp: true
 })
 
+const fargateService2 = new FargateService(infraStack, "InfraFargateService2", {
+  taskDefinition: fargate2TaskDef,
+  cluster: infraCluster,
+  securityGroups: [infraSecurityGroup],
+  assignPublicIp: true
+});
 
 const alb = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb', {
-  vpc: infraVpc
+  vpc: infraVpc,
+  internetFacing: true
 })
 
-const applicationtargetgroup = new ApplicationTargetGroup(infraStack, "infraStackTargetGroup", {
+const frontendTargetGroup = new ApplicationTargetGroup(infraStack, "FrontendTargetGroup", {
   port: 5173,
   targetType: TargetType.IP,
   protocol: ApplicationProtocol.HTTP,
@@ -62,13 +84,29 @@ const applicationtargetgroup = new ApplicationTargetGroup(infraStack, "infraStac
   }
 })
 
-applicationtargetgroup.addTarget(fargateService)
+const backendTargetGroup = new ApplicationTargetGroup(infraStack, "BackendTargetGroup", {
+  port: 3000,
+  targetType: TargetType.IP,
+  protocol: ApplicationProtocol.HTTP,
+  vpc: infraVpc,
+  healthCheck: {
+    path: "/views/lobby/lobby",
+    healthyHttpCodes: "200-499"
+  }
+});
+
+frontendTargetGroup.addTarget(fargateService)
+backendTargetGroup.addTarget(fargateService2);
 
 const listener = alb.addListener("alb-listener", {
   open: true,
   port: 80
 })
 
-listener.addTargetGroups("bbaldfbaf", {
-  targetGroups: [applicationtargetgroup]
+listener.addTargetGroups("frontend-target", {
+  targetGroups: [frontendTargetGroup]
 })
+
+listener.addTargetGroups("backend-target", {
+  targetGroups: [backendTargetGroup]
+});
