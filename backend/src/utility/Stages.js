@@ -1,4 +1,5 @@
 const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const FieldUtil = require("./FieldUtil");
 const ShipUtil = require("./ShipUtil");
 const Ably = require("ably");
 
@@ -18,7 +19,7 @@ class Stages{
             ShipUtil.sendCreateMessages(playerId, lobbyObj, lobbyDB.game);
         }
 
-        Stages.startFirstStageTimer(60, lobbyDB.lobbyId, callBack);
+        Stages.startFirstStageTimer(25, lobbyDB.lobbyId, callBack);
     }
 
     /**
@@ -56,7 +57,7 @@ class Stages{
 
         console.log(diff);
 
-        if (diff >= timeLeft)
+        if (diff >= timeLeft || game.readyPlayers === 2)
         {
             clearInterval(interval);
             callBack();
@@ -66,13 +67,63 @@ class Stages{
     /**
      * @param {object} lobbyObj 
      */
-    static handleSecondStageStart(lobbyObj){
+    static async handleSecondStageStart(lobbyObj){
         console.log("Second Stage Start");
 
-        console.log("inside");
-        console.log(lobbyObj);
-
         lobbyObj.lobbyChannel.publish("startSecondStage", {});
+
+        await Stages.#createPlayerFields(lobbyObj);
+
+        await Stages.#createPlayerShips(lobbyObj);
+    }
+
+    static async #createPlayerFields(lobbyObj){
+        let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId});
+        lobby = lobby.Item;
+        
+        let game = lobby.game;
+        game.fields[lobby.player1] = FieldUtil.generateFields(10);
+        game.fields[lobby.player2] = FieldUtil.generateFields(10);
+        
+        const player1Channel = lobbyObj.playerChannels[lobby.player1];
+        player1Channel.publish("createMyBoard", {
+            fields: game.fields[lobby.player1]
+        });
+        player1Channel.publish("createEnemyBoard", {
+            fields: game.fields[lobby.player2]
+        });
+
+        const player2Channel = lobbyObj.playerChannels[lobby.player2];
+        player2Channel.publish("createMyBoard", {
+            fields: game.fields[lobby.player2]
+        });
+        player2Channel.publish("createEnemyBoard", {
+            fields: game.fields[lobby.player1]
+        });
+
+        await updateItem("lobby", { "lobbyId": lobbyObj.lobbyId }, { "game": game });
+    }
+
+    static async #createPlayerShips(lobbyObj){
+        let lobby = await getItemById("lobby", { "lobbyId": lobbyObj.lobbyId });
+        lobby = lobby.Item;
+
+        let game = lobby.game;
+
+        for(const playerId in lobbyObj.playerChannels){
+            const playerChannel = lobbyObj.playerChannels[playerId];
+
+            console.log("ship");
+
+            playerChannel.publish("createShips", {
+                ships: game.ships[playerId]
+            });
+        }
+
+        lobbyObj.lobbyChannel.publish("updateTurn", {
+            turnPlayerId: game.turn,
+            //turnPlayerName: null
+        });
     }
 }
 

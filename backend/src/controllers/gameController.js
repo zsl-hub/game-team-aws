@@ -58,32 +58,36 @@ function gameBackend()
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
         lobbyDB = lobbyDB.Item;
 
-        if (lobbyDB.player2)
+        if (!lobbyDB.player2 && lobbyDB.player1 !== playerId)
         {
-            //if (lobbyDB.player2.playerId !== playerId) return;
-
-            const lobbyObj = lobbies[lobbyId];
-
-            await PlayerUtil.handlePlayerEnter(realtime, lobbyObj, playerId);
+            console.log("create player 2")
+            await updateItem("lobby", { "lobbyId": lobbyId }, { "player2": playerId });
         }
-        else
-        {
-            //if (lobbyDB.player1.playerId != playerId) return;
 
+        lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
+        lobbyDB = lobbyDB.Item;
+
+        if (!lobbies[lobbyId])
+        {   
+            console.log("create lobby");
             await createLobby(lobbyDB);
-            const lobbyObj = lobbies[lobbyId];
-
-            await PlayerUtil.handlePlayerEnter(realtime, lobbyObj, playerId);
         }
+
+        if (lobbyDB.player1 !== playerId && lobbyDB.player2 !== playerId){
+
+            console.log("return");
+            return;
+        }
+        //if (lobbyDB.player1.playerId != playerId) return;
+        const lobbyObj = lobbies[lobbyId];
+
+        await PlayerUtil.handlePlayerEnter(realtime, lobbyObj, playerId);
 
         lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
         lobbyDB = lobbyDB.Item;
 
         if (lobbyDB.game.connectedPlayers ===  PLAYERS_NEEDED_TO_START_GAME){
             const lobbyObj = lobbies[lobbyId];
-
-            console.log("outside");
-            console.log(lobbyObj);
 
             Stages.handleFirstStageStart(lobbyObj, lobbyDB, 
             () => {
@@ -110,6 +114,8 @@ function gameBackend()
             connectedPlayers: 0,
             readyPlayers: 0,
             ships: {},
+            fields: {},
+            shipsLeft: {}
         };
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });

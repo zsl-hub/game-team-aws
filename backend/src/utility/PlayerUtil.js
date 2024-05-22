@@ -19,6 +19,23 @@ class PlayerUtil{
         let game = lobbyDB.game;
         game.ships[playerId] = ShipUtil.generatePlayerShips();
         game.connectedPlayers++;
+        game.shipsLeft[playerId] = 7;
+
+        console.log(game.connectedPlayers);
+
+        if (game.connectedPlayers === 1)
+        {
+            game.turn = playerId;
+        }
+
+        console.log(game.connectedPlayers);
+
+        if (game.connectedPlayers === 1)
+        {
+            game.turn = playerId;
+        }
+
+        console.log(game.connectedPlayers);
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
         
@@ -40,8 +57,8 @@ class PlayerUtil{
         lobbyObj.playerChannels[playerId].subscribe("shipPosition", (msg) => {
             Events.handleShipPositionChange(msg);
         });
-        lobbyObj.playerChannels[playerId].subscribe("shootCoordinates", (msg) => {
-            Events.handleShoot(msg);
+        lobbyObj.playerChannels[playerId].subscribe("shootField", (msg) => {
+            Events.handleShootField(msg, lobbyObj);
         });
     }
 }

@@ -1,9 +1,10 @@
 const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const { v4:  uuidv4 } = require("uuid");
 
 class FieldUtil{
     static generateFields(dimentionLength) 
     {
-        console.log("Generate Fields");
+        console.log(`Generate Fields: ${dimentionLength}`);
         let fields = [];
 
         for(let x = 0; x < dimentionLength; x++)
