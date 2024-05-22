@@ -127,6 +127,31 @@ function createLobby() {
 }
 
 
+function createLobbyFromDatabase(data) {
+  if (Array.isArray(data.Items)) {
+    data.Items.forEach(lobby => {
+      var lobbyName = lobby.lobbyName;
+      var passwordInput = lobby.lobbyPass;
+      var switchChecked = lobby.isPrivate;
+      let lobbyStatus = lobby.lobbyStatus; 
+
+      if (switchChecked) {
+        var password = passwordInput;
+        /*if (password.length < 4) {
+            //alert("Hasło musi mieć co najmniej 4 znaki!");
+            return;
+        }*/
+      }
+      var lobbyTemplate = document.getElementById("lobbyTemplate");
+      var newLobbyContainer = lobbyTemplate.cloneNode(true);
+      newLobbyContainer.removeAttribute("id");
+      newLobbyContainer.style.display = "block";
+
+      var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+      lobbyNameSpan.textContent = lobbyName;
+
+      var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+      iconSpan.textContent = switchChecked ? "lock" : "lock_open";
 
 function togglePasswordInput() {
   var passwordInputContainer = document.querySelector('.password-input-container');

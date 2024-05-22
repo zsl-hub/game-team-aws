@@ -10,7 +10,7 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: battleship-game
-  ECS_SERVICE: BattleshipGameWithALB
+  ECS_SERVICE: BattleshipGame
   ECS_CLUSTER: BattleshipGameCluster
   ECS_TASK_DEFINITION: .github/workflows/BattleshipGameFrontend-task-definition.json
   CONTAINER_NAME: BattleshipGameFrontend
