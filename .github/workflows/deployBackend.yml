@@ -38,6 +38,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          ABLY_SECRET_KEY: ${{ secrets.ABLY_SECRET_KEY }}
         run: |
           docker build --build-arg ABLY_SECRET_KEY=$ABLY_SECRET_KEY -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG ./backend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG
