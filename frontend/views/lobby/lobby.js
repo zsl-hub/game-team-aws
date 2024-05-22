@@ -14,13 +14,8 @@ function assignOpenJoinModalListeners() {
   }
 }
 
-// IM NOT HERE OK?
-// ENJOYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYING ;)
-// ASHDUSADGBDFSVAFSTYADVSTYAVSAYAFVSAVFYSDAYVFSAVFFVSYATFVYSTAFVYSATFVSTYAFVSTYAVFTYAVFSDTYAVFSDTYAVFSTYAF
-// asdfasfsdf
-
 document.addEventListener('DOMContentLoaded', function() {
-  var switchInput = document.querySelector('.switch input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   switchInput.addEventListener('change', togglePasswordInput);
 
   switchInput.addEventListener('change', function() {
@@ -38,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   getAllLobbies();
-});
+}); 
 
 function openModal() {
   var modal = document.getElementById("ModalID");
@@ -67,7 +62,7 @@ function closeModal() {
 
 function createLobby() {
   var lobbyName = document.getElementById("text").value;
-  var switchInput = document.querySelector('.switch input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   var passwordInput = document.getElementById("password-input");
   var switchChecked = switchInput.checked;
 
@@ -150,8 +145,47 @@ function createLobbyFromDatabase(data) {
       var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
       lobbyNameSpan.textContent = lobbyName;
 
+      var nrOfPplSpan = document.createElement("span");
+      nrOfPplSpan.className = "nr_of_ppl";
+      if (lobbyStatus === 'waiting'){
+        nrOfPplSpan.textContent = "1/2";
+      } else if (lobbyStatus === 'playing') {
+        nrOfPplSpan.textContent = "2/2";
+      }
+
+      var lobbyStatusSpan = document.createElement("span");
+      lobbyStatusSpan.className = "isFull";
+      lobbyStatusSpan.textContent = lobbyStatus;
+
+      var joinButton = document.createElement("button");
+      joinButton.textContent = "Join";
+      joinButton.className = "join-button open-join-modal";
+
       var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
       iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+
+      var lobbyContainer = document.querySelector(".lobby");
+      lobbyContainer.appendChild(newLobbyContainer);
+
+      var lobbyContent = newLobbyContainer.querySelector("a");
+      lobbyContent.appendChild(lobbyNameSpan);
+      lobbyContent.appendChild(nrOfPplSpan);
+      lobbyContent.appendChild(lobbyStatusSpan);
+      lobbyContent.appendChild(joinButton);
+      lobbyContent.appendChild(iconSpan);
+
+      var lobbyContainer = document.querySelector(".lobby");
+      lobbyContainer.appendChild(newLobbyContainer);
+
+      assignOpenJoinModalListeners();
+
+      closeModal();
+    });
+  } 
+  else {
+    console.error('Invalid data format: Items property is not an array.');
+  }
+}
 
 function togglePasswordInput() {
   var passwordInputContainer = document.querySelector('.password-input-container');
@@ -224,42 +258,21 @@ const
     '1.1rem', '1.4rem', '.8rem', '1.7rem'
   ],
   colors = [
-    '#E23636',
-    '#F9F3EE',
-    '#E1F8DC',
-    '#B8AFE6',
-    '#AEE1CD',
-    '#5EB0E5'
-  ],
-  rand = (min, max) =>
+  '#E23636',
+  '#F9F3EE',
+  '#E1F8DC',
+  '#B8AFE6',
+  '#AEE1CD',
+  '#5EB0E5'
+],
+  rand = (min, max) => 
     Math.floor(Math.random() * (max - min + 1)) + min,
-  selRand = (o) => o[rand(0, o.length - 1)],
-  distanceTo = (x1, y1, x2, y2) =>
+  selRand = (o) => o[rand(0, o.length -1)],
+  distanceTo =  (x1, y1, x2, y2) => 
     Math.sqrt((Math.pow(x2-x1,2))+(Math.pow(y2-y1,2))),
-  shouldDraw = (x, y) =>
+  shouldDraw = (x, y) => 
     (distanceTo(x1, y1, x, y) >= dist_to_draw),
   addStr = (x, y) => {
-      const str = document.createElement("div");
-      str.innerHTML = '&#x2022;'
-      Object.assign(str.style, {
-        position: 'absolute',
-        top: `${y}px`,
-        left: `${x}px`,
-        color: selRand(colors),
-        fontSize: selRand(fsize),
-        opacity: .2
-      })
-      document.body.append(str)
-      setTimeout(() => {
-        str.remove()
-      }, delay)
-    },
-    mouseMove = (e) => {
-      const {clientX: x, clientY: y} = e
-      if (shouldDraw(x, y)) {
-        x1=x, y1=y
-        addStr(x, y)
-      }
     const str = document.createElement("div");
     str.innerHTML = '&#10022;';
     str.className = 'star';
@@ -318,7 +331,7 @@ function CancelLobby() {
 const createLobbyButton = document.getElementById('create-lobby');
 const lobbyCreator = document.getElementById('lobbyCreator');
 const lobbyName = document.getElementById('text'); 
-const isPrivate = document.querySelector('.switch [type=checkbox]');
+const isPrivate = document.querySelector("#privacyCheckbox");
 const lobbyPass = document.getElementById('password-input');
 
 createLobbyButton.addEventListener('click', async e => {
@@ -345,47 +358,39 @@ createLobbyButton.addEventListener('click', async e => {
     } else {
       console.error("Failed to create lobby");
     }
-  window.addEventListener('mousemove', mouseMove)
-  
-  /*async function getAllLobbies() {
-    try {
-      const res = await fetch(config.host + "/lobby/getAllLobbies", {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-  
-      const responseData = await res.json(); 
-    
-      if (res.ok) {
-        console.log("Successfully fetched all lobbies:", responseData);
-        createLobbyFromDatabase(responseData);
-      } else {
-        if (res.status === 401) {
-          console.error("Failed to fetch lobbies:", responseData.message);
-        } else if (res.status === 403) {
-          console.error("Failed to fetch lobbies:", responseData.message);
-        } else {
-          console.error("Failed to fetch lobbies - Unknown error:");
-        }
-      }
-    } catch (error) {
-      console.error("Network error or exception:", error);
-    }
-  } */
-  
-  function CancelLobby() {
-    var joinModal = document.getElementById("JoinModal");
-    joinModal.style.display = "none";
-  }
     const data = await response.json();
     console.log(data); 
     createLobbyFromDatabase(data);
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
   }
+});
+
+ async function getAllLobbies() {
+  try {
+    const response = await fetch(config.host + '/lobby');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log(data);
+    createLobbyFromDatabase(data);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  const checkbox = document.getElementById('privacyCheckbox');
+  const label = document.getElementById('privacyLabel');
+  checkbox.addEventListener('change', function() {
+    if (checkbox.checked) {
+      label.textContent = 'Private';
+    } else {
+      label.textContent = 'Public';
+    }
+  });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   getAllLobbies();
