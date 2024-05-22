@@ -1,6 +1,7 @@
 const Stages = require("./Stages");
 const { getItemById, updateItem, deleteItemById } = require("../repositories/lobbyRepository");
 const ShipUtil = require("./ShipUtil");
+const Timers = require("./Timers");
 
 class Events{
     static async handleShipPositionChange(msg)
@@ -49,7 +50,7 @@ class Events{
         if (Events.#changesUpdated === false) {
             setTimeout(() => {
                 Events.#changesUpdated = true;
-            }, 5000);
+            }, 2500);
 
             return;
         }
@@ -71,6 +72,7 @@ class Events{
         if (field.wasShoot) return;
         
         console.log("Handle Shoot");
+        clearInterval(Timers.latestTimerInterval);
         
         field.wasShoot = true;
 
@@ -87,20 +89,9 @@ class Events{
                 
                 game.shipsLeft[enemyPlayerId]--;
 
-                console.log("shipsLeft");
-                console.log(game.shipsLeft[enemyPlayerId]);
-
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
-                    let playerDB = await getItemById("player", { "playerId": msg.clientId });
-                    playerDB = playerDB.Item;
-
-                    lobbyObj.lobbyChannel.publish("winner", {
-                        playerId: msg.clientId,
-                        playerName: playerDB.playerName
-                    });
-                    
-                    await deleteItemById("lobby", { "lobbyId": lobbyId });
+                    await Stages.endGame(lobbyId, msg.clientId, enemyPlayerId, lobbyObj);
                     
                     return;
                 }
@@ -113,6 +104,10 @@ class Events{
         
         Events.#updateClients(lobbyObj, hittedShip, field, game.turn);
         
+        Timers.startRoundTimer(10, lobbyId, async() => {
+            await Stages.endGame(lobbyId, enemyPlayerId, msg.clientId, lobbyObj);
+        });
+
         Events.#changesUpdated = true;
     }
 

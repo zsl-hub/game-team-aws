@@ -1,7 +1,8 @@
-const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const { getItemById, updateItem, deleteItemById } = require("../repositories/lobbyRepository");
 const FieldUtil = require("./FieldUtil");
 const ShipUtil = require("./ShipUtil");
 const Ably = require("ably");
+const Timers = require("./Timers");
 
 class Stages{
     /**
@@ -75,6 +76,17 @@ class Stages{
         await Stages.#createPlayerFields(lobbyObj);
 
         await Stages.#createPlayerShips(lobbyObj);
+
+        Timers.startRoundTimer(10, lobbyObj.lobbyId, async() => {
+            const lobbyId = lobbyObj.lobbyId;
+            let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
+            lobbyDB = lobbyDB.Item;
+
+            let game = lobbyDB.game
+            let enemyId = game.turn === game.player1? lobbyDB.player2 : lobbyDB.player1;
+
+            Stages.endGame(lobbyId, enemyId, game.turn, lobbyObj);
+        });
     }
 
     static async #createPlayerFields(lobbyObj){
@@ -124,6 +136,25 @@ class Stages{
             turnPlayerId: game.turn,
             //turnPlayerName: null
         });
+    }
+
+    static async endGame(lobbyId, winnerId, looserId, lobbyObj)
+    {
+        console.log(lobbyId);
+        console.log(winnerId);
+        console.log(looserId);
+
+        let playerDB = await getItemById("player", { "playerId": winnerId });
+        playerDB = playerDB.Item;
+
+        lobbyObj.lobbyChannel.publish("winner", {
+            playerId: winnerId,
+            playerName: playerDB.playerName
+        });
+        
+        await deleteItemById("lobby", { "lobbyId": lobbyId });
+        await deleteItemById("player", { "playerId": winnerId });
+        await deleteItemById("player", { "playerId": looserId });
     }
 }
 
