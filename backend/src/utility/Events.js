@@ -39,9 +39,18 @@ class Events{
         await updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
         await updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
     }
-
+    static #changesUpdated = true;
     static async handleShootField(msg, lobbyObj)
     {
+        if (Events.#changesUpdated === false) {
+            setTimeout(() => {
+                Events.#changesUpdated = true;
+            }, 5000);
+
+            return;
+        }
+        Events.#changesUpdated = false;
+
         //get lobby
         const lobbyId = msg.data.lobbyId;
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
@@ -74,10 +83,12 @@ class Events{
                 
                 game.shipsLeft[enemyPlayerId]--;
 
+                console.log("shipsLeft");
                 console.log(game.shipsLeft[enemyPlayerId]);
 
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
+                    console.log("won");
                     lobbyObj.lobbyChannel.publish("winner", {
                         playerId: msg.clientId
                     });
@@ -85,11 +96,13 @@ class Events{
             }
         );
 
-        Events.#updateClients(lobbyObj, hittedShip, field, enemyPlayerId);
-
-        game.turn = enemyPlayerId;
-
+        game.turn = hittedShip? msg.clientId : enemyPlayerId;
+        
         await updateItem("lobby", { "lobbyId": lobbyId }, { "game": game });
+        
+        Events.#updateClients(lobbyObj, hittedShip, field, game.turn);
+        
+        Events.#changesUpdated = true;
     }
 
     static #getNextTurnPlayerId(currentTurnPlayerId, lobbyDB)
@@ -112,6 +125,7 @@ class Events{
                 ship.fieldsLeft--;
                 hittedShip = true;
 
+                console.log("shipFieldsLeft");
                 console.log(ship.fieldsLeft);
 
                 if (ship.fieldsLeft <= 0)
@@ -124,7 +138,7 @@ class Events{
         return hittedShip;
     }
 
-    static #updateClients(lobbyObj, hittedShip, field, enemyPlayerId){
+    static #updateClients(lobbyObj, hittedShip, field, nextTurnPlayerID){
         lobbyObj.lobbyChannel.publish("updateField", {
             fieldId: field.fieldId,
             hittedShip
@@ -134,7 +148,7 @@ class Events{
         // playerDB = playerDB.Item;
 
         lobbyObj.lobbyChannel.publish("updateTurn", {
-            turnPlayerId: enemyPlayerId,
+            turnPlayerId: nextTurnPlayerID,
             //turnPlayerName: null
         });
     }
