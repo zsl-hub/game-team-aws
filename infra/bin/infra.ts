@@ -8,7 +8,7 @@ import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, TargetType } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 const app = new cdk.App();
-const infraStack = new InfraStack(app, 'InfraStack69', {});
+const infraStack = new InfraStack(app, 'InfraStackOrangu', {});
 const infraVpc = new Vpc(infraStack, "InfraStackVpc")
 const infraCluster = new Cluster(infraStack, 'InfraCluster', { vpc: infraVpc });
 
@@ -45,7 +45,7 @@ fargate1TaskDef.addContainer(
 )
 
 fargate2TaskDef.addContainer("InfraFargate2Container", {
-  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-1234567890abcdef"),
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-f7b92bb43343ed2c97b6eae85919be29dd5c73a1"),
   portMappings: [{hostPort: 3000, containerPort: 3000}],
   logging: LogDriver.awsLogs({
     streamPrefix: "backend"
@@ -73,6 +73,11 @@ const alb = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb', {
   internetFacing: true
 })
 
+const alb2 = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb2', {
+  vpc: infraVpc,
+  internetFacing: true
+});
+
 const frontendTargetGroup = new ApplicationTargetGroup(infraStack, "FrontendTargetGroup", {
   port: 5173,
   targetType: TargetType.IP,
@@ -90,7 +95,7 @@ const backendTargetGroup = new ApplicationTargetGroup(infraStack, "BackendTarget
   protocol: ApplicationProtocol.HTTP,
   vpc: infraVpc,
   healthCheck: {
-    path: "/views/lobby/lobby",
+    path: "/lobby/orangutan",
     healthyHttpCodes: "200-499"
   }
 });
@@ -103,10 +108,15 @@ const listener = alb.addListener("alb-listener", {
   port: 80
 })
 
+const listener2 = alb2.addListener("AlbListener2", {
+  open: true,
+  port: 80
+});
+
 listener.addTargetGroups("frontend-target", {
   targetGroups: [frontendTargetGroup]
 })
 
-listener.addTargetGroups("backend-target", {
+listener2.addTargetGroups("backend-target", {
   targetGroups: [backendTargetGroup]
 });

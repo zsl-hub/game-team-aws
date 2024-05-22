@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN npm install
 
-EXPOSE ${BACKEND_PORT}
+EXPOSE 3000
 
 CMD ["npm", "run", "loc"]
