@@ -73,6 +73,7 @@ const alb = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb', {
   internetFacing: true
 })
 
+
 const alb2 = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb2', {
   vpc: infraVpc,
   internetFacing: true
