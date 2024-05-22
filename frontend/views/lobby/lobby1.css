@@ -31,6 +31,7 @@ body {
     display: grid;
     place-content: center;
     background-image: var(--gradient);
+    overflow: hidden;
   }
 
 
