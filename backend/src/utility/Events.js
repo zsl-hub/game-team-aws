@@ -1,5 +1,5 @@
 const Stages = require("./Stages");
-const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const { getItemById, updateItem, deleteItemById } = require("../repositories/lobbyRepository");
 const ShipUtil = require("./ShipUtil");
 
 class Events{
@@ -71,7 +71,7 @@ class Events{
         field.wasShoot = true;
 
         let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId, field,
-            (ship) => {
+            async (ship) => {
                 lobbyObj.playerChannels[msg.clientId].publish("destoyedShip", {
                     shipId: ship.shipId,
                     lastValidPosition: ship.lastValidPosition,
@@ -88,10 +88,17 @@ class Events{
 
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
-                    console.log("won");
+                    let playerDB = await getItemById("player", { "playerId": msg.clientId });
+                    playerDB = playerDB.Item;
+
                     lobbyObj.lobbyChannel.publish("winner", {
-                        playerId: msg.clientId
+                        playerId: msg.clientId,
+                        playerName: playerDB.playerName
                     });
+                    
+                    await deleteItemById("lobby", { "lobbyId": lobbyId });
+                    
+                    return;
                 }
             }
         );

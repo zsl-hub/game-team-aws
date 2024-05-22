@@ -296,8 +296,11 @@ const lobbyName = document.getElementById('text');
 const isPrivate = document.querySelector('.switch [type=checkbox]');
 const lobbyPass = document.getElementById('password-input');
 
+
+
 createLobbyButton.addEventListener('click', async e => {
   try {
+    console.log(lobbyCreator.value);
     let requestBody = {
       lobbyName: lobbyName.value,
       isPrivate: isPrivate.checked,
@@ -316,7 +319,7 @@ createLobbyButton.addEventListener('click', async e => {
 
     if (res.ok) {
       const responseData = await res.json();
-      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
+     window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
     } else {
       console.error("Failed to create lobby");
     }
