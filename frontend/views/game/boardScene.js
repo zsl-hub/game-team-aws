@@ -14,7 +14,9 @@ export default class BoardScene extends Phaser.Scene {
         this.load.image('shipx2', 'assets/shipX2.png');
         this.load.image('shipx4', 'assets/shipX4.png');
         this.load.image('shipx6', 'assets/shipX6.png');
-        this.load.image('background', 'assets/background.png')
+        this.load.image('background', 'assets/background.png');
+        this.load.image('hit','assets/hit.png');
+        this.load.image('miss','assets/miss.png');
     }
 
     create() {

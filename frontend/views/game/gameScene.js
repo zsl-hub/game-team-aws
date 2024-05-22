@@ -20,7 +20,8 @@ export default class GameScene extends Phaser.Scene {
         this.turnStartTime = null; // New property to store the start time of the turn
         this.isVisible = true; // New property to track visibility
     }
-
+    
+    
     create() {
         const width = this.scale.width / 2;
         const height = this.scale.height;
@@ -74,9 +75,9 @@ export default class GameScene extends Phaser.Scene {
                     rect.setStrokeStyle(2, 0xff0000);
                     rect.setOrigin(0);
                     rect.setInteractive();
-                    rect.setDepth(1);
+                    rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
-                    
+                    console.log(rect.id)
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
@@ -136,12 +137,15 @@ export default class GameScene extends Phaser.Scene {
 
             if(data.hittedShip === true)
             {
-                field.setFillStyle(0x00ff00, 1);
+                const hitSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'hit');
+                hitSprite.setDisplaySize(cellSize, cellSize);
             }
             else
             {
-                field.setFillStyle(0xff0000, 1);
+                const missSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'miss');
+                missSprite.setDisplaySize(cellSize, cellSize);
             }
+            this.resetTimer();
         });
 
         lobbyChannel.subscribe("updateTurn", (msg) => {
@@ -240,48 +244,49 @@ export default class GameScene extends Phaser.Scene {
         this.continueButton.setVisible(true);
     }
 
-    handleShot(rect) {
-        if (this.players[this.currentPlayerIndex].isInGame) {
-            // Check if the cell has been shot already
-            if (!rect.getData('isShot')) {
-                if (this.currentPlayerIndex === 0) {
-                    rect.setFillStyle(0x00ff00, 1);
-                } else {
-                    rect.setFillStyle(0x0000ff, 1);
-                }
-
-                // Mark the cell as shot
-                rect.setData('isShot', true);
-
-                this.currentPlayerIndex = 1 - this.currentPlayerIndex;
-                this.startTurnTimer();
-            }
-        }
-    }
 
     startTurnTimer() {
         if (this.timer) {
             this.timer.remove(false);
         }
-
+    
         this.turnStartTime = Date.now();
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
-
+    
+        // Hide the timer before the turn
+        this.timeText.setVisible(false);
+    
         this.timer = this.time.addEvent({
             delay: 1000,
             callback: () => {
+                // Show the timer when the turn starts
+                this.timeText.setVisible(true);
+    
                 this.remainingTime -= 1000;
                 this.updateTimeText();
-
+    
                 if (this.remainingTime <= 0) {
                     this.timer.remove(false);
-                    this.endGameDueToTimeout();
+                    // this.endGameDueToTimeout();
                 }
             },
             callbackScope: this,
             loop: true
         });
+    }
+
+    resetTimer() {
+        if (this.timer) {
+            this.timer.remove(false);
+        }
+    
+        this.turnStartTime = Date.now();
+        this.remainingTime = this.turnTimeLimit;
+        this.updateTimeText();
+    
+        // Hide the timer
+        this.timeText.setVisible(false);
     }
 
     handleVisibilityChange() {
