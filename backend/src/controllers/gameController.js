@@ -22,7 +22,7 @@ function gameBackend()
     let lobbies = {};
 
     const realtime = new Ably.Realtime({
-        key: process.env.ABLY_API_KEY,
+        key: "WGdfRg.qrWhrQ:klACPHr1HUm8gR7XP3jx4_inR-8prmib6zQ0EpV2cUo",
         echoMessages: false
     })
 
