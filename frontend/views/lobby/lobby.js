@@ -15,7 +15,7 @@ function assignOpenJoinModalListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var switchInput = document.querySelector('#switch-input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   switchInput.addEventListener('change', togglePasswordInput);
 
   switchInput.addEventListener('change', function() {
@@ -62,7 +62,7 @@ function closeModal() {
 
 function createLobby() {
   var lobbyName = document.getElementById("text").value;
-  var switchInput = document.querySelector('#switch-input');
+  var switchInput = document.querySelector('#privacyCheckbox');
   var passwordInput = document.getElementById("password-input");
   var switchChecked = switchInput.checked;
 
@@ -331,7 +331,7 @@ function CancelLobby() {
 const createLobbyButton = document.getElementById('create-lobby');
 const lobbyCreator = document.getElementById('lobbyCreator');
 const lobbyName = document.getElementById('text'); 
-const isPrivate = document.querySelector("#switch-input");
+const isPrivate = document.querySelector("#privacyCheckbox");
 const lobbyPass = document.getElementById('password-input');
 
 createLobbyButton.addEventListener('click', async e => {
@@ -379,6 +379,18 @@ createLobbyButton.addEventListener('click', async e => {
     console.error('There was a problem with the fetch operation:', error);
   }
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+  const checkbox = document.getElementById('privacyCheckbox');
+  const label = document.getElementById('privacyLabel');
+  checkbox.addEventListener('change', function() {
+    if (checkbox.checked) {
+      label.textContent = 'Private';
+    } else {
+      label.textContent = 'Public';
+    }
+  });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   getAllLobbies();

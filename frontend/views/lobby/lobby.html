@@ -47,10 +47,10 @@
         <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby" value="">
         <div id="error-message" style="color: red; display: none;">Wpisz dane</div>
         <div class="flex">
-            <label class="checkbox-box">
-                <label for="private-public" class="label-text">Public/Private</label> 
-                <input type="checkbox" class="checkbox" id="switch-input" checked="checked">
+            <label class="custom-checkbox checkbox-box">
+                <input type="checkbox" id="privacyCheckbox" class="checkbox">
                 <span class="checkmark"></span>
+                <span class="label-text" id="privacyLabel">Public</span>
             </label>
             <div class="password-input-container" style="display: none;">
                 <input type="password" id="password-input" placeholder="Type a passoword">
