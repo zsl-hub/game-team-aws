@@ -45,7 +45,7 @@ fargate1TaskDef.addContainer(
 )
 
 fargate2TaskDef.addContainer("InfraFargate2Container", {
-  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-37b94b6da7e239d9911b0591fe16a62be6bc0282"),
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-c11f55c518e22f6cc44e3be6be074535d53020c4"),
   portMappings: [{hostPort: 3000, containerPort: 3000}],
   logging: LogDriver.awsLogs({
     streamPrefix: "backend"
