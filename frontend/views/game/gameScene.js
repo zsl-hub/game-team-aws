@@ -347,14 +347,13 @@ export default class GameScene extends Phaser.Scene {
     endGame(playerName) {
         clearInterval(this.timer);
 
-        const winner = this.players[winnerIndex];
         // Create a new graphics object for the golden background
         const winnerBackground = this.add.graphics();
         winnerBackground.fillStyle(0xFFD700, 1); // Gold color
         winnerBackground.fillRect(0, 0, this.scale.width, this.scale.height);
 
         // Create the winner's text
-        this.winnerText.setText(`${winner.name} wins!`);
+        this.winnerText.setText(`${playerName} wins!`);
         this.winnerText.setVisible(true);
 
         setTimeout(() => {

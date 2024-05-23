@@ -109,7 +109,7 @@ function gameBackend()
         lobbyObj.lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyObj.lobbyId}`);
         lobbyObj.lobbyChannel.attach();
 
-        lobbies.lobbyChannel.subscribe("quit", (msg) => {
+        lobbyObj.lobbyChannel.subscribe("quit", (msg) => {
             console.log("quit");
             let game = lobbyDB.game;
             
