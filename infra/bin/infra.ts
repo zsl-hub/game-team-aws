@@ -6,6 +6,7 @@ import { Peer, Port, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Cluster, ContainerImage, FargateService, FargateTaskDefinition, LogDriver } from 'aws-cdk-lib/aws-ecs';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { ApplicationLoadBalancer, ApplicationProtocol, ApplicationTargetGroup, TargetType } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { PrivateDnsNamespace } from 'aws-cdk-lib/aws-servicediscovery';
 
 const app = new cdk.App();
 const infraStack = new InfraStack(app, 'InfraStackKLKOIN', {});
@@ -33,16 +34,16 @@ infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.HTTP)
 infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(5173)); // it may not be working because of it
 infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(3000)); // it may not be working because of it
 
-fargate1TaskDef.addContainer(
-  "InfraFargate1Container",
-  {
-    image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-0a4ff5b28411d9d6d6c8a33744e3907f1cc27a89"),
-    portMappings: [{hostPort: 5173, containerPort: 5173}],
-    logging: LogDriver.awsLogs({
-      streamPrefix: "frontend"
-    })
+fargate1TaskDef.addContainer("InfraFargate1Container", {
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-0a4ff5b28411d9d6d6c8a33744e3907f1cc27a89"),
+  portMappings: [{ hostPort: 5173, containerPort: 5173 }],
+  logging: LogDriver.awsLogs({
+    streamPrefix: "frontend"
+  }),
+  environment: {
+    'BACKEND_URL': 'http://backend.myapp.local:3000' // ill use it later
   }
-)
+});
 
 fargate2TaskDef.addContainer("InfraFargate2Container", {
   image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-c7d2636ae0829d3a74a457f2daa305bf18161a99"),
@@ -52,20 +53,31 @@ fargate2TaskDef.addContainer("InfraFargate2Container", {
   })
 });
 
-//cloudmap
+const namespace = new PrivateDnsNamespace(infraStack, 'ServiceNamespace', {
+  name: 'myapp.local',
+  vpc: infraVpc,
+});
 
 const fargateService = new FargateService(infraStack, "InfraFargateService", {
   taskDefinition: fargate1TaskDef,
   cluster: infraCluster,
   securityGroups: [infraSecurityGroup],
-  assignPublicIp: true
-})
+  assignPublicIp: true,
+  cloudMapOptions: {
+    cloudMapNamespace: namespace,
+    name: 'frontend',
+  }
+});
 
 const fargateService2 = new FargateService(infraStack, "InfraFargateService2", {
   taskDefinition: fargate2TaskDef,
   cluster: infraCluster,
   securityGroups: [infraSecurityGroup],
-  assignPublicIp: true
+  assignPublicIp: true,
+  cloudMapOptions: {
+    cloudMapNamespace: namespace,
+    name: 'backend',
+  }
 });
 
 const alb = new ApplicationLoadBalancer(infraStack, 'InfraStackAlb', {

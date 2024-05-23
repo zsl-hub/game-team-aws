@@ -10,7 +10,7 @@ router.get("/orangutan", async (req, res) => {
     }
     catch (error){
         console.error("Error while getting all lobbies:", error);
-        res.status(401).json({ error: "An error occurred while getting all lobbies" }); 
+        res.status(500).json({ error: "An error occurred while getting all lobbies" }); 
     }
 });
 
