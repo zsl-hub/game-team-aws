@@ -104,7 +104,7 @@ class Events{
         
         Events.#updateClients(lobbyObj, hittedShip, field, game.turn);
         
-        Timers.startRoundTimer(10, lobbyId, async() => {
+        Timers.startRoundTimer(60, lobbyId, async() => {
             await Stages.endGame(lobbyId, enemyPlayerId, msg.clientId, lobbyObj);
         });
 

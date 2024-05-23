@@ -81,7 +81,7 @@ class Stages{
 
         await Stages.#createPlayerShips(lobbyObj);
 
-        Timers.startRoundTimer(10, lobbyObj.lobbyId, async() => {
+        Timers.startRoundTimer(60, lobbyObj.lobbyId, async() => {
             const lobbyId = lobbyObj.lobbyId;
             let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
             lobbyDB = lobbyDB.Item;

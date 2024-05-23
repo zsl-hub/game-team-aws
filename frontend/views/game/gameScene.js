@@ -166,7 +166,7 @@ export default class GameScene extends Phaser.Scene {
             console.log("destoryShip");
             console.log(shipData);
 
-            const ship = this.add.sprite(shipData.lastValidPosition.x, shipData.lastValidPosition.y, shipData.textureKey);
+            const ship = this.add.sprite(shipData.lastValidPosition.x - enemyPosX, shipData.lastValidPosition.y, shipData.textureKey);
             ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
             ship.setOrigin(0.5, 1);
             ship.angle = shipData.angle;
@@ -299,19 +299,6 @@ export default class GameScene extends Phaser.Scene {
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
       
-        // Hide the timer
-        this.timeText.setVisible(false);
-    }
-
-    resetTimer() {
-        if (this.timer) {
-            this.timer.remove(false);
-        }
-    
-        this.turnStartTime = Date.now();
-        this.remainingTime = this.turnTimeLimit;
-        this.updateTimeText();
-    
         // Hide the timer
         this.timeText.setVisible(false);
     }
