@@ -206,8 +206,7 @@ export default class GameScene extends Phaser.Scene {
             myChannel.publish("quitPlayer", {
                 lobbyId: lobbyId,
                 playerId: playerId,
-            })
-            this.endGame(1 - this.currentPlayerIndex);
+            });
             this.modal.setVisible(false);
             this.confirmText.setVisible(false);
             this.continueButton.setVisible(false);
@@ -337,24 +336,16 @@ export default class GameScene extends Phaser.Scene {
         this.timeText.setText(`Time: ${remainingSeconds}`);
     }
 
-    endGameDueToTimeout() {
-        const loser = this.players[this.currentPlayerIndex];
-        loser.isInGame = false;
-        const winnerIndex = 1 - this.currentPlayerIndex;
-        this.endGame(winnerIndex);
-    }
-
     endGame(playerName) {
         clearInterval(this.timer);
 
         // Create a new graphics object for the golden background
-        const winnerBackground = this.add.graphics();
-        winnerBackground.fillStyle(0xFFD700, 1); // Gold color
-        winnerBackground.fillRect(0, 0, this.scale.width, this.scale.height);
+        const winnerBackground = this.add.rectangle(this.cameras.main.centerX, this.cameras.main.centerY, this.scale.width, this.scale.height, 0xFFD700, 1);
 
         // Create the winner's text
         this.winnerText.setText(`${playerName} wins!`);
         this.winnerText.setVisible(true);
+        this.winnerText.setDepth(1);
 
         setTimeout(() => {
             window.location.href = '../lobby/lobby.html';
