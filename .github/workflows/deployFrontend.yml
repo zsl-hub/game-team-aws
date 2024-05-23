@@ -10,8 +10,8 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: battleship-game
-  ECS_SERVICE: InfraStack-InfraFargateService315550A7-A0TZCjnLLn39
-  ECS_CLUSTER: InfraStack-InfraCluster86D69A8C-aLdhd0q40AI8
+  ECS_SERVICE: InfraStackKLKOIN-InfraFargateService315550A7-zmIpihkcaf17 
+  ECS_CLUSTER: InfraStackKLKOIN-InfraCluster86D69A8C-d7nfRtJhSUS3
   ECS_TASK_DEFINITION: .github/workflows/BattleshipGameFrontend-task-definition.json
   CONTAINER_NAME: InfraFargate1Container
 
@@ -45,19 +45,3 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
           echo "frontend_image=$ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.frontend_image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true

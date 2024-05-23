@@ -18,8 +18,12 @@ class Stages{
         {
             ShipUtil.sendCreateMessages(playerId, lobbyObj, lobbyDB.game);
         }
+      
+        const timeLeft = 60;
 
-        Stages.startFirstStageTimer(25, lobbyDB.lobbyId, callBack);
+        Stages.startFirstStageTimer(timeLeft, lobbyDB.lobbyId, callBack);
+
+        lobbyObj.lobbyChannel.publish("firstStageStart", { timeLeft });
     }
 
     /**
