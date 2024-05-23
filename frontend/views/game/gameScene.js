@@ -21,7 +21,9 @@ export default class GameScene extends Phaser.Scene {
     create() {
         const width = this.scale.width / 2;
         const height = this.scale.height;
-        const cellSize = Math.min(width, height) / 15;
+        const cellSize = Math.min(width, height) / 15;       
+
+        this.cameras.main.setBackgroundColor('#1f262a');
 
         const boardYOffset = -height * 0.05;
         const boardStartX = (width - cellSize * 10) / 2;
@@ -344,6 +346,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Create the winner's text
         this.winnerText.setText(`${playerName} wins!`);
+        this.winnerText.setColor()
         this.winnerText.setVisible(true);
         this.winnerText.setDepth(1);
 
