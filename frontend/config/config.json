@@ -1,5 +1,5 @@
 {
-    "host": "http://13.60.62.177:3000",
+    "host": "http://localhost:3000",
     "endpoints": {
         "createLobby": "/lobby/createLobby",
         "deleteLobby": "/lobby/deleteLobby",
