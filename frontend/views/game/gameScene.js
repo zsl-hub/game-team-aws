@@ -16,12 +16,12 @@ export default class GameScene extends Phaser.Scene {
         this.turnStartTime = null; // New property to store the start time of the turn
         this.isVisible = true; // New property to track visibility
     }
-
-
+    
+    
     create() {
         const width = this.scale.width / 2;
         const height = this.scale.height;
-        const cellSize = Math.min(width, height) / 15;
+        const cellSize = Math.min(width, height) / 15;       
 
         this.cameras.main.setBackgroundColor('#1f262a');
 
@@ -77,9 +77,9 @@ export default class GameScene extends Phaser.Scene {
                     rect.id = data.fields[x][y].fieldId;
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
-
+    
                         //rect.setFillStyle(0x00ff00, 1); // Green
-
+                        
                         myChannel.publish("shootField", {
                             lobbyId: lobbyId,
                             x,
@@ -106,7 +106,7 @@ export default class GameScene extends Phaser.Scene {
 
             console.log("createShips");
 
-            for (const shipId in data.ships) {
+            for(const shipId in data.ships){
                 const shipData = data.ships[shipId];
 
                 const ship = this.add.sprite(shipData.lastValidPosition.x - playerPosX, shipData.lastValidPosition.y, shipData.textureKey);
@@ -135,11 +135,13 @@ export default class GameScene extends Phaser.Scene {
             console.log(field);
             console.log(data.hittedShip);
 
-            if (data.hittedShip === true) {
+            if(data.hittedShip === true)
+            {
                 const hitSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'hit');
                 hitSprite.setDisplaySize(cellSize, cellSize);
             }
-            else {
+            else
+            {
                 const missSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'miss');
                 missSprite.setDisplaySize(cellSize, cellSize);
             }
@@ -149,7 +151,8 @@ export default class GameScene extends Phaser.Scene {
         lobbyChannel.subscribe("updateTurn", (msg) => {
             let data = msg.data;
 
-            if (data.turnPlayerId === playerId) {
+            if (data.turnPlayerId === playerId)
+            {
                 this.startTurnTimer();
             }
         })
@@ -166,39 +169,38 @@ export default class GameScene extends Phaser.Scene {
             ship.angle = shipData.angle;
             ship.setDepth(0);
         });
-
+            
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
         yBoard.setOrigin(0.5);
         const eBoard = this.add.text(width * 1.5, height * 0.15 + boardYOffset, 'Enemy Board', { fontSize: width * 0.05, fill: '#fff' });
         eBoard.setOrigin(0.5);
 
-        this.winnerText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, '', { fontSize: width * 0.05, fill: '#000000' });
+        this.winnerText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, '', { fontSize: width * 0.05, fill: '#ffffff' });
         this.winnerText.setOrigin(0.5);
         this.winnerText.setVisible(false);
 
         this.modal = this.add.graphics();
-        this.modal.fillStyle(0x36454f, 1);
-        this.modal.setDepth(1)
+        this.modal.fillStyle(0x0000ff, 0.5);
         this.modal.fillRect(0, 0, this.scale.width, this.scale.height);
         this.modal.setVisible(false);
 
         this.confirmText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'Are you sure you want to quit? You will lose the game.', { fontSize: width * 0.05, fill: '#ffffff' });
         this.confirmText.setOrigin(0.5);
         this.confirmText.setVisible(false);
-        this.confirmText.setDepth(1)
-        this.continueButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 50, 'Continue', { fontSize: width * 0.05, fill: '#c0c0c0' });
+
+        this.continueButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 50, 'Continue', { fontSize: width * 0.05, fill: '#ffffff' });
         this.continueButton.setOrigin(0.5);
         this.continueButton.setInteractive();
         this.continueButton.setVisible(false);
-        this.continueButton.setDepth(1)
+
         this.continueButton.on('pointerover', () => {
-            this.continueButton.setFill('#ffffff');
+            this.continueButton.setFill('#ff0000');
             this.game.canvas.style.cursor = 'pointer';
         });
 
         this.continueButton.on('pointerout', () => {
-            this.continueButton.setFill('#c0c0c0');
+            this.continueButton.setFill('#ffffff');
             this.game.canvas.style.cursor = 'default';
         });
 
@@ -206,42 +208,34 @@ export default class GameScene extends Phaser.Scene {
             myChannel.publish("quitPlayer", {
                 lobbyId: lobbyId,
                 playerId: playerId,
-            })
-            this.endGame(1 - this.currentPlayerIndex);
+            });
             this.modal.setVisible(false);
             this.confirmText.setVisible(false);
             this.continueButton.setVisible(false);
-            this.cancelButton.setVisible(false);
         });
 
-        const quitButtonBackground = this.add.rectangle(width * 0.5, height * 0.9, width * 0.24, height * 0.08, 0x101010);
+        const quitButtonBackground = this.add.rectangle(width * 0.5, height * 0.9, width * 0.24, height * 0.08, 0xff0000);
         quitButtonBackground.setOrigin(0.5);
         quitButtonBackground.setInteractive();
 
-        const quitButton = this.add.text(width * 0.5, height * 0.9, 'QUIT', { fontSize: width * 0.05, fill: '#c0c0c0' });
+        const quitButton = this.add.text(width * 0.5, height * 0.9, 'QUIT', { fontSize: width * 0.05, fill: '#ffffff' });
         quitButton.setOrigin(0.5);
         quitButton.setInteractive();
 
         quitButtonBackground.on('pointerover', () => {
-            quitButton.setFill('#ffffff');
-            quitButtonBackground.setFillStyle(0x000000);
             this.game.canvas.style.cursor = 'pointer';
         });
         quitButtonBackground.on('pointerout', () => {
-            quitButton.setFill('#c0c0c0');
-            quitButtonBackground.setFillStyle(0x101010);
             this.game.canvas.style.cursor = 'default';
         });
 
         quitButton.on('pointerover', () => {
-            quitButton.setFill('#ffffff'); // White
-            quitButtonBackground.setFillStyle(0x000000); // Black
+            quitButton.setFill('#0000ff');
             this.game.canvas.style.cursor = 'pointer';
         });
 
         quitButton.on('pointerout', () => {
-            quitButton.setFill('#c0c0c0'); // White
-            quitButtonBackground.setFillStyle(0x101010); // Black
+            quitButton.setFill('#ffffff');
             this.game.canvas.style.cursor = 'default';
         });
         quitButton.on('pointerdown', () => {
@@ -250,33 +244,7 @@ export default class GameScene extends Phaser.Scene {
         quitButtonBackground.on('pointerdown', () => {
             this.handleClick();
         });
-        this.input.keyboard.on('keydown-Q', () => {
-            this.handleClick();
-        });
-
-        this.cancelButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 100, 'Cancel', { fontSize: width * 0.05, fill: '#c0c0c0' });
-        this.cancelButton.setOrigin(0.5);
-        this.cancelButton.setInteractive();
-        this.cancelButton.setVisible(false);
-        this.cancelButton.setDepth(1)
-        // Add pointer events for the cancel button
-        this.cancelButton.on('pointerover', () => {
-            this.cancelButton.setFill('#ffffff');
-            this.game.canvas.style.cursor = 'pointer';
-        });
-
-        this.cancelButton.on('pointerout', () => {
-            this.cancelButton.setFill('#c0c0c0');
-            this.game.canvas.style.cursor = 'default';
-        });
-
-        this.cancelButton.on('pointerdown', () => {
-            // Hide all modal elements when the cancel button is clicked
-            this.modal.setVisible(false);
-            this.confirmText.setVisible(false);
-            this.continueButton.setVisible(false);
-            this.cancelButton.setVisible(false);
-        });
+        quitButton.setOrigin(0.5);
 
         this.input.keyboard.on('keydown-Q', () => {
             this.handleClick();
@@ -299,25 +267,24 @@ export default class GameScene extends Phaser.Scene {
         this.modal.setVisible(true);
         this.confirmText.setVisible(true);
         this.continueButton.setVisible(true);
-        this.cancelButton.setVisible(true);
     }
 
     startTurnTimer() {
         if (this.timer) {
             clearInterval(this.timer);
         }
-
+    
         this.turnStartTime = Date.now();
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
-
+    
         // Show the timer when the turn starts
         this.timeText.setVisible(true);
-
+    
         this.timer = setInterval(() => {
             this.remainingTime -= 10;
             this.updateTimeText();
-
+    
             if (this.remainingTime <= 0) {
                 clearInterval(this.timer);
                 // Hide the timer
@@ -331,11 +298,11 @@ export default class GameScene extends Phaser.Scene {
         if (this.timer) {
             clearInterval(this.timer);
         }
-
+    
         this.turnStartTime = Date.now();
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
-
+      
         // Hide the timer
         this.timeText.setVisible(false);
     }
@@ -372,17 +339,16 @@ export default class GameScene extends Phaser.Scene {
     }
 
     endGame(playerName) {
-        if (this.timer) {
-            clearInterval(this.timer);
-        }
+        clearInterval(this.timer);
+
         // Create a new graphics object for the golden background
-        const winnerBackground = this.add.graphics();
-        winnerBackground.fillStyle(0xFFD700, 1); // Gold color
-        winnerBackground.fillRect(0, 0, this.scale.width, this.scale.height);
+        const winnerBackground = this.add.rectangle(this.cameras.main.centerX, this.cameras.main.centerY, this.scale.width, this.scale.height, 0xFFD700, 1);
 
         // Create the winner's text
         this.winnerText.setText(`${playerName} wins!`);
+        this.winnerText.setColor()
         this.winnerText.setVisible(true);
+        this.winnerText.setDepth(1);
 
         setTimeout(() => {
             window.location.href = '../lobby/lobby.html';
