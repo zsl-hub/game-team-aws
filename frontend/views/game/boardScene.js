@@ -222,12 +222,6 @@ export default class BoardScene extends Phaser.Scene {
             gameObject.setPosition(gameObject.lastValidPosition.x, gameObject.lastValidPosition.y);
             gameObject.clearTint();
 
-            myChannel.publish("shipPosition", {
-                lobbyId: lobbyId,
-                x: gameObject.lastValidPosition.x,
-                y: gameObject.lastValidPosition.y
-            });
-
             let shipSizeX = gameObject.rotatedWidth / cellSize;
             let shipSizeY = gameObject.rotatedHeight / cellSize;
  
@@ -239,9 +233,8 @@ export default class BoardScene extends Phaser.Scene {
             realPosX -= Math.round(boardStartX);
             realPosY -= Math.round(boardStartY);
             
-            
-            let positionX = Math.round(realPosX / cellSize);
-            let positionY = Math.round(realPosY / cellSize);
+            let positionX = Math.round(realPosX / cellSize - 0.1);
+            let positionY = Math.round(realPosY / cellSize - 0.1);
 
             let locations = [];
 
@@ -251,16 +244,12 @@ export default class BoardScene extends Phaser.Scene {
                 {
                     locations.push({
                         x,
-                        y,
-                        lastValidPosition: { x: gameObject.lastValidPosition.x, y: gameObject.lastValidPosition.y},
-                        displayWidth: gameObject.displayWidth,
-                        displayHeight: gameObject.displayHeight,
-                        angle: gameObject.angle
+                        y
                     });
                 }
             }
             
-            myChannel.publish("shipPosition", {
+            const object = {
                 lobbyId,
                 shipId: gameObject.id,
                 fields: locations,
@@ -269,7 +258,9 @@ export default class BoardScene extends Phaser.Scene {
                 displayHeight: gameObject.displayHeight,
                 angle: gameObject.angle,
                 textureKey: gameObject.texture.key
-            });
+            };
+            
+            myChannel.publish("shipPosition", object);
         });
 
         this.input.keyboard.on('keydown-R', () => {

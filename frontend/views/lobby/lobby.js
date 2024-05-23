@@ -5,7 +5,6 @@ document.getElementById("open-modal").addEventListener("click", () => { openModa
 document.getElementById("close-modal").addEventListener("click", () => { closeModal(); });
 document.getElementById("join-lobby").addEventListener("click", () => { joinLobby(); });
 document.getElementById("modal-button-cancel").addEventListener("click", () => { CancelLobby(); });
-document.getElementById("create-lobby").addEventListener("click", () => { createLobby(); });
 
 function assignOpenJoinModalListeners() {
   const elements = document.getElementsByClassName("open-join-modal");
@@ -13,6 +12,9 @@ function assignOpenJoinModalListeners() {
     elements[i].addEventListener("click", () => { openJoinModal(elements[i].parentNode); });
   }
 }
+
+// asdfsa
+// asdasd
 
 document.addEventListener('DOMContentLoaded', function() {
   var switchInput = document.querySelector('#privacyCheckbox');
@@ -33,8 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
   if (container) {
     container.scrollLeft += 20;
   }
-
-  getAllLobbies();
 }); 
 
 function openModal() {
@@ -336,8 +336,11 @@ const lobbyName = document.getElementById('text');
 const isPrivate = document.querySelector("#privacyCheckbox");
 const lobbyPass = document.getElementById('password-input');
 
+
+
 createLobbyButton.addEventListener('click', async e => {
   try {
+    console.log(lobbyCreator.value);
     let requestBody = {
       lobbyName: lobbyName.value,
       isPrivate: isPrivate.checked,
@@ -356,13 +359,11 @@ createLobbyButton.addEventListener('click', async e => {
 
     if (res.ok) {
       const responseData = await res.json();
-      window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
+     window.location.href = "../game/index.html?lobbyId=" + responseData.lobbyId + "&playerId=" + responseData.player1;
     } else {
       console.error("Failed to create lobby");
     }
-    const data = await response.json();
-    console.log(data); 
-    createLobbyFromDatabase(data);
+    const data = await response.json(); 
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
   }

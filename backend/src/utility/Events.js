@@ -1,6 +1,7 @@
 const Stages = require("./Stages");
-const { getItemById, updateItem } = require("../repositories/lobbyRepository");
+const { getItemById, updateItem, deleteItemById } = require("../repositories/lobbyRepository");
 const ShipUtil = require("./ShipUtil");
+const Timers = require("./Timers");
 
 class Events{
     static async handleShipPositionChange(msg)
@@ -19,6 +20,8 @@ class Events{
         game.ships[msg.clientId][msg.data.shipId].displayHeight = msg.data.displayHeight;
         game.ships[msg.clientId][msg.data.shipId].angle = msg.data.angle;
         game.ships[msg.clientId][msg.data.shipId].textureKey = msg.data.textureKey;
+
+        console.log(game.ships[msg.clientId][msg.data.shipId]);
 
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
     }
@@ -39,9 +42,20 @@ class Events{
         await updateItem("player", {"playerId": msg.clientId }, { "isReady": true });
         await updateItem("lobby", {"lobbyId": msg.data.lobbyId }, { "game": lobbyDB.game });
     }
-
-    static async handleShootField(msg, lobbyObj) 
+    static #changesUpdated = true;
+    static async handleShootField(msg, lobbyObj)
     {
+        console.log("first");
+
+        if (Events.#changesUpdated === false) {
+            setTimeout(() => {
+                Events.#changesUpdated = true;
+            }, 2500);
+
+            return;
+        }
+        Events.#changesUpdated = false;
+
         //get lobby
         const lobbyId = msg.data.lobbyId;
         let lobbyDB = await getItemById("lobby", { "lobbyId": lobbyId });
@@ -58,11 +72,12 @@ class Events{
         if (field.wasShoot) return;
         
         console.log("Handle Shoot");
+        clearInterval(Timers.latestTimerInterval);
         
         field.wasShoot = true;
 
         let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId, field,
-            (ship) => {
+            async (ship) => {
                 lobbyObj.playerChannels[msg.clientId].publish("destoyedShip", {
                     shipId: ship.shipId,
                     lastValidPosition: ship.lastValidPosition,
@@ -76,18 +91,24 @@ class Events{
 
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
-                    lobbyObj.lobbyChannel.publish("winner", {
-                        playerId: msg.clientId
-                    });
+                    await Stages.endGame(lobbyId, msg.clientId, enemyPlayerId, lobbyObj);
+                    
+                    return;
                 }
             }
         );
 
-        Events.#updateClients(lobbyObj, hittedShip, field, enemyPlayerId);
-
-        game.turn = enemyPlayerId;
-
+        game.turn = hittedShip? msg.clientId : enemyPlayerId;
+        
         await updateItem("lobby", { "lobbyId": lobbyId }, { "game": game });
+        
+        Events.#updateClients(lobbyObj, hittedShip, field, game.turn);
+        
+        Timers.startRoundTimer(60, lobbyId, async() => {
+            await Stages.endGame(lobbyId, enemyPlayerId, msg.clientId, lobbyObj);
+        });
+
+        Events.#changesUpdated = true;
     }
 
     static #getNextTurnPlayerId(currentTurnPlayerId, lobbyDB)
@@ -106,11 +127,8 @@ class Events{
 
             if (ShipUtil.isShipOnField(ship, field))
             {
-                console.log("true");
                 ship.fieldsLeft--;
                 hittedShip = true;
-
-                console.log(ship.fieldsLeft);
 
                 if (ship.fieldsLeft <= 0)
                 {
@@ -122,7 +140,7 @@ class Events{
         return hittedShip;
     }
 
-    static #updateClients(lobbyObj, hittedShip, field, enemyPlayerId){
+    static #updateClients(lobbyObj, hittedShip, field, nextTurnPlayerID){
         lobbyObj.lobbyChannel.publish("updateField", {
             fieldId: field.fieldId,
             hittedShip
@@ -132,7 +150,7 @@ class Events{
         // playerDB = playerDB.Item;
 
         lobbyObj.lobbyChannel.publish("updateTurn", {
-            turnPlayerId: enemyPlayerId,
+            turnPlayerId: nextTurnPlayerID,
             //turnPlayerName: null
         });
     }

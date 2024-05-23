@@ -136,6 +136,9 @@ export default class GameScene extends Phaser.Scene {
             let data = msg.data;
             let field = fieldsById[data.fieldId];
 
+            console.log(field);
+            console.log(data.hittedShip);
+
             if(data.hittedShip === true)
             {
                 const hitSprite = this.add.sprite(field.x + cellSize / 2, field.y + cellSize / 2, 'hit');
@@ -157,6 +160,19 @@ export default class GameScene extends Phaser.Scene {
                 this.startTurnTimer();
             }
         })
+
+        myChannel.subscribe("destoyedShip", (msg) => {
+            let shipData = msg.data;
+
+            console.log("destoryShip");
+            console.log(shipData);
+
+            const ship = this.add.sprite(shipData.lastValidPosition.x - enemyPosX, shipData.lastValidPosition.y, shipData.textureKey);
+            ship.setDisplaySize(shipData.displayWidth, shipData.displayHeight);
+            ship.setOrigin(0.5, 1);
+            ship.angle = shipData.angle;
+            ship.setDepth(0);
+        });
             
         // Text
         const yBoard = this.add.text(width * 0.5, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.05, fill: '#fff' });
@@ -237,6 +253,9 @@ export default class GameScene extends Phaser.Scene {
 
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
 
+        lobbyChannel.subscribe("winner", (msg) => {
+            this.endNegroGame(msg.data.playerName);
+        });
         //this.startTurnTimer();
     }
 
@@ -245,7 +264,6 @@ export default class GameScene extends Phaser.Scene {
         this.confirmText.setVisible(true);
         this.continueButton.setVisible(true);
     }
-
 
     startTurnTimer() {
         if (this.timer) {
@@ -282,19 +300,6 @@ export default class GameScene extends Phaser.Scene {
         this.remainingTime = this.turnTimeLimit;
         this.updateTimeText();
       
-        // Hide the timer
-        this.timeText.setVisible(false);
-    }
-
-    resetTimer() {
-        if (this.timer) {
-            this.timer.remove(false);
-        }
-    
-        this.turnStartTime = Date.now();
-        this.remainingTime = this.turnTimeLimit;
-        this.updateTimeText();
-    
         // Hide the timer
         this.timeText.setVisible(false);
     }
@@ -344,6 +349,19 @@ export default class GameScene extends Phaser.Scene {
 
         const winner = this.players[winnerIndex];
         this.winnerText.setText(`${winner.name} wins!`);
+        this.winnerText.setVisible(true);
+
+        setTimeout(() => {
+            window.location.href = '../lobby/lobby.html';
+        }, 3000);
+    }
+
+    endNegroGame(playerName) {
+        if (this.timer) {
+            this.timer.remove(false);
+        }
+
+        this.winnerText.setText(`${playerName} wins!`);
         this.winnerText.setVisible(true);
 
         setTimeout(() => {
