@@ -18,12 +18,15 @@
     <main>
         <div class="container">
             <div class="lobby">
-                <div><a class="game" href="#"><span class="text123">Lobby 1</span><span class="nr_of_ppl">1/2 <!-- or 2/2--></span><span class="isFull">Waiting <!-- or Full --></span>
+                <div class="display">
+                <div><a class="game" href="#"><span class="text123">Lobby 1</span><span class="nr_of_ppl">1/2 <!-- or 2/2--></span>
+                    <span class="isFull">Waiting <!-- or PLAYING --></span>
                     <button class="open-join-modal" class="join1">JOIN</button>
-                    <span class="material-symbols-outlined">
+                    <span id="lockIcon" class="material-symbols-outlined lock">
                         lock
                     </span>
                     </a>
+                </div>
                 </div>
             </div>
             <div class="lobby">
@@ -31,7 +34,7 @@
                     <a class="game" href="#">
                         <span class="text123">Lobby two</span>
                         <!-- <button class="join1 open-join-modal">JOIN</button> -->
-                        <span class="material-symbols-outlined">lock</span>
+                        <span class="material-symbols-outlined lock">lock</span>
                     </a>
                 </div>
             </div>
@@ -44,8 +47,8 @@
     </main>
     <div id="ModalID" class="modal">
         <input type="text" name="Nickname" class="nickname" id="lobbyCreator" maxlength="12" placeholder="Your Nickname" value="">
-        <input type="text" id="text" class="modal-input" maxlength="10" placeholder="Name a lobby" value="">
-        <div id="error-message" style="color: red; display: none;">Wpisz dane</div>
+        <input type="text" id="text" class="modal-input lobby-input" maxlength="10" placeholder="Name a lobby" value="">
+        <div id="error-message" style="color: red; display: none;">You can't create a lobby without a name</div>
         <div class="flex">
             <label class="custom-checkbox checkbox-box">
                 <input type="checkbox" id="privacyCheckbox" class="checkbox">
@@ -61,10 +64,10 @@
             <button class="modal-button" id="close-modal">CANCEL</button>
         </div>
     </div>
-
+    <!-- modal window to join-->
     <div id="JoinModal" class="modal" style="display: none;">
         <input type="text" id="player-name" class="modal-input" maxlength="10" placeholder="Nickname" value="">
-        <input type="password" id="join-password-input" class="modal-input" placeholder="Password" value="" style="display: none;">
+        <input type="password" id="join-password-input" class="modal-input hidden" placeholder="Password" style="display: block;">
         <button class="modal-button-join" id="join-lobby" onclick="checkPassword()">JOIN</button>
         <button id="modal-button-cancel" id="cancel-lobby">CANCEL</button>
         <p id="message" style="color: red; font-weight: 800;"></p>

@@ -278,6 +278,11 @@ export default class GameScene extends Phaser.Scene {
             this.cancelButton.setVisible(false);
         });
 
+        this.input.keyboard.on('keydown-Q', () => {
+            this.handleClick();
+        });
+
+
         this.timeText = this.add.text(width, height * 0.05, 'Time: 60', { fontSize: width * 0.05, fill: '#ffffff' });
         this.timeText.setVisible(false);
         this.timeText.setOrigin(0.5);
@@ -285,7 +290,7 @@ export default class GameScene extends Phaser.Scene {
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
 
         lobbyChannel.subscribe("winner", (msg) => {
-            this.endNegroGame(msg.data.playerName);
+            this.endGame(msg.data.playerName);
         });
         //this.startTurnTimer();
     }
