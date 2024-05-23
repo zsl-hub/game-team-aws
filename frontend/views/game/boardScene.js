@@ -23,7 +23,7 @@ export default class BoardScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor('#1f262a');
-
+        let isReady = false;
         const width = this.scale.width / 2;
         const height = this.scale.height;
         const cellSize = Math.min(width, height) / 15;
@@ -88,6 +88,7 @@ export default class BoardScene extends Phaser.Scene {
                 myChannel.publish("gameReady", {
                     lobbyId: lobbyId,
                 })
+                isReady = true;
             }
         });
         
@@ -143,6 +144,7 @@ export default class BoardScene extends Phaser.Scene {
                 myChannel.publish("gameReady", {
                     lobbyId: lobbyId,
                 })
+                isReady = true;
             }
         });
         // Create board for ships
@@ -271,7 +273,7 @@ export default class BoardScene extends Phaser.Scene {
         });
 
         this.input.keyboard.on('keydown-R', () => {
-            if (this.selectedShip) {
+            if (!isReady && this.selectedShip) {
                 // Check if the selected ship is within the board after rotation
                 let isVertical = this.selectedShip.angle % 180 === 0;
                 console.log(isVertical);
@@ -309,7 +311,7 @@ export default class BoardScene extends Phaser.Scene {
         });
 
         lobbyChannel.subscribe("startSecondStage", (msg) => {
-
+            this.timeText.setVisible(false);
             clearInterval(this.timerInterval);
             this.scene.start('GameScene');
         });

@@ -88,6 +88,7 @@ export default class GameScene extends Phaser.Scene {
                             x,
                             y
                         });
+                       
                     });
 
                     row.push(rect);
