@@ -73,7 +73,6 @@ export default class GameScene extends Phaser.Scene {
                     rect.setInteractive();
                     rect.setDepth(0);
                     rect.id = data.fields[x][y].fieldId;
-
                     // Add pointerdown event to highlight the cell. Here you can add connection with database
                     rect.on('pointerdown', () => {
     
@@ -204,6 +203,10 @@ export default class GameScene extends Phaser.Scene {
         });
 
         this.continueButton.on('pointerdown', () => {
+            myChannel.publish("quitPlayer", {
+                lobbyId: lobbyId,
+                playerId: playerId,
+            })
             this.endGame(1 - this.currentPlayerIndex);
             this.modal.setVisible(false);
             this.confirmText.setVisible(false);
@@ -241,6 +244,11 @@ export default class GameScene extends Phaser.Scene {
             this.handleClick();
         });
         quitButton.setOrigin(0.5);
+
+        this.input.keyboard.on('keydown-Q', () => {
+            this.handleClick();
+        });
+
 
         this.timeText = this.add.text(width, height * 0.05, 'Time: 60', { fontSize: width * 0.05, fill: '#ffffff' });
         this.timeText.setVisible(false);
@@ -286,7 +294,6 @@ export default class GameScene extends Phaser.Scene {
     }
     //Reset the game timer and hide it from view
     resetTimer() {
-
         if (this.timer) {
             clearInterval(this.timer);
         }
@@ -340,7 +347,14 @@ export default class GameScene extends Phaser.Scene {
     endGame(playerName) {
         clearInterval(this.timer);
 
-        this.winnerText.setText(`${playerName} wins!`);
+        const winner = this.players[winnerIndex];
+        // Create a new graphics object for the golden background
+        const winnerBackground = this.add.graphics();
+        winnerBackground.fillStyle(0xFFD700, 1); // Gold color
+        winnerBackground.fillRect(0, 0, this.scale.width, this.scale.height);
+
+        // Create the winner's text
+        this.winnerText.setText(`${winner.name} wins!`);
         this.winnerText.setVisible(true);
 
         setTimeout(() => {
