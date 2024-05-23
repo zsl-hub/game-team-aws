@@ -35,7 +35,7 @@ infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(5173)); // it may not
 infraSecurityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(3000)); // it may not be working because of it
 
 fargate1TaskDef.addContainer("InfraFargate1Container", {
-  image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-0a4ff5b28411d9d6d6c8a33744e3907f1cc27a89"),
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "frontend-0c0d558d3dfbe8d1989362f3c61432c80b8e0206"),
   portMappings: [{ hostPort: 5173, containerPort: 5173 }],
   logging: LogDriver.awsLogs({
     streamPrefix: "frontend"
@@ -46,7 +46,7 @@ fargate1TaskDef.addContainer("InfraFargate1Container", {
 });
 
 fargate2TaskDef.addContainer("InfraFargate2Container", {
-  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-c7d2636ae0829d3a74a457f2daa305bf18161a99"),
+  image: ContainerImage.fromEcrRepository(battleshiprepo, "backend-a83b14952f68d2fbcb88bd3d8d2a2543c09ed697"),
   portMappings: [{hostPort: 3000, containerPort: 3000}],
   logging: LogDriver.awsLogs({
     streamPrefix: "backend"
