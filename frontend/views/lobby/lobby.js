@@ -5,7 +5,6 @@ document.getElementById("open-modal").addEventListener("click", () => { openModa
 document.getElementById("close-modal").addEventListener("click", () => { closeModal(); });
 document.getElementById("join-lobby").addEventListener("click", () => { joinLobby(); });
 document.getElementById("modal-button-cancel").addEventListener("click", () => { CancelLobby(); });
-document.getElementById("create-lobby").addEventListener("click", () => { createLobby(); });
 
 function assignOpenJoinModalListeners() {
   const elements = document.getElementsByClassName("open-join-modal");
@@ -42,10 +41,6 @@ function openModal() {
   modal.style.display = "block";
 }
 
-/**
- * 
- * @param {HTMLElement} ele 
- */
 function openJoinModal(ele) {
   var joinModal = document.getElementById("JoinModal");
   joinModal.style.display = "block";
@@ -132,13 +127,6 @@ function createLobbyFromDatabase(data) {
       var switchChecked = lobby.isPrivate;
       let lobbyStatus = lobby.lobbyStatus; 
 
-      if (switchChecked) {
-        var password = passwordInput;
-        /*if (password.length < 4) {
-            //alert("Hasło musi mieć co najmniej 4 znaki!");
-            return;
-        }*/
-      }
       var lobbyTemplate = document.getElementById("lobbyTemplate");
       var newLobbyContainer = lobbyTemplate.cloneNode(true);
       newLobbyContainer.removeAttribute("id");
@@ -377,6 +365,8 @@ createLobbyButton.addEventListener('click', async e => {
     const data = await response.json();
     console.log(data);
     createLobbyFromDatabase(data);
+
+    DisableJoinButtons();
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
   }
@@ -396,4 +386,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
   getAllLobbies();
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const joinButton = document.querySelector(".open-join-modal");
+  const lockIcon = document.getElementById("lockIcon");
+  const passwordInput = document.getElementById("join-password-input");
+
+  joinButton.addEventListener("click", function() {
+    if (lockIcon.classList.contains("unlock")) {
+      passwordInput.style.display = "hidden";
+    } else if (lockIcon.classList.contains("lock")) {
+      passwordInput.style.display = "block";
+    }
+  });
+});
+
+
+function DisableJoinButtons() {
+  const isFull = document.querySelectorAll(".isFull");
+  const buttons = document.querySelectorAll(".open-join-modal");
+
+  let i = 0;
+  isFull.forEach(ele => {
+    console.log(ele.textContent);
+    if (ele.textContent === "playing"){
+      let button = buttons[i];
+
+      button.parentNode.replaceChild(button.cloneNode(true), button);
+    }
+    i++;
+  })
+ 
+}
+
+document.getElementById("create-lobby").addEventListener("click", function() {
+  var input = document.querySelector(".lobby-input").value.trim();
+  var text = document.getElementById("error-message");
+
+  if (input === "") {
+    text.innerHTML = "You need to add your name to create a lobby";
+    text.style.display = "block"
+    text.style.fontWeight = 800; 
+    return;
+  } else {
+    text.style.display = "none";   
+    createLobby();
+  }
 });
