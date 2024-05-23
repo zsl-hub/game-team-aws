@@ -22,7 +22,7 @@ function gameBackend()
     let lobbies = {};
 
     const realtime = new Ably.Realtime({
-        key: "WGdfRg.qrWhrQ:klACPHr1HUm8gR7XP3jx4_inR-8prmib6zQ0EpV2cUo",
+        key: "gNLzGw.-YBcZg:oQ5Q3qYMsSiN5s-_iZHNZXBHxU-BhGAvwTiujea_Dck",
         echoMessages: false
     })
 
@@ -69,7 +69,6 @@ function gameBackend()
 
         if (!lobbies[lobbyId])
         {   
-            console.log("create lobby");
             await createLobby(lobbyDB);
         }
 

@@ -1,0 +1,25 @@
+{
+  "hash": "88b258c8",
+  "configHash": "59fcd8d5",
+  "lockfileHash": "541b877a",
+  "browserHash": "89c8c054",
+  "optimized": {
+    "phaser": {
+      "src": "../../node_modules/phaser/dist/phaser.js",
+      "file": "phaser.js",
+      "fileHash": "a217cffb",
+      "needsInterop": true
+    },
+    "ably": {
+      "src": "../../node_modules/ably/build/ably.js",
+      "file": "ably.js",
+      "fileHash": "e553630c",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "chunk-Y2F7D3TJ": {
+      "file": "chunk-Y2F7D3TJ.js"
+    }
+  }
+}

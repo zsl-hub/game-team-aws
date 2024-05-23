@@ -28,15 +28,6 @@ class PlayerUtil{
             game.turn = playerId;
         }
 
-        console.log(game.connectedPlayers);
-
-        if (game.connectedPlayers === 1)
-        {
-            game.turn = playerId;
-        }
-
-        console.log(game.connectedPlayers);
-
         await updateItem("lobby", { "lobbyId": lobbyDB.lobbyId }, { "game": game });
         
         PlayerUtil.subscribeToPlayerEvents(realtime, lobbyObj, playerId, game);
