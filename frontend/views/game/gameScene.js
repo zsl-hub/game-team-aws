@@ -4,10 +4,6 @@ import Phaser from 'phaser';
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
-        this.players = [
-            { name: 'Player 1', isInGame: true },
-            { name: 'Player 2', isInGame: true }
-        ];
         this.winnerText = null;
         this.modal = null;
         this.confirmText = null;
@@ -261,7 +257,7 @@ export default class GameScene extends Phaser.Scene {
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
 
         lobbyChannel.subscribe("winner", (msg) => {
-            this.endNegroGame(msg.data.playerName);
+            this.endGame(msg.data.playerName);
         });
         //this.startTurnTimer();
     }
@@ -348,33 +344,16 @@ export default class GameScene extends Phaser.Scene {
         this.endGame(winnerIndex);
     }
 
-    endGame(winnerIndex) {
-        if (this.timer) {
-            clearInterval(this.timer);
-        }
+    endGame(playerName) {
+        clearInterval(this.timer);
 
-        const winner = this.players[winnerIndex];
-        this.winnerText.setText(`${winner.name} wins!`);
-        this.winnerText.setVisible(true);
-
-        setTimeout(() => {
-            window.location.href = '../lobby/lobby.html';
-        }, 3000);
-    }
-
-    endNegroGame(playerName) {
-        if (this.timer) {
-           clearInterval(this.timer);
-        }
-
-        const winner = this.players[winnerIndex];
         // Create a new graphics object for the golden background
         const winnerBackground = this.add.graphics();
         winnerBackground.fillStyle(0xFFD700, 1); // Gold color
         winnerBackground.fillRect(0, 0, this.scale.width, this.scale.height);
 
         // Create the winner's text
-        this.winnerText.setText(`${winner.name} wins!`);
+        this.winnerText.setText(`${playerName} wins!`);
         this.winnerText.setVisible(true);
 
         setTimeout(() => {
