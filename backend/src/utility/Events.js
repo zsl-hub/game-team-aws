@@ -89,6 +89,7 @@ class Events{
 
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
+                    clearInterval(Timers.latestTimerInterval);
                     await Stages.endGame(lobbyId, msg.clientId, enemyPlayerId, lobbyObj);
                     
                     return;

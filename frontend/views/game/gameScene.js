@@ -346,7 +346,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Create the winner's text
         this.winnerText.setText(`${playerName} wins!`);
-        this.winnerText.setColor()
+        this.winnerText.setColor("#000000");
         this.winnerText.setVisible(true);
         this.winnerText.setDepth(1);
 
