@@ -10,8 +10,8 @@ on:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: battleship-game
-  ECS_SERVICE: InfraStack-InfraFargateService315550A7-A0TZCjnLLn39
-  ECS_CLUSTER: InfraStack-InfraCluster86D69A8C-aLdhd0q40AI8
+  ECS_SERVICE: InfraStackKLKOIN-InfraFargateService315550A7-zmIpihkcaf17 
+  ECS_CLUSTER: InfraStackKLKOIN-InfraCluster86D69A8C-d7nfRtJhSUS3
   ECS_TASK_DEFINITION: .github/workflows/BattleshipGameFrontend-task-definition.json
   CONTAINER_NAME: InfraFargate1Container
 
