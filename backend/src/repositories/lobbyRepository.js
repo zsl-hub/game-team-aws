@@ -102,13 +102,11 @@ const updateItem = async (table, itemKey, updateData) => {
     }
 }
 
-const deleteLobby = async (table, itemId) => {
+const deleteItemById = async (table, itemKey) => {
     try {
         const params = {
             TableName: table,
-            Key: {
-              lobbyId: itemId,
-            },
+            Key: itemKey
         };  
         return await dynamoDB.delete(params).promise();
     }
@@ -124,5 +122,5 @@ module.exports = {
     getItemByProperty,
     getAllItems,
     updateItem,
-    deleteLobby
+    deleteItemById
 }
