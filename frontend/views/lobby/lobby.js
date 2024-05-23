@@ -13,6 +13,9 @@ function assignOpenJoinModalListeners() {
   }
 }
 
+// asdfsa
+// asdasd
+
 document.addEventListener('DOMContentLoaded', function() {
   var switchInput = document.querySelector('#privacyCheckbox');
   switchInput.addEventListener('change', togglePasswordInput);

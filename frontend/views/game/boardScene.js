@@ -8,16 +8,22 @@ export default class BoardScene extends Phaser.Scene {
 
         this.firstTime = false;
         this.shipsLoaded = false;
+        this.timeLeft = 60;
+        this.timerInterval;
     }
 
     preload() {
         this.load.image('shipx2', 'assets/shipX2.png');
         this.load.image('shipx4', 'assets/shipX4.png');
         this.load.image('shipx6', 'assets/shipX6.png');
-        this.load.image('background', 'assets/background.png')
+        this.load.image('background', 'assets/background.png');
+        this.load.image('hit','assets/hit.png');
+        this.load.image('miss','assets/miss.png');
     }
 
     create() {
+        this.cameras.main.setBackgroundColor('#1f262a');
+
         const width = this.scale.width / 2;
         const height = this.scale.height;
         const cellSize = Math.min(width, height) / 15;
@@ -26,30 +32,30 @@ export default class BoardScene extends Phaser.Scene {
         const boardStartX = (width - cellSize * 10) + width * 0.5;
         const boardStartY = (height - cellSize * 10) / 2 + boardYOffset;
         const background = this.add.image(boardStartX + (cellSize * 10) / 2, boardStartY + (cellSize * 10) / 2, 'background');
-        background.setDisplaySize(cellSize * 10, cellSize * 10); // Dopasowanie rozmiaru tła do planszy
+        background.setDisplaySize(cellSize * 10, cellSize * 10); // Adjusting the background size to the board
         background.setOrigin(0.5);
         let allShipsPlaced = false;
         // Create board 10x10
         for (let x = 0; x < 10; x++) {
             for (let y = 0; y < 10; y++) {
                 const rect = this.add.rectangle(x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                rect.setStrokeStyle(2, 0xffffff);
+                rect.setStrokeStyle(1, 0xc0c0c0);
                 rect.setOrigin(0);
             }
         }
         // Button "Ready"
-        const readyButtonBackground = this.add.rectangle(width * 0.2, height * 0.90 - height * 0.10, width * 0.24, height * 0.08, 0x00ff00); // Green rectangle
+        const readyButtonBackground = this.add.rectangle(width * 0.2, height * 0.90 - height * 0.10, width * 0.24, height * 0.08, 0x101010); // Green rectangle
         readyButtonBackground.setOrigin(0.5);
 
         readyButtonBackground.on('pointerover', () => {
-            readyButton.setFill('#0000ff'); // Blue
-            readyButtonBackground.setFillStyle(0xff0000); // Blue
+            readyButton.setFill('#ffffff'); // White
+            readyButtonBackground.setFillStyle(0x000000); // Black
             this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
         });
 
         readyButtonBackground.on('pointerout', () => {
-            readyButton.setFill('#ffffff'); // White
-            readyButtonBackground.setFillStyle(0x00ff00); // Green
+            readyButton.setFill('#c0c0c0'); // Silver
+            readyButtonBackground.setFillStyle(0x101010); // Black
             this.game.canvas.style.cursor = 'default'; // Change cursor back to default
         });
 
@@ -85,7 +91,7 @@ export default class BoardScene extends Phaser.Scene {
             }
         });
         
-        const readyButton = this.add.text(width * 0.2, height * 0.90, 'Ready', { fontSize: width * 0.06, fill: '#ffffff',}); // White text
+        const readyButton = this.add.text(width * 0.2, height * 0.90, 'Ready', { fontSize: width * 0.06, fill: '#c0c0c0',}); // White text
         readyButton.setOrigin(0.5);
 
         if (this.shipsLoaded) {
@@ -95,15 +101,15 @@ export default class BoardScene extends Phaser.Scene {
 
         // Add pointerover event for hover effect
         readyButton.on('pointerover', () => {
-            readyButton.setFill('#0000ff'); // Blue
-            readyButtonBackground.setFillStyle(0xff0000); // Blue
+            readyButton.setFill('#ffffff'); // White
+            readyButtonBackground.setFillStyle(0x000000); // Black
             this.game.canvas.style.cursor = 'pointer'; // Change cursor to pointer
         });
 
         // Add pointerout event to remove hover effect
         readyButton.on('pointerout', () => {
-            readyButton.setFill('#ffffff'); // White
-            readyButtonBackground.setFillStyle(0x00ff00); // Green
+            readyButton.setFill('#c0c0c0'); // White
+            readyButtonBackground.setFillStyle(0x101010); // Green
             this.game.canvas.style.cursor = 'default'; // Change cursor back to default
         });
 
@@ -143,8 +149,9 @@ export default class BoardScene extends Phaser.Scene {
         const shipHoldWidth = width * 0.45;
         const shipHoldHeight = height * 0.75;
         const shipHold = this.add.rectangle(width * 0.225, height * 0.325, shipHoldWidth, shipHoldHeight);
-        shipHold.setStrokeStyle(2, 0x00ff00);
+        shipHold.setStrokeStyle(2, 0x282f33);
         shipHold.setOrigin(0.5);
+        shipHold.setFillStyle(0x282f33)
         const menu = this.add.rectangle
         // Text
         const yBoard = this.add.text(width * 1.17, height * 0.15 + boardYOffset, 'Your Board', { fontSize: width * 0.08, fill: '#fff' });
@@ -302,10 +309,37 @@ export default class BoardScene extends Phaser.Scene {
         });
 
         lobbyChannel.subscribe("startSecondStage", (msg) => {
+
+            clearInterval(this.timerInterval);
             this.scene.start('GameScene');
         });
-    }
 
+        lobbyChannel.subscribe("firstStageStart", (msg) => {
+            this.timeLeft = msg.data.timeLeft;
+
+            this.timeText = this.add.text(width * 1.75, height * 0.8, `Time left: ${ this.timeLeft  }`, { fontSize: width * 0.05, fill: '#ffffff' });
+            this.timeText.setOrigin(0.5);
+           
+
+            this.timerInterval = setInterval(() => {
+                // Show the timer when the turn starts
+                this.timeText.setVisible(true);
+                        
+                this.timeLeft -= 1;
+                this.updateTimer();
+
+                if (this.timeLeft <= 0) {
+                    clearInterval(this.timerInterval);
+                    // this.endGameDueToTimeout();
+                }
+            }, 1000);
+
+        });
+
+    }
+    updateTimer() { 
+        this.timeText.setText(`Time left: ${this.timeLeft}`)
+    }
     update() {
     }   
 }
