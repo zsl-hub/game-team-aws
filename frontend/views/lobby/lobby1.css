@@ -43,6 +43,10 @@ header{
     justify-content: center;
 }
 
+.display{
+  display: none;
+}
+
 
 button {
   position: relative;
