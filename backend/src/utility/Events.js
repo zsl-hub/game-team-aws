@@ -73,8 +73,9 @@ class Events{
         clearInterval(Timers.latestTimerInterval);
         
         field.wasShoot = true;
+        let endGame = false;
 
-        let hittedShip = Events.#wereShipsShoot(game, enemyPlayerId, field,
+        let hitdata = await Events.#wereShipsShoot(game, enemyPlayerId, field,
             async (ship) => {
                 lobbyObj.playerChannels[msg.clientId].publish("destoyedShip", {
                     shipId: ship.shipId,
@@ -90,6 +91,7 @@ class Events{
                 if (game.shipsLeft[enemyPlayerId] <= 0)
                 {
                     clearInterval(Timers.latestTimerInterval);
+                    endGame = true;
                     await Stages.endGame(lobbyId, msg.clientId, enemyPlayerId, lobbyObj);
                     
                     return;
@@ -97,15 +99,20 @@ class Events{
             }
         );
 
-        game.turn = hittedShip? msg.clientId : enemyPlayerId;
+        game.turn = hitdata.hittedShip? msg.clientId : enemyPlayerId;
         
         await updateItem("lobby", { "lobbyId": lobbyId }, { "game": game });
         
-        Events.#updateClients(lobbyObj, hittedShip, field, game.turn);
+
+        Events.#updateClients(lobbyObj, hitdata.hittedShip, field, game.turn);
         
-        Timers.startRoundTimer(60, lobbyId, async() => {
-            await Stages.endGame(lobbyId, enemyPlayerId, msg.clientId, lobbyObj);
-        });
+        console.log(hitdata.endGame);
+
+        if(hitdata.endGame === false){
+            Timers.startRoundTimer(60, lobbyId, async() => {
+                await Stages.endGame(lobbyId, enemyPlayerId, msg.clientId, lobbyObj);
+            });
+        }
 
         Events.#changesUpdated = true;
     }
@@ -117,8 +124,9 @@ class Events{
         return isFirstPlayer === true? lobbyDB.player2 : lobbyDB.player1;
     }
 
-    static #wereShipsShoot(game, enemyPlayerId, field, destroyShipCallBack){
+    static async #wereShipsShoot(game, enemyPlayerId, field, destroyShipCallBack){
         let hittedShip = false;
+        let endGame = false;
 
         for(const shipId in game.ships[enemyPlayerId])
         {
@@ -131,12 +139,13 @@ class Events{
 
                 if (ship.fieldsLeft <= 0)
                 {
-                    destroyShipCallBack(ship);
+                    endGame = true;
+                    await destroyShipCallBack(ship);
                 }
             }
         }
 
-        return hittedShip;
+        return { hittedShip, endGame };
     }
 
     static #updateClients(lobbyObj, hittedShip, field, nextTurnPlayerID){
