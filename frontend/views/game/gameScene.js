@@ -70,7 +70,7 @@ export default class GameScene extends Phaser.Scene {
                 let row = [];
                 for (let y = 0; y < 10; y++) {
                     const rect = this.add.rectangle(enemyBoardOffsetX + x * cellSize + boardStartX, y * cellSize + boardStartY, cellSize, cellSize);
-                    rect.setStrokeStyle(1, 0xff0000);
+                    rect.setStrokeStyle(1, 0xc0c0c0);
                     rect.setOrigin(0);
                     rect.setInteractive();
                     rect.setDepth(0);
