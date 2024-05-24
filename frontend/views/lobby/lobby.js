@@ -123,54 +123,56 @@ function createLobby() {
 function createLobbyFromDatabase(data) {
   if (Array.isArray(data.Items)) {
     data.Items.forEach(lobby => {
-      var lobbyName = lobby.lobbyName;
-      var passwordInput = lobby.lobbyPass;
-      var switchChecked = lobby.isPrivate;
-      let lobbyStatus = lobby.lobbyStatus; 
-
-      var lobbyTemplate = document.getElementById("lobbyTemplate");
-      var newLobbyContainer = lobbyTemplate.cloneNode(true);
-      newLobbyContainer.removeAttribute("id");
-      newLobbyContainer.style.display = "block";
-
-      var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
-      lobbyNameSpan.textContent = lobbyName;
-
-      var nrOfPplSpan = document.createElement("span");
-      nrOfPplSpan.className = "nr_of_ppl";
-      if (lobbyStatus === 'waiting'){
-        nrOfPplSpan.textContent = "1/2";
-      } else if (lobbyStatus === 'playing') {
-        nrOfPplSpan.textContent = "2/2";
-      }
-
-      var lobbyStatusSpan = document.createElement("span");
-      lobbyStatusSpan.className = "isFull";
-      lobbyStatusSpan.textContent = lobbyStatus;
-
-      var joinButton = document.createElement("button");
-      joinButton.textContent = "Join";
-      joinButton.className = "join-button open-join-modal";
-
-      var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
-      iconSpan.textContent = switchChecked ? "lock" : "lock_open";
-
-      var lobbyContainer = document.querySelector(".lobby");
-      lobbyContainer.appendChild(newLobbyContainer);
-
-      var lobbyContent = newLobbyContainer.querySelector("a");
-      lobbyContent.appendChild(lobbyNameSpan);
-      lobbyContent.appendChild(nrOfPplSpan);
-      lobbyContent.appendChild(lobbyStatusSpan);
-      lobbyContent.appendChild(joinButton);
-      lobbyContent.appendChild(iconSpan);
-
-      var lobbyContainer = document.querySelector(".lobby");
-      lobbyContainer.appendChild(newLobbyContainer);
-
-      assignOpenJoinModalListeners();
-
-      closeModal();
+      if (lobby.lobbyName){
+        var lobbyName = lobby.lobbyName;
+        var passwordInput = lobby.lobbyPass;
+        var switchChecked = lobby.isPrivate;
+        let lobbyStatus = lobby.lobbyStatus; 
+  
+        var lobbyTemplate = document.getElementById("lobbyTemplate");
+        var newLobbyContainer = lobbyTemplate.cloneNode(true);
+        newLobbyContainer.removeAttribute("id");
+        newLobbyContainer.style.display = "block";
+  
+        var lobbyNameSpan = newLobbyContainer.querySelector(".text123");
+        lobbyNameSpan.textContent = lobbyName;
+  
+        var nrOfPplSpan = document.createElement("span");
+        nrOfPplSpan.className = "nr_of_ppl";
+        if (lobbyStatus === 'waiting'){
+          nrOfPplSpan.textContent = "1/2";
+        } else if (lobbyStatus === 'playing') {
+          nrOfPplSpan.textContent = "2/2";
+        }
+  
+        var lobbyStatusSpan = document.createElement("span");
+        lobbyStatusSpan.className = "isFull";
+        lobbyStatusSpan.textContent = lobbyStatus;
+  
+        var joinButton = document.createElement("button");
+        joinButton.textContent = "Join";
+        joinButton.className = "join-button open-join-modal";
+  
+        var iconSpan = newLobbyContainer.querySelector(".material-symbols-outlined");
+        iconSpan.textContent = switchChecked ? "lock" : "lock_open";
+  
+        var lobbyContainer = document.querySelector(".lobby");
+        lobbyContainer.appendChild(newLobbyContainer);
+  
+        var lobbyContent = newLobbyContainer.querySelector("a");
+        lobbyContent.appendChild(lobbyNameSpan);
+        lobbyContent.appendChild(nrOfPplSpan);
+        lobbyContent.appendChild(lobbyStatusSpan);
+        lobbyContent.appendChild(joinButton);
+        lobbyContent.appendChild(iconSpan);
+  
+        var lobbyContainer = document.querySelector(".lobby");
+        lobbyContainer.appendChild(newLobbyContainer);
+  
+        assignOpenJoinModalListeners();
+  
+        closeModal();
+      } 
     });
   } 
   else {

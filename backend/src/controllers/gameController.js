@@ -10,6 +10,7 @@ const ShipUtil = require("../utility/ShipUtil.js");
 const PlayerUtil = require("../utility/PlayerUtil.js");
 const FieldUtil = require("../utility/FieldUtil.js");
 const Stages = require("../utility/Stages.js");
+const Timers = require("../utility/Timers.js");
 
 const router = express.Router();
 
@@ -109,11 +110,15 @@ function gameBackend()
         lobbyObj.lobbyChannel = realtime.channels.get(`lobbyChannel-${lobbyObj.lobbyId}`);
         lobbyObj.lobbyChannel.attach();
 
-        lobbyObj.lobbyChannel.subscribe("quit", (msg) => {
+        lobbyObj.lobbyChannel.subscribe("quit", async(msg) => {
             console.log("quit");
-            let game = lobbyDB.game;
+
+            let lobbyDB = await getItemById("lobby", { "lobbyId": msg.data.lobbyId });
+            lobbyDB = lobbyDB.Item;
             
-            const winnerId = msg.clientId === game.player1? game.player2 : game.player1;
+            const winnerId = msg.clientId === lobbyDB.player1? lobbyDB.player2 : lobbyDB.player1;
+
+            clearInterval(Timers.latestTimerInterval);
 
             Stages.endGame(msg.data.lobbyId, winnerId, msg.clientId, lobbyObj);
         });
